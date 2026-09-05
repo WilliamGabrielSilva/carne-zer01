@@ -809,30 +809,15 @@ function desenharParcela(
     logo
 ){
 
-    /*
-        A4 HORIZONTAL
-        297 x 210 mm
-
-        Cada parcela:
-        95 mm de altura
-
-        2 parcelas:
-        5-100
-        110-205
-    */
-
     const x = 8;
     const largura = 281;
     const altura = 95;
 
     /*
-        DIVISÃO DO CARNÊ
+        DIVISÃO PRINCIPAL
 
-        ESQUERDA:
-        informações de pagamento
-
-        DIREITA:
-        informações do cliente
+        ESQUERDA = PAGAMENTO
+        DIREITA  = CLIENTE
     */
 
     const divisaoX = x + 190;
@@ -856,7 +841,7 @@ function desenharParcela(
 
 
     /* ==========================================
-       LINHA VERTICAL
+       DIVISÃO VERTICAL
     ========================================== */
 
     pdf.setDrawColor(100,100,100);
@@ -885,9 +870,7 @@ function desenharParcela(
             15
         );
 
-    }catch(e){
-        // continua mesmo sem a logo
-    }
+    }catch(e){}
 
 
     /* ==========================================
@@ -933,7 +916,7 @@ function desenharParcela(
 
 
     /* ==========================================
-       LINHA ABAIXO DO CABEÇALHO
+       LINHA DO CABEÇALHO
     ========================================== */
 
     pdf.setDrawColor(100,100,100);
@@ -944,6 +927,11 @@ function desenharParcela(
         divisaoX - 5,
         y + 22
     );
+
+
+    /* =====================================================
+       ESQUERDA — INFORMAÇÕES DE PAGAMENTO
+    ===================================================== */
 
 
     /* ==========================================
@@ -962,7 +950,6 @@ function desenharParcela(
         x + 7,
         y + 31
     );
-
 
     pdf.setFontSize(13);
 
@@ -987,7 +974,6 @@ function desenharParcela(
         y + 31
     );
 
-
     pdf.setFontSize(15);
 
     pdf.text(
@@ -1000,7 +986,7 @@ function desenharParcela(
 
 
     /* ==========================================
-       ÁREA PIX
+       PAGAMENTO VIA PIX
     ========================================== */
 
     pdf.setFont(
@@ -1044,10 +1030,10 @@ function desenharParcela(
     pdf.addImage(
         qrImagem,
         "PNG",
-        x + 7,
-        y + 66,
-        22,
-        22
+        x + 145,
+        y + 47,
+        38,
+        38
     );
 
 
@@ -1060,31 +1046,37 @@ function desenharParcela(
         "normal"
     );
 
-    pdf.setFontSize(7);
+    pdf.setFontSize(6.5);
 
     pdf.text(
         "Escaneie para acessar",
-        x + 34,
-        y + 72
+        x + 164,
+        y + 88,
+        {
+            align:"center"
+        }
     );
 
     pdf.text(
         "a página de pagamento.",
-        x + 34,
-        y + 77
+        x + 164,
+        y + 92,
+        {
+            align:"center"
+        }
     );
 
 
     /* ==========================================
-       RODAPÉ ESQUERDO
+       AVISO
     ========================================== */
 
     pdf.setFontSize(6.5);
 
     pdf.text(
-        "Pagamento atualizado automaticamente em caso de atraso.",
-        x + 34,
-        y + 86
+        "Valor atualizado automaticamente em caso de atraso.",
+        x + 7,
+        y + 88
     );
 
 
@@ -1095,8 +1087,11 @@ function desenharParcela(
     const clienteX =
         divisaoX + 7;
 
+    const clienteDireita =
+        x + largura - 7;
+
     const clienteLargura =
-        x + largura - clienteX - 7;
+        clienteDireita - clienteX;
 
 
     /* ==========================================
@@ -1113,24 +1108,26 @@ function desenharParcela(
     pdf.text(
         "DADOS DO CLIENTE",
         clienteX,
-        y + 12
+        y + 11
     );
 
 
-    /* linha abaixo do título */
+    /* ==========================================
+       LINHA DO TÍTULO
+    ========================================== */
 
     pdf.setDrawColor(120,120,120);
 
     pdf.line(
         clienteX,
-        y + 17,
-        x + largura - 7,
-        y + 17
+        y + 16,
+        clienteDireita,
+        y + 16
     );
 
 
     /* ==========================================
-       NOME
+       CLIENTE
     ========================================== */
 
     pdf.setFont(
@@ -1143,7 +1140,7 @@ function desenharParcela(
     pdf.text(
         "CLIENTE",
         clienteX,
-        y + 26
+        y + 24
     );
 
 
@@ -1154,19 +1151,20 @@ function desenharParcela(
 
     pdf.setFontSize(9);
 
-    let nome =
+    const nome =
         dados.cliente || "-";
 
-    let nomeLinhas =
+    const nomeLinhas =
         pdf.splitTextToSize(
             nome,
             clienteLargura
         );
 
+
     pdf.text(
-        nomeLinhas.slice(0,2),
+        nomeLinhas.slice(0,1),
         clienteX,
-        y + 33
+        y + 30
     );
 
 
@@ -1184,7 +1182,7 @@ function desenharParcela(
     pdf.text(
         "CPF / CNPJ",
         clienteX,
-        y + 45
+        y + 40
     );
 
 
@@ -1200,41 +1198,7 @@ function desenharParcela(
             dados.cpf
         ) || "-",
         clienteX,
-        y + 52
-    );
-
-
-    /* ==========================================
-       TELEFONE
-    ========================================== */
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-    pdf.setFontSize(7);
-
-    pdf.text(
-        "TELEFONE",
-        clienteX + 75,
-        y + 45
-    );
-
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-    pdf.setFontSize(9);
-
-    pdf.text(
-        formatarTelefone(
-            dados.telefone
-        ) || "-",
-        clienteX + 75,
-        y + 52
+        y + 46
     );
 
 
@@ -1252,7 +1216,7 @@ function desenharParcela(
     pdf.text(
         "ENDEREÇO",
         clienteX,
-        y + 63
+        y + 56
     );
 
 
@@ -1263,45 +1227,80 @@ function desenharParcela(
 
     pdf.setFontSize(8.5);
 
-    let endereco =
+    const endereco =
         dados.endereco || "-";
 
 
-    let enderecoLinhas =
+    const enderecoLinhas =
         pdf.splitTextToSize(
             endereco,
             clienteLargura
         );
 
 
+    /*
+        Até 2 linhas.
+        O telefone ficará abaixo.
+    */
+
     pdf.text(
-        enderecoLinhas.slice(0,3),
+        enderecoLinhas.slice(0,2),
         clienteX,
-        y + 70
+        y + 63
     );
 
 
     /* ==========================================
-       RODAPÉ DO CLIENTE
+       TELEFONE
+       ABAIXO DO ENDEREÇO
     ========================================== */
 
-    pdf.setFontSize(6.5);
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
 
-    pdf.setTextColor(90,90,90);
+    pdf.setFontSize(7);
 
     pdf.text(
-        "Documento referente à parcela " +
-        numero +
-        " de " +
-        totalParcelas +
-        ".",
+        "TELEFONE",
         clienteX,
-        y + 88
+        y + 76
+    );
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    pdf.setFontSize(9);
+
+    pdf.text(
+        formatarTelefone(
+            dados.telefone
+        ) || "-",
+        clienteX,
+        y + 82
     );
 
 
     /* ==========================================
-       RODAPÉ GERAL
+       LINHA DO RODAPÉ
+    ========================================== */
+
+    pdf.setDrawColor(180,180,180);
+
+    pdf.line(
+        clienteX,
+        y + 86,
+        clienteDireita,
+        y + 86
+    );
+
+
+    /* ==========================================
+       RODAPÉ DO QUADRO
     ========================================== */
 
     pdf.setTextColor(20,20,20);
@@ -1314,15 +1313,26 @@ function desenharParcela(
     pdf.setFontSize(6.5);
 
     pdf.text(
-        "ZER01 MODA MASCULINA  •  Tel.: (43) 9 9678-8303",
-        x + largura - 7,
-        y + 92,
+        "ZER01 MODA MASCULINA",
+        clienteX,
+        y + 91
+    );
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    pdf.text(
+        "Tel.: (43) 9 9678-8303",
+        clienteDireita,
+        y + 91,
         {
             align:"right"
         }
     );
 }
-
 
 /* =========================================================
    GERAR CARNÊ
