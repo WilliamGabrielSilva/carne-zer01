@@ -17,141 +17,322 @@ function base64urlDecode(text) {
         text += "=";
     }
 
-    return Buffer.from(text, "base64").toString("utf8");
+    return Buffer.from(
+        text,
+        "base64"
+    ).toString("utf8");
 }
 
-function criarAssinatura(dados, segredo) {
+function criarAssinatura(
+    dados,
+    segredo
+) {
     return crypto
-        .createHmac("sha256", segredo)
+        .createHmac(
+            "sha256",
+            segredo
+        )
         .update(dados)
         .digest("base64url");
 }
 
-module.exports = async (req, res) => {
 
-    const segredo = process.env.CARNE_SECRET;
+module.exports = async (
+    req,
+    res
+) => {
 
-    if (!segredo) {
+    const segredo =
+        process.env.CARNE_SECRET;
+
+
+    if(!segredo){
+
         return res.status(500).json({
-            erro: "Chave de segurança não configurada."
+            erro:
+                "Chave de segurança não configurada."
         });
     }
 
-    // ==============================
-    // CRIAR COBRANÇA
-    // ==============================
 
-    if (req.method === "POST") {
+    /* =========================================
+       CRIAR COBRANÇA
+    ========================================= */
 
-        try {
+    if(req.method === "POST"){
 
-            const dados = req.body;
+        try{
 
-            if (!dados) {
+            let dados = req.body;
+
+
+            if(
+                typeof dados === "string"
+            ){
+
+                dados =
+                    JSON.parse(dados);
+            }
+
+
+            if(!dados){
+
                 return res.status(400).json({
-                    erro: "Dados da cobrança não enviados."
+                    erro:
+                        "Dados da cobrança não enviados."
                 });
             }
+
 
             const payload = {
-                cliente: dados.cliente || "",
-                cpf: dados.cpf || "",
-                parcela: dados.parcela || "",
-                vencimento: dados.vencimento || "",
-                valor: Number(dados.valor || 0),
-                multa: Number(dados.multa || 0),
-                juros: Number(dados.juros || 0),
-                pix: dados.pix || "",
-                criadoEm: Date.now()
+
+                cliente:
+                    dados.cliente || "",
+
+                cpf:
+                    dados.cpf || "",
+
+                telefone:
+                    dados.telefone || "",
+
+                endereco:
+                    dados.endereco || "",
+
+                parcela:
+                    dados.parcela || "",
+
+                vencimento:
+                    dados.vencimento || "",
+
+                valor:
+                    Number(
+                        dados.valor || 0
+                    ),
+
+                multa:
+                    Number(
+                        dados.multa || 0
+                    ),
+
+                juros:
+                    Number(
+                        dados.juros || 0
+                    ),
+
+                pix:
+                    dados.pix || "",
+
+                criadoEm:
+                    Date.now()
             };
 
-            const dadosCodificados = base64urlEncode(
-                JSON.stringify(payload)
-            );
 
-            const assinatura = criarAssinatura(
-                dadosCodificados,
-                segredo
-            );
+            if(
+                !payload.cliente
+            ){
 
-            const token = dadosCodificados + "." + assinatura;
+                return res.status(400).json({
+                    erro:
+                        "Cliente não informado."
+                });
+            }
+
+
+            if(
+                !payload.vencimento
+            ){
+
+                return res.status(400).json({
+                    erro:
+                        "Vencimento não informado."
+                });
+            }
+
+
+            if(
+                payload.valor <= 0
+            ){
+
+                return res.status(400).json({
+                    erro:
+                        "Valor inválido."
+                });
+            }
+
+
+            if(
+                !payload.pix
+            ){
+
+                return res.status(400).json({
+                    erro:
+                        "Chave PIX não informada."
+                });
+            }
+
+
+            const dadosCodificados =
+                base64urlEncode(
+                    JSON.stringify(
+                        payload
+                    )
+                );
+
+
+            const assinatura =
+                criarAssinatura(
+                    dadosCodificados,
+                    segredo
+                );
+
+
+            const token =
+                dadosCodificados +
+                "." +
+                assinatura;
+
 
             return res.status(200).json({
-                sucesso: true,
-                token: token
+
+                sucesso:true,
+
+                token:token
             });
 
-        } catch (erro) {
+
+        }catch(erro){
+
+            console.error(erro);
 
             return res.status(500).json({
-                erro: "Erro ao criar cobrança."
+                erro:
+                    "Erro ao criar cobrança."
             });
-
         }
     }
 
-    // ==============================
-    // VALIDAR COBRANÇA
-    // ==============================
 
-    if (req.method === "GET") {
+    /* =========================================
+       VALIDAR COBRANÇA
+    ========================================= */
 
-        try {
+    if(req.method === "GET"){
 
-            const token = req.query.token;
+        try{
 
-            if (!token) {
+            const token =
+                req.query.token;
+
+
+            if(!token){
+
                 return res.status(400).json({
-                    erro: "Token não informado."
+                    erro:
+                        "Token não informado."
                 });
             }
 
-            const partes = token.split(".");
 
-            if (partes.length !== 2) {
+            const partes =
+                token.split(".");
+
+
+            if(
+                partes.length !== 2
+            ){
+
                 return res.status(401).json({
-                    erro: "Cobrança inválida."
+                    erro:
+                        "Cobrança inválida."
                 });
             }
 
-            const dadosCodificados = partes[0];
-            const assinaturaRecebida = partes[1];
 
-            const assinaturaEsperada = criarAssinatura(
-                dadosCodificados,
-                segredo
-            );
+            const dadosCodificados =
+                partes[0];
 
-            const assinaturaValida = crypto.timingSafeEqual(
-                Buffer.from(assinaturaRecebida),
-                Buffer.from(assinaturaEsperada)
-            );
 
-            if (!assinaturaValida) {
+            const assinaturaRecebida =
+                partes[1];
+
+
+            const assinaturaEsperada =
+                criarAssinatura(
+                    dadosCodificados,
+                    segredo
+                );
+
+
+            const recebida =
+                Buffer.from(
+                    assinaturaRecebida
+                );
+
+
+            const esperada =
+                Buffer.from(
+                    assinaturaEsperada
+                );
+
+
+            if(
+                recebida.length !==
+                esperada.length
+            ){
+
                 return res.status(401).json({
-                    erro: "Cobrança inválida ou alterada."
+                    erro:
+                        "Cobrança inválida ou alterada."
                 });
             }
 
-            const dados = JSON.parse(
-                base64urlDecode(dadosCodificados)
-            );
+
+            const assinaturaValida =
+                crypto.timingSafeEqual(
+                    recebida,
+                    esperada
+                );
+
+
+            if(!assinaturaValida){
+
+                return res.status(401).json({
+                    erro:
+                        "Cobrança inválida ou alterada."
+                });
+            }
+
+
+            const dados =
+                JSON.parse(
+                    base64urlDecode(
+                        dadosCodificados
+                    )
+                );
+
 
             return res.status(200).json({
-                sucesso: true,
-                dados: dados
+
+                sucesso:true,
+
+                dados:dados
             });
 
-        } catch (erro) {
+
+        }catch(erro){
+
+            console.error(erro);
 
             return res.status(401).json({
-                erro: "Não foi possível validar a cobrança."
+                erro:
+                    "Não foi possível validar a cobrança."
             });
-
         }
     }
 
+
     return res.status(405).json({
-        erro: "Método não permitido."
+        erro:
+            "Método não permitido."
     });
 };
