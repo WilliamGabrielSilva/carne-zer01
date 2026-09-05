@@ -810,24 +810,39 @@ function desenharParcela(
 ){
 
     /*
-        A4 horizontal:
+        A4 HORIZONTAL
         297 x 210 mm
 
         Cada parcela:
-        aproximadamente 95 mm de altura
+        95 mm de altura
 
         2 parcelas:
-        5 -> 100
-        110 -> 205
+        5-100
+        110-205
     */
 
     const x = 8;
     const largura = 281;
     const altura = 95;
 
-    /* BORDA */
+    /*
+        DIVISÃO DO CARNÊ
 
-    pdf.setDrawColor(40,40,40);
+        ESQUERDA:
+        informações de pagamento
+
+        DIREITA:
+        informações do cliente
+    */
+
+    const divisaoX = x + 190;
+
+
+    /* ==========================================
+       BORDA EXTERNA
+    ========================================== */
+
+    pdf.setDrawColor(35,35,35);
     pdf.setLineWidth(.5);
 
     pdf.roundedRect(
@@ -840,7 +855,24 @@ function desenharParcela(
     );
 
 
-    /* LOGO */
+    /* ==========================================
+       LINHA VERTICAL
+    ========================================== */
+
+    pdf.setDrawColor(100,100,100);
+    pdf.setLineWidth(.4);
+
+    pdf.line(
+        divisaoX,
+        y,
+        divisaoX,
+        y + altura
+    );
+
+
+    /* ==========================================
+       LOGO
+    ========================================== */
 
     try{
 
@@ -849,16 +881,18 @@ function desenharParcela(
             "PNG",
             x + 5,
             y + 5,
-            42,
-            16
+            40,
+            15
         );
 
     }catch(e){
-        // segue sem logo caso exista algum problema
+        // continua mesmo sem a logo
     }
 
 
-    /* TÍTULO */
+    /* ==========================================
+       TÍTULO
+    ========================================== */
 
     pdf.setTextColor(20,20,20);
 
@@ -867,28 +901,30 @@ function desenharParcela(
         "bold"
     );
 
-    pdf.setFontSize(16);
+    pdf.setFontSize(15);
 
     pdf.text(
         "CARNÊ DE PAGAMENTO",
-        148.5,
-        y + 11,
+        x + 105,
+        y + 12,
         {
             align:"center"
         }
     );
 
 
-    /* NÚMERO DA PARCELA */
+    /* ==========================================
+       PARCELA
+    ========================================== */
 
-    pdf.setFontSize(11);
+    pdf.setFontSize(10);
 
     pdf.text(
         "PARCELA " +
         numero +
         "/" +
         totalParcelas,
-        x + largura - 5,
+        divisaoX - 5,
         y + 10,
         {
             align:"right"
@@ -896,106 +932,23 @@ function desenharParcela(
     );
 
 
-    /* LINHA */
+    /* ==========================================
+       LINHA ABAIXO DO CABEÇALHO
+    ========================================== */
 
     pdf.setDrawColor(100,100,100);
 
     pdf.line(
         x + 5,
-        y + 23,
-        x + largura - 5,
-        y + 23
+        y + 22,
+        divisaoX - 5,
+        y + 22
     );
 
 
-    /* CLIENTE */
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-    pdf.setFontSize(8);
-
-    pdf.text(
-        "CLIENTE",
-        x + 5,
-        y + 31
-    );
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-    pdf.setFontSize(10);
-
-    pdf.text(
-        dados.cliente || "-",
-        x + 5,
-        y + 38
-    );
-
-
-    /* CPF / CNPJ */
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-    pdf.setFontSize(8);
-
-    pdf.text(
-        "CPF / CNPJ",
-        x + 105,
-        y + 31
-    );
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-    pdf.setFontSize(10);
-
-    pdf.text(
-        formatarCpfCnpj(dados.cpf),
-        x + 105,
-        y + 38
-    );
-
-
-    /* TELEFONE */
-
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
-
-    pdf.setFontSize(8);
-
-    pdf.text(
-        "TELEFONE",
-        x + 170,
-        y + 31
-    );
-
-    pdf.setFont(
-        "helvetica",
-        "normal"
-    );
-
-    pdf.setFontSize(10);
-
-    pdf.text(
-        formatarTelefone(dados.telefone),
-        x + 170,
-        y + 38
-    );
-
-
-    /* VENCIMENTO */
+    /* ==========================================
+       VENCIMENTO
+    ========================================== */
 
     pdf.setFont(
         "helvetica",
@@ -1006,38 +959,193 @@ function desenharParcela(
 
     pdf.text(
         "VENCIMENTO",
-        x + 225,
+        x + 7,
         y + 31
     );
 
-    pdf.setFont(
-        "helvetica",
-        "bold"
-    );
 
-    pdf.setFontSize(12);
+    pdf.setFontSize(13);
 
     pdf.text(
-        formatarData(dados.vencimento),
-        x + 225,
+        formatarData(
+            dados.vencimento
+        ),
+        x + 7,
         y + 39
     );
 
 
-    /* ENDEREÇO */
+    /* ==========================================
+       VALOR
+    ========================================== */
+
+    pdf.setFontSize(8);
+
+    pdf.text(
+        "VALOR DA PARCELA",
+        x + 75,
+        y + 31
+    );
+
+
+    pdf.setFontSize(15);
+
+    pdf.text(
+        formatarMoeda(
+            dados.valor
+        ),
+        x + 75,
+        y + 39
+    );
+
+
+    /* ==========================================
+       ÁREA PIX
+    ========================================== */
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
-    pdf.setFontSize(8);
+    pdf.setFontSize(9);
 
     pdf.text(
-        "ENDEREÇO",
-        x + 5,
+        "PAGAMENTO VIA PIX",
+        x + 7,
         y + 49
     );
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    pdf.setFontSize(7.5);
+
+    pdf.text(
+        "Aponte a câmera para o QR Code",
+        x + 7,
+        y + 56
+    );
+
+    pdf.text(
+        "para consultar e pagar esta parcela.",
+        x + 7,
+        y + 62
+    );
+
+
+    /* ==========================================
+       QR CODE
+    ========================================== */
+
+    pdf.addImage(
+        qrImagem,
+        "PNG",
+        x + 7,
+        y + 66,
+        22,
+        22
+    );
+
+
+    /* ==========================================
+       TEXTO AO LADO DO QR
+    ========================================== */
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    pdf.setFontSize(7);
+
+    pdf.text(
+        "Escaneie para acessar",
+        x + 34,
+        y + 72
+    );
+
+    pdf.text(
+        "a página de pagamento.",
+        x + 34,
+        y + 77
+    );
+
+
+    /* ==========================================
+       RODAPÉ ESQUERDO
+    ========================================== */
+
+    pdf.setFontSize(6.5);
+
+    pdf.text(
+        "Pagamento atualizado automaticamente em caso de atraso.",
+        x + 34,
+        y + 86
+    );
+
+
+    /* =====================================================
+       DIREITA — DADOS DO CLIENTE
+    ===================================================== */
+
+    const clienteX =
+        divisaoX + 7;
+
+    const clienteLargura =
+        x + largura - clienteX - 7;
+
+
+    /* ==========================================
+       TÍTULO DO QUADRO
+    ========================================== */
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.setFontSize(11);
+
+    pdf.text(
+        "DADOS DO CLIENTE",
+        clienteX,
+        y + 12
+    );
+
+
+    /* linha abaixo do título */
+
+    pdf.setDrawColor(120,120,120);
+
+    pdf.line(
+        clienteX,
+        y + 17,
+        x + largura - 7,
+        y + 17
+    );
+
+
+    /* ==========================================
+       NOME
+    ========================================== */
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.setFontSize(7);
+
+    pdf.text(
+        "CLIENTE",
+        clienteX,
+        y + 26
+    );
+
 
     pdf.setFont(
         "helvetica",
@@ -1046,134 +1154,169 @@ function desenharParcela(
 
     pdf.setFontSize(9);
 
-    let endereco =
-        dados.endereco || "-";
+    let nome =
+        dados.cliente || "-";
 
-    const enderecoLinhas =
+    let nomeLinhas =
         pdf.splitTextToSize(
-            endereco,
-            185
+            nome,
+            clienteLargura
         );
 
     pdf.text(
-        enderecoLinhas.slice(0,2),
-        x + 5,
-        y + 56
+        nomeLinhas.slice(0,2),
+        clienteX,
+        y + 33
     );
 
 
-    /* VALOR */
-
-    pdf.setDrawColor(60,60,60);
-
-    pdf.roundedRect(
-        x + 198,
-        y + 43,
-        78,
-        25,
-        2,
-        2
-    );
+    /* ==========================================
+       CPF / CNPJ
+    ========================================== */
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
-    pdf.setFontSize(8);
+    pdf.setFontSize(7);
 
     pdf.text(
-        "VALOR DA PARCELA",
-        x + 237,
-        y + 50,
-        {
-            align:"center"
-        }
+        "CPF / CNPJ",
+        clienteX,
+        y + 45
     );
 
-    pdf.setFontSize(16);
-
-    pdf.text(
-        formatarMoeda(dados.valor),
-        x + 237,
-        y + 61,
-        {
-            align:"center"
-        }
-    );
-
-
-    /* QR CODE */
-
-    pdf.addImage(
-        qrImagem,
-        "PNG",
-        x + 235,
-        y + 70,
-        19,
-        19
-    );
-
-
-    /* TEXTO DO QR */
 
     pdf.setFont(
         "helvetica",
         "normal"
     );
 
-    pdf.setFontSize(7);
+    pdf.setFontSize(9);
 
     pdf.text(
-        "Aponte a câmera para consultar",
-        x + 5,
-        y + 68
-    );
-
-    pdf.text(
-        "e pagar esta parcela.",
-        x + 5,
-        y + 74
+        formatarCpfCnpj(
+            dados.cpf
+        ) || "-",
+        clienteX,
+        y + 52
     );
 
 
-    /* PIX */
+    /* ==========================================
+       TELEFONE
+    ========================================== */
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
-    pdf.setFontSize(8);
+    pdf.setFontSize(7);
 
     pdf.text(
-        "PAGAMENTO VIA PIX",
-        x + 5,
-        y + 83
+        "TELEFONE",
+        clienteX + 75,
+        y + 45
     );
+
 
     pdf.setFont(
         "helvetica",
         "normal"
     );
 
-    pdf.setFontSize(7);
+    pdf.setFontSize(9);
 
     pdf.text(
-        "Use o QR Code para consultar o valor atualizado.",
-        x + 5,
-        y + 89
+        formatarTelefone(
+            dados.telefone
+        ) || "-",
+        clienteX + 75,
+        y + 52
     );
 
 
-    /* RODAPÉ */
+    /* ==========================================
+       ENDEREÇO
+    ========================================== */
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
 
     pdf.setFontSize(7);
+
+    pdf.text(
+        "ENDEREÇO",
+        clienteX,
+        y + 63
+    );
+
+
+    pdf.setFont(
+        "helvetica",
+        "normal"
+    );
+
+    pdf.setFontSize(8.5);
+
+    let endereco =
+        dados.endereco || "-";
+
+
+    let enderecoLinhas =
+        pdf.splitTextToSize(
+            endereco,
+            clienteLargura
+        );
+
+
+    pdf.text(
+        enderecoLinhas.slice(0,3),
+        clienteX,
+        y + 70
+    );
+
+
+    /* ==========================================
+       RODAPÉ DO CLIENTE
+    ========================================== */
+
+    pdf.setFontSize(6.5);
+
+    pdf.setTextColor(90,90,90);
+
+    pdf.text(
+        "Documento referente à parcela " +
+        numero +
+        " de " +
+        totalParcelas +
+        ".",
+        clienteX,
+        y + 88
+    );
+
+
+    /* ==========================================
+       RODAPÉ GERAL
+    ========================================== */
+
+    pdf.setTextColor(20,20,20);
+
+    pdf.setFont(
+        "helvetica",
+        "bold"
+    );
+
+    pdf.setFontSize(6.5);
 
     pdf.text(
         "ZER01 MODA MASCULINA  •  Tel.: (43) 9 9678-8303",
-        x + largura - 5,
-        y + 91,
+        x + largura - 7,
+        y + 92,
         {
             align:"right"
         }
