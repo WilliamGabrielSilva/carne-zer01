@@ -1,441 +1,714 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZER01 - Carnê</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta charset="UTF-8">
 
-<style>
-*{
-    box-sizing:border-box;
-}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-body{
-    margin:0;
-    padding:0;
-    background:#0d0d0d;
-    color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
-}
+    <title>
+        ZER01 Moda Masculina - Carnês
+    </title>
 
-#paginaGerador{
-    min-height:100vh;
-    padding:30px 15px;
-}
 
-.container{
-    width:100%;
-    max-width:720px;
-    margin:auto;
-    background:#171717;
-    border:1px solid #292929;
-    border-radius:16px;
-    padding:30px;
-    box-shadow:0 10px 40px rgba(0,0,0,.4);
-}
+    <!-- =====================================================
+         JSPDF
+    ====================================================== -->
 
-.logo{
-    display:block;
-    max-width:220px;
-    max-height:90px;
-    margin:0 auto 25px;
-    object-fit:contain;
-}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-h1{
-    text-align:center;
-    margin:0 0 8px;
-    font-size:28px;
-}
 
-.subtitulo{
-    text-align:center;
-    color:#aaa;
-    margin-bottom:28px;
-}
+    <!-- =====================================================
+         QR CODE
+    ====================================================== -->
 
-.campo{
-    margin-bottom:17px;
-}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
-.campo label{
-    display:block;
-    margin-bottom:7px;
-    font-weight:bold;
-    font-size:14px;
-}
 
-.campo input,
-.campo textarea{
-    width:100%;
-    border:1px solid #363636;
-    background:#0f0f0f;
-    color:#fff;
-    border-radius:9px;
-    padding:13px;
-    font-size:16px;
-    outline:none;
-}
+    <!-- =====================================================
+         ESTILO
+    ====================================================== -->
 
-.campo input:focus,
-.campo textarea:focus{
-    border-color:#777;
-}
+    <style>
 
-.campo textarea{
-    min-height:75px;
-    resize:vertical;
-}
+        *{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+        }
 
-.linha{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-}
 
-.botao{
-    width:100%;
-    border:0;
-    border-radius:10px;
-    padding:16px;
-    background:#fff;
-    color:#000;
-    font-size:17px;
-    font-weight:bold;
-    cursor:pointer;
-    margin-top:8px;
-}
+        body{
 
-.botao:hover{
-    opacity:.9;
-}
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
 
-.botao:disabled{
-    opacity:.5;
-    cursor:not-allowed;
-}
+            background:#111;
 
-.info{
-    background:#101010;
-    border:1px solid #292929;
-    border-radius:10px;
-    padding:14px;
-    color:#aaa;
-    font-size:13px;
-    margin-top:20px;
-    line-height:1.5;
-}
+            color:#fff;
 
-#carregando{
-    display:none;
-    text-align:center;
-    margin-top:18px;
-    color:#ccc;
-}
+            min-height:100vh;
+        }
 
-#paginaPagamento{
-    display:none;
-    min-height:100vh;
-    padding:25px 15px;
-}
 
-.pagamento{
-    width:100%;
-    max-width:600px;
-    margin:auto;
-    background:#171717;
-    border:1px solid #292929;
-    border-radius:16px;
-    padding:25px;
-}
+        /* =================================================
+           GERADOR
+        ================================================= */
 
-.pagamento .logo{
-    margin-bottom:15px;
-}
+        #paginaGerador{
 
-.pagamento h1{
-    margin-bottom:5px;
-}
+            display:none;
 
-.status{
-    text-align:center;
-    color:#aaa;
-    margin-bottom:25px;
-}
+            min-height:100vh;
 
-.resumo{
-    border:1px solid #333;
-    border-radius:12px;
-    overflow:hidden;
-    margin-bottom:20px;
-}
+            padding:30px 20px;
+        }
 
-.item{
-    display:flex;
-    justify-content:space-between;
-    gap:15px;
-    padding:14px;
-    border-bottom:1px solid #292929;
-}
 
-.item:last-child{
-    border-bottom:0;
-}
+        .container{
 
-.item span:first-child{
-    color:#aaa;
-}
+            width:100%;
 
-.item strong{
-    text-align:right;
-}
+            max-width:700px;
 
-.total{
-    background:#222;
-    font-size:20px;
-}
+            margin:auto;
+        }
 
-.total strong{
-    font-size:23px;
-}
 
-.qr-area{
-    background:#fff;
-    border-radius:12px;
-    padding:20px;
-    text-align:center;
-    margin-top:20px;
-}
+        .titulo{
 
-#qrPagamento{
-    width:240px;
-    height:240px;
-    margin:auto;
-}
+            text-align:center;
 
-#qrPagamento img{
-    width:240px !important;
-    height:240px !important;
-}
+            margin-bottom:30px;
+        }
 
-.pix-box{
-    margin-top:20px;
-}
 
-.pix-box label{
-    display:block;
-    color:#aaa;
-    margin-bottom:7px;
-    font-size:13px;
-}
+        .titulo h1{
 
-.pix-code{
-    background:#0c0c0c;
-    border:1px solid #333;
-    border-radius:9px;
-    padding:12px;
-    word-break:break-all;
-    font-size:12px;
-    line-height:1.4;
-    color:#ddd;
-}
+            font-size:30px;
 
-.copiar{
-    width:100%;
-    margin-top:10px;
-    padding:13px;
-    border:0;
-    border-radius:8px;
-    background:#fff;
-    color:#000;
-    font-weight:bold;
-    cursor:pointer;
-}
+            margin-bottom:8px;
+        }
 
-.erro{
-    background:#260d0d;
-    border:1px solid #602020;
-    padding:15px;
-    border-radius:10px;
-    color:#ffb3b3;
-    text-align:center;
-}
 
-.rodape{
-    text-align:center;
-    color:#777;
-    font-size:12px;
-    margin-top:25px;
-}
+        .titulo p{
 
-@media(max-width:600px){
-    .container,
-    .pagamento{
-        padding:20px;
-    }
+            color:#aaa;
 
-    .linha{
-        grid-template-columns:1fr;
-        gap:0;
-    }
-}
-</style>
+            font-size:14px;
+        }
+
+
+        .formulario{
+
+            background:#1b1b1b;
+
+            border:1px solid #333;
+
+            border-radius:12px;
+
+            padding:25px;
+        }
+
+
+        .campo{
+
+            margin-bottom:18px;
+        }
+
+
+        .campo label{
+
+            display:block;
+
+            font-size:13px;
+
+            font-weight:bold;
+
+            margin-bottom:7px;
+
+            color:#ddd;
+        }
+
+
+        .campo input{
+
+            width:100%;
+
+            padding:13px;
+
+            border-radius:7px;
+
+            border:1px solid #444;
+
+            background:#101010;
+
+            color:#fff;
+
+            outline:none;
+
+            font-size:15px;
+        }
+
+
+        .campo input:focus{
+
+            border-color:#777;
+        }
+
+
+        .linha{
+
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:15px;
+        }
+
+
+        .linha-3{
+
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr 1fr;
+
+            gap:15px;
+        }
+
+
+        button{
+
+            width:100%;
+
+            padding:15px;
+
+            border:0;
+
+            border-radius:8px;
+
+            background:#fff;
+
+            color:#111;
+
+            font-weight:bold;
+
+            font-size:15px;
+
+            cursor:pointer;
+
+            margin-top:5px;
+        }
+
+
+        button:hover{
+
+            opacity:.9;
+        }
+
+
+        button:disabled{
+
+            opacity:.5;
+
+            cursor:not-allowed;
+        }
+
+
+        #carregando{
+
+            display:none;
+
+            text-align:center;
+
+            margin-top:15px;
+
+            color:#aaa;
+
+            font-size:14px;
+        }
+
+
+        /* =================================================
+           PAGAMENTO
+        ================================================= */
+
+        #paginaPagamento{
+
+            display:none;
+
+            min-height:100vh;
+
+            padding:30px 20px;
+        }
+
+
+        .pagamento-container{
+
+            width:100%;
+
+            max-width:700px;
+
+            margin:auto;
+        }
+
+
+        .pagamento-header{
+
+            text-align:center;
+
+            margin-bottom:25px;
+        }
+
+
+        .pagamento-header h1{
+
+            font-size:28px;
+
+            margin-bottom:8px;
+        }
+
+
+        #statusPagamento{
+
+            color:#aaa;
+
+            font-size:14px;
+        }
+
+
+        #conteudoPagamento{
+
+            background:#fff;
+
+            color:#111;
+
+            border-radius:12px;
+
+            padding:25px;
+        }
+
+
+        .resumo{
+
+            display:grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap:12px;
+
+            margin-bottom:25px;
+        }
+
+
+        .item{
+
+            border:1px solid #ddd;
+
+            border-radius:8px;
+
+            padding:12px;
+        }
+
+
+        .item span{
+
+            display:block;
+
+            font-size:12px;
+
+            color:#777;
+
+            margin-bottom:5px;
+        }
+
+
+        .item strong{
+
+            font-size:15px;
+        }
+
+
+        .item.total{
+
+            grid-column:1 / -1;
+
+            background:#f5f5f5;
+
+            text-align:center;
+        }
+
+
+        .item.total strong{
+
+            font-size:22px;
+        }
+
+
+        .qr-area{
+
+            text-align:center;
+
+            padding:20px;
+
+            border-top:1px solid #ddd;
+
+            border-bottom:1px solid #ddd;
+
+            margin-bottom:25px;
+        }
+
+
+        .pix-box{
+
+            text-align:center;
+        }
+
+
+        .pix-box label{
+
+            display:block;
+
+            font-size:13px;
+
+            font-weight:bold;
+
+            margin-bottom:8px;
+        }
+
+
+        .pix-code{
+
+            background:#f2f2f2;
+
+            border:1px solid #ddd;
+
+            border-radius:8px;
+
+            padding:15px;
+
+            font-size:12px;
+
+            word-break:break-all;
+
+            color:#333;
+
+            max-height:160px;
+
+            overflow:auto;
+
+            text-align:left;
+
+            margin-bottom:12px;
+        }
+
+
+        .copiar{
+
+            background:#111;
+
+            color:#fff;
+
+            margin-top:0;
+        }
+
+
+        .erro{
+
+            background:#ffecec;
+
+            border:1px solid #ffb0b0;
+
+            color:#a00000;
+
+            padding:15px;
+
+            border-radius:8px;
+
+            text-align:center;
+        }
+
+
+        @media(max-width:600px){
+
+            .linha,
+            .linha-3{
+
+                grid-template-columns:1fr;
+            }
+
+
+            .resumo{
+
+                grid-template-columns:1fr;
+            }
+
+
+            .item.total{
+
+                grid-column:auto;
+            }
+
+
+            .formulario{
+
+                padding:18px;
+            }
+
+
+            #paginaGerador,
+            #paginaPagamento{
+
+                padding:20px 12px;
+            }
+        }
+
+    </style>
+
 </head>
+
 
 <body>
 
-<!-- =========================
-     GERADOR
-========================= -->
+
+<!-- =========================================================
+     PÁGINA DO GERADOR
+========================================================= -->
 
 <div id="paginaGerador">
 
     <div class="container">
 
-        <img src="logoTitulo.png" class="logo" id="logoGerador">
 
-        <h1>Gerador de Carnê</h1>
+        <div class="titulo">
 
-        <div class="subtitulo">
-            ZER01 Moda Masculina
+            <h1>
+                ZER01 MODA MASCULINA
+            </h1>
+
+            <p>
+                Gerador de Carnês
+            </p>
+
         </div>
 
-        <div class="campo">
-            <label>Nome do cliente</label>
-            <input
-                type="text"
-                id="cliente"
-                placeholder="Nome completo"
-            >
-        </div>
 
-        <div class="linha">
+        <div class="formulario">
+
+
+            <!-- CLIENTE -->
 
             <div class="campo">
-                <label>CPF / CNPJ</label>
+
+                <label for="cliente">
+                    Nome do cliente
+                </label>
+
                 <input
                     type="text"
-                    id="cpf"
-                    placeholder="CPF ou CNPJ"
-                    inputmode="numeric"
-                    maxlength="18"
+                    id="cliente"
+                    placeholder="Digite o nome do cliente"
                 >
+
             </div>
 
+
+            <!-- CPF / TELEFONE -->
+
+            <div class="linha">
+
+
+                <div class="campo">
+
+                    <label for="cpf">
+                        CPF / CNPJ
+                    </label>
+
+                    <input
+                        type="text"
+                        id="cpf"
+                        placeholder="CPF ou CNPJ"
+                        maxlength="18"
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="telefone">
+                        Telefone
+                    </label>
+
+                    <input
+                        type="text"
+                        id="telefone"
+                        placeholder="(00) 00000-0000"
+                        maxlength="15"
+                    >
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ENDEREÇO -->
+
             <div class="campo">
-                <label>Telefone</label>
+
+                <label for="endereco">
+                    Endereço
+                </label>
+
                 <input
                     type="text"
-                    id="telefone"
-                    placeholder="(43) 99999-9999"
-                    inputmode="numeric"
-                    maxlength="15"
+                    id="endereco"
+                    placeholder="Endereço do cliente"
                 >
+
             </div>
 
-        </div>
 
-        <div class="campo">
-            <label>Endereço</label>
-            <textarea
-                id="endereco"
-                placeholder="Rua, número, bairro, cidade..."
-            ></textarea>
-        </div>
+            <!-- VALOR / PARCELAS -->
 
-        <div class="linha">
+            <div class="linha">
 
-            <div class="campo">
-                <label>Valor total da venda</label>
-                <input
-                    type="number"
-                    id="valor"
-                    placeholder="0,00"
-                    step="0.01"
-                    min="0"
-                >
+
+                <div class="campo">
+
+                    <label for="valor">
+                        Valor total da venda
+                    </label>
+
+                    <input
+                        type="number"
+                        id="valor"
+                        placeholder="0,00"
+                        min="0"
+                        step="0.01"
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="parcelas">
+                        Número de parcelas
+                    </label>
+
+                    <input
+                        type="number"
+                        id="parcelas"
+                        placeholder="Ex.: 5"
+                        min="1"
+                        step="1"
+                    >
+
+                </div>
+
+
             </div>
 
-            <div class="campo">
-                <label>Número de parcelas</label>
-                <input
-                    type="number"
-                    id="parcelas"
-                    placeholder="Ex.: 5"
-                    min="1"
-                    max="60"
-                >
-            </div>
 
-        </div>
-
-        <div class="linha">
+            <!-- VENCIMENTO / PIX -->
 
             <div class="campo">
-                <label>Primeiro vencimento</label>
+
+                <label for="primeiroVencimento">
+                    Primeiro vencimento
+                </label>
+
                 <input
                     type="date"
                     id="primeiroVencimento"
                 >
+
             </div>
 
+
             <div class="campo">
-                <label>Chave PIX</label>
+
+                <label for="pix">
+                    Chave PIX
+                </label>
+
                 <input
                     type="text"
                     id="pix"
-                    placeholder="Chave PIX"
+                    placeholder="Digite a chave PIX"
                 >
+
             </div>
 
-        </div>
 
-        <div class="linha">
+            <!-- MULTA / JUROS -->
 
-            <div class="campo">
-                <label>Multa por atraso (%)</label>
-                <input
-                    type="number"
-                    id="multa"
-                    value="2"
-                    step="0.01"
-                    min="0"
-                >
+            <div class="linha">
+
+
+                <div class="campo">
+
+                    <label for="multa">
+                        Multa por atraso (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="multa"
+                        value="2"
+                        min="0"
+                        step="0.01"
+                    >
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="juros">
+                        Juros por dia (%)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="juros"
+                        value="0.033"
+                        min="0"
+                        step="0.001"
+                    >
+
+                </div>
+
+
             </div>
 
-            <div class="campo">
-                <label>Juros ao dia (%)</label>
-                <input
-                    type="number"
-                    id="juros"
-                    value="0.033"
-                    step="0.001"
-                    min="0"
-                >
+
+            <!-- BOTÃO -->
+
+            <button
+                id="btnGerar"
+                onclick="gerarCarne()"
+            >
+                GERAR CARNÊ
+            </button>
+
+
+            <div id="carregando">
+                Gerando carnê, aguarde...
             </div>
 
-        </div>
 
-        <button
-            class="botao"
-            id="btnGerar"
-            onclick="gerarCarne()"
-        >
-            GERAR CARNÊ EM PDF
-        </button>
-
-        <div id="carregando">
-            Gerando carnê, aguarde...
-        </div>
-
-        <div class="info">
-            <strong>Formato do carnê:</strong><br>
-            A4 horizontal, com 2 parcelas por folha.
-            O QR Code de cada parcela abre a página de pagamento
-            com o valor atualizado automaticamente em caso de atraso.
         </div>
 
     </div>
@@ -443,28 +716,30 @@ h1{
 </div>
 
 
-<!-- =========================
-     PAGAMENTO
-========================= -->
+<!-- =========================================================
+     PÁGINA DE PAGAMENTO
+========================================================= -->
 
 <div id="paginaPagamento">
 
-    <div class="pagamento">
+    <div class="pagamento-container">
 
-        <img src="logoTitulo.png" class="logo">
 
-        <h1>Pagamento</h1>
+        <div class="pagamento-header">
 
-        <div class="status" id="statusPagamento">
-            Carregando cobrança...
+            <h1>
+                ZER01 MODA MASCULINA
+            </h1>
+
+            <div id="statusPagamento">
+                Validando cobrança...
+            </div>
+
         </div>
+
 
         <div id="conteudoPagamento"></div>
 
-        <div class="rodape">
-            ZER01 MODA MASCULINA<br>
-            Tel.: (43) 9 9678-8303
-        </div>
 
     </div>
 
@@ -472,6 +747,10 @@ h1{
 
 
 <script>
+
+/* =========================================================
+   JSPDF
+========================================================= */
 
 const { jsPDF } = window.jspdf;
 
@@ -482,29 +761,37 @@ const { jsPDF } = window.jspdf;
 
 function formatarCpfCnpj(valor){
 
-    let n = String(valor || "")
-        .replace(/\D/g,"")
-        .slice(0,14);
+    let n =
+        String(valor || "")
+            .replace(/\D/g,"")
+            .slice(0,14);
+
 
     if(n.length <= 11){
 
         if(n.length <= 3){
+
             return n;
         }
 
+
         if(n.length <= 6){
+
             return n.replace(
                 /(\d{3})(\d+)/,
                 "$1.$2"
             );
         }
 
+
         if(n.length <= 9){
+
             return n.replace(
                 /(\d{3})(\d{3})(\d+)/,
                 "$1.$2.$3"
             );
         }
+
 
         return n.replace(
             /(\d{3})(\d{3})(\d{3})(\d{1,2})/,
@@ -512,11 +799,25 @@ function formatarCpfCnpj(valor){
         );
     }
 
+
     return n.replace(
         /(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,
         function(_,a,b,c,d,e){
-            return a+"."+b+"."+c+"/"+d+
-                (e ? "-"+e : "");
+
+            return (
+                a +
+                "." +
+                b +
+                "." +
+                c +
+                "/" +
+                d +
+                (
+                    e
+                        ? "-" + e
+                        : ""
+                )
+            );
         }
     );
 }
@@ -528,49 +829,89 @@ function formatarCpfCnpj(valor){
 
 function formatarTelefone(valor){
 
-    let n = String(valor || "")
-        .replace(/\D/g,"")
-        .slice(0,11);
+    let n =
+        String(valor || "")
+            .replace(/\D/g,"")
+            .slice(0,11);
+
 
     if(!n){
+
         return "";
     }
 
+
     if(n.length <= 2){
+
         return "(" + n;
     }
 
+
     if(n.length <= 6){
-        return "(" + n.slice(0,2) + ") " +
-            n.slice(2);
+
+        return (
+            "(" +
+            n.slice(0,2) +
+            ") " +
+            n.slice(2)
+        );
     }
+
 
     if(n.length <= 10){
-        return "(" + n.slice(0,2) + ") " +
-            n.slice(2,6) + "-" +
-            n.slice(6);
+
+        return (
+            "(" +
+            n.slice(0,2) +
+            ") " +
+            n.slice(2,6) +
+            "-" +
+            n.slice(6)
+        );
     }
 
-    return "(" + n.slice(0,2) + ") " +
-        n.slice(2,7) + "-" +
-        n.slice(7);
+
+    return (
+        "(" +
+        n.slice(0,2) +
+        ") " +
+        n.slice(2,7) +
+        "-" +
+        n.slice(7)
+    );
 }
 
 
-document.getElementById("cpf").addEventListener(
-    "input",
-    function(){
-        this.value = formatarCpfCnpj(this.value);
-    }
-);
+/* =========================================================
+   EVENTOS DE FORMATAÇÃO
+========================================================= */
+
+document
+    .getElementById("cpf")
+    .addEventListener(
+        "input",
+        function(){
+
+            this.value =
+                formatarCpfCnpj(
+                    this.value
+                );
+        }
+    );
 
 
-document.getElementById("telefone").addEventListener(
-    "input",
-    function(){
-        this.value = formatarTelefone(this.value);
-    }
-);
+document
+    .getElementById("telefone")
+    .addEventListener(
+        "input",
+        function(){
+
+            this.value =
+                formatarTelefone(
+                    this.value
+                );
+        }
+    );
 
 
 /* =========================================================
@@ -579,7 +920,9 @@ document.getElementById("telefone").addEventListener(
 
 function formatarMoeda(valor){
 
-    return Number(valor || 0).toLocaleString(
+    return Number(
+        valor || 0
+    ).toLocaleString(
         "pt-BR",
         {
             style:"currency",
@@ -596,18 +939,28 @@ function formatarMoeda(valor){
 function formatarData(data){
 
     if(!data){
+
         return "";
     }
 
-    const partes = data.split("-");
+
+    const partes =
+        data.split("-");
+
 
     if(partes.length !== 3){
+
         return data;
     }
 
-    return partes[2] + "/" +
-        partes[1] + "/" +
-        partes[0];
+
+    return (
+        partes[2] +
+        "/" +
+        partes[1] +
+        "/" +
+        partes[0]
+    );
 }
 
 
@@ -617,30 +970,53 @@ function formatarData(data){
 
 function adicionarMeses(data, meses){
 
-    const d = new Date(data + "T12:00:00");
+    const d =
+        new Date(
+            data + "T12:00:00"
+        );
 
-    const diaOriginal = d.getDate();
+
+    const diaOriginal =
+        d.getDate();
+
 
     d.setMonth(
         d.getMonth() + meses
     );
 
-    if(d.getDate() !== diaOriginal){
+
+    if(
+        d.getDate() !==
+        diaOriginal
+    ){
 
         d.setDate(0);
     }
 
-    const ano = d.getFullYear();
 
-    const mes = String(
-        d.getMonth()+1
-    ).padStart(2,"0");
+    const ano =
+        d.getFullYear();
 
-    const dia = String(
-        d.getDate()
-    ).padStart(2,"0");
 
-    return ano + "-" + mes + "-" + dia;
+    const mes =
+        String(
+            d.getMonth()+1
+        ).padStart(2,"0");
+
+
+    const dia =
+        String(
+            d.getDate()
+        ).padStart(2,"0");
+
+
+    return (
+        ano +
+        "-" +
+        mes +
+        "-" +
+        dia
+    );
 }
 
 
@@ -653,41 +1029,59 @@ function carregarImagemLogo(){
     return new Promise(
         function(resolve,reject){
 
-            const imagem = new Image();
+            const imagem =
+                new Image();
 
-            imagem.onload = function(){
 
-                const canvas =
-                    document.createElement("canvas");
+            imagem.onload =
+                function(){
 
-                canvas.width =
-                    imagem.naturalWidth;
+                    const canvas =
+                        document.createElement(
+                            "canvas"
+                        );
 
-                canvas.height =
-                    imagem.naturalHeight;
 
-                const ctx =
-                    canvas.getContext("2d");
+                    canvas.width =
+                        imagem.naturalWidth;
 
-                ctx.drawImage(
-                    imagem,
-                    0,
-                    0
-                );
 
-                resolve(
-                    canvas.toDataURL("image/png")
-                );
-            };
+                    canvas.height =
+                        imagem.naturalHeight;
 
-            imagem.onerror = function(){
 
-                reject(
-                    "Não foi possível carregar logo.png"
-                );
-            };
+                    const ctx =
+                        canvas.getContext(
+                            "2d"
+                        );
 
-            imagem.src = "logo.png";
+
+                    ctx.drawImage(
+                        imagem,
+                        0,
+                        0
+                    );
+
+
+                    resolve(
+                        canvas.toDataURL(
+                            "image/png"
+                        )
+                    );
+                };
+
+
+            imagem.onerror =
+                function(){
+
+                    reject(
+                        "Não foi possível carregar logo.png"
+                    );
+                };
+
+
+            imagem.src =
+                "logo.png";
         }
     );
 }
@@ -699,27 +1093,40 @@ function carregarImagemLogo(){
 
 async function criarCobranca(dados){
 
-    const resposta = await fetch(
-        "/api/cobranca",
-        {
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify(dados)
-        }
-    );
+    const resposta =
+        await fetch(
+            "/api/cobranca",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body:
+                    JSON.stringify(
+                        dados
+                    )
+            }
+        );
+
 
     const resultado =
         await resposta.json();
 
-    if(!resposta.ok || !resultado.token){
+
+    if(
+        !resposta.ok ||
+        !resultado.token
+    ){
 
         throw new Error(
             resultado.erro ||
             "Não foi possível criar a cobrança."
         );
     }
+
 
     return resultado.token;
 }
@@ -735,12 +1142,23 @@ async function gerarImagemQR(texto){
         function(resolve,reject){
 
             const div =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
-            div.style.position = "absolute";
-            div.style.left = "-99999px";
 
-            document.body.appendChild(div);
+            div.style.position =
+                "absolute";
+
+
+            div.style.left =
+                "-99999px";
+
+
+            document.body.appendChild(
+                div
+            );
+
 
             try{
 
@@ -748,8 +1166,11 @@ async function gerarImagemQR(texto){
                     div,
                     {
                         text:texto,
+
                         width:400,
+
                         height:400,
+
                         correctLevel:
                             QRCode.CorrectLevel.M
                     }
@@ -757,20 +1178,31 @@ async function gerarImagemQR(texto){
 
             }catch(e){
 
-                document.body.removeChild(div);
+                document.body.removeChild(
+                    div
+                );
+
                 reject(e);
+
                 return;
             }
+
 
             setTimeout(
                 function(){
 
                     const canvas =
-                        div.querySelector("canvas");
+                        div.querySelector(
+                            "canvas"
+                        );
+
 
                     if(!canvas){
 
-                        document.body.removeChild(div);
+                        document.body.removeChild(
+                            div
+                        );
+
 
                         reject(
                             "Não foi possível gerar o QR Code."
@@ -779,10 +1211,17 @@ async function gerarImagemQR(texto){
                         return;
                     }
 
-                    const imagem =
-                        canvas.toDataURL("image/png");
 
-                    document.body.removeChild(div);
+                    const imagem =
+                        canvas.toDataURL(
+                            "image/png"
+                        );
+
+
+                    document.body.removeChild(
+                        div
+                    );
+
 
                     resolve(imagem);
 
@@ -810,8 +1249,11 @@ function desenharParcela(
 ){
 
     const x = 8;
+
     const largura = 281;
+
     const altura = 95;
+
 
     /*
         DIVISÃO PRINCIPAL
@@ -820,15 +1262,22 @@ function desenharParcela(
         DIREITA  = CLIENTE
     */
 
-    const divisaoX = x + 190;
+    const divisaoX =
+        x + 190;
 
 
     /* ==========================================
        BORDA EXTERNA
     ========================================== */
 
-    pdf.setDrawColor(35,35,35);
+    pdf.setDrawColor(
+        35,
+        35,
+        35
+    );
+
     pdf.setLineWidth(.5);
+
 
     pdf.roundedRect(
         x,
@@ -844,8 +1293,14 @@ function desenharParcela(
        DIVISÃO VERTICAL
     ========================================== */
 
-    pdf.setDrawColor(100,100,100);
+    pdf.setDrawColor(
+        100,
+        100,
+        100
+    );
+
     pdf.setLineWidth(.4);
+
 
     pdf.line(
         divisaoX,
@@ -877,14 +1332,21 @@ function desenharParcela(
        TÍTULO
     ========================================== */
 
-    pdf.setTextColor(20,20,20);
+    pdf.setTextColor(
+        20,
+        20,
+        20
+    );
+
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
+
     pdf.setFontSize(15);
+
 
     pdf.text(
         "CARNÊ DE PAGAMENTO",
@@ -901,6 +1363,7 @@ function desenharParcela(
     ========================================== */
 
     pdf.setFontSize(10);
+
 
     pdf.text(
         "PARCELA " +
@@ -919,7 +1382,12 @@ function desenharParcela(
        LINHA DO CABEÇALHO
     ========================================== */
 
-    pdf.setDrawColor(100,100,100);
+    pdf.setDrawColor(
+        100,
+        100,
+        100
+    );
+
 
     pdf.line(
         x + 5,
@@ -943,7 +1411,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(8);
+
 
     pdf.text(
         "VENCIMENTO",
@@ -951,7 +1421,9 @@ function desenharParcela(
         y + 31
     );
 
+
     pdf.setFontSize(13);
+
 
     pdf.text(
         formatarData(
@@ -968,13 +1440,16 @@ function desenharParcela(
 
     pdf.setFontSize(8);
 
+
     pdf.text(
         "VALOR DA PARCELA",
         x + 75,
         y + 31
     );
 
+
     pdf.setFontSize(15);
+
 
     pdf.text(
         formatarMoeda(
@@ -994,7 +1469,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(9);
+
 
     pdf.text(
         "PAGAMENTO VIA PIX",
@@ -1008,13 +1485,16 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.setFontSize(7.5);
+
 
     pdf.text(
         "Aponte a câmera para o QR Code",
         x + 7,
         y + 56
     );
+
 
     pdf.text(
         "para consultar e pagar esta parcela.",
@@ -1046,7 +1526,9 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.setFontSize(6.5);
+
 
     pdf.text(
         "Escaneie para acessar",
@@ -1056,6 +1538,7 @@ function desenharParcela(
             align:"center"
         }
     );
+
 
     pdf.text(
         "a página de pagamento.",
@@ -1073,6 +1556,7 @@ function desenharParcela(
 
     pdf.setFontSize(6.5);
 
+
     pdf.text(
         "Valor atualizado automaticamente em caso de atraso.",
         x + 7,
@@ -1087,11 +1571,14 @@ function desenharParcela(
     const clienteX =
         divisaoX + 7;
 
+
     const clienteDireita =
         x + largura - 7;
 
+
     const clienteLargura =
-        clienteDireita - clienteX;
+        clienteDireita -
+        clienteX;
 
 
     /* ==========================================
@@ -1103,7 +1590,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(11);
+
 
     pdf.text(
         "DADOS DO CLIENTE",
@@ -1116,7 +1605,12 @@ function desenharParcela(
        LINHA DO TÍTULO
     ========================================== */
 
-    pdf.setDrawColor(120,120,120);
+    pdf.setDrawColor(
+        120,
+        120,
+        120
+    );
+
 
     pdf.line(
         clienteX,
@@ -1135,7 +1629,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(7);
+
 
     pdf.text(
         "CLIENTE",
@@ -1149,10 +1645,13 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.setFontSize(9);
+
 
     const nome =
         dados.cliente || "-";
+
 
     const nomeLinhas =
         pdf.splitTextToSize(
@@ -1177,7 +1676,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(7);
+
 
     pdf.text(
         "CPF / CNPJ",
@@ -1191,7 +1692,9 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.setFontSize(9);
+
 
     pdf.text(
         formatarCpfCnpj(
@@ -1211,7 +1714,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(7);
+
 
     pdf.text(
         "ENDEREÇO",
@@ -1225,7 +1730,9 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.setFontSize(8.5);
+
 
     const endereco =
         dados.endereco || "-";
@@ -1260,7 +1767,9 @@ function desenharParcela(
         "bold"
     );
 
+
     pdf.setFontSize(7);
+
 
     pdf.text(
         "TELEFONE",
@@ -1274,7 +1783,9 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.setFontSize(9);
+
 
     pdf.text(
         formatarTelefone(
@@ -1289,7 +1800,12 @@ function desenharParcela(
        LINHA DO RODAPÉ
     ========================================== */
 
-    pdf.setDrawColor(180,180,180);
+    pdf.setDrawColor(
+        180,
+        180,
+        180
+    );
+
 
     pdf.line(
         clienteX,
@@ -1303,14 +1819,21 @@ function desenharParcela(
        RODAPÉ DO QUADRO
     ========================================== */
 
-    pdf.setTextColor(20,20,20);
+    pdf.setTextColor(
+        20,
+        20,
+        20
+    );
+
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
+
     pdf.setFontSize(6.5);
+
 
     pdf.text(
         "ZER01 MODA MASCULINA",
@@ -1324,6 +1847,7 @@ function desenharParcela(
         "normal"
     );
 
+
     pdf.text(
         "Tel.: (43) 9 9678-8303",
         clienteDireita,
@@ -1334,6 +1858,7 @@ function desenharParcela(
     );
 }
 
+
 /* =========================================================
    GERAR CARNÊ
 ========================================================= */
@@ -1341,92 +1866,149 @@ function desenharParcela(
 async function gerarCarne(){
 
     const btn =
-        document.getElementById("btnGerar");
+        document.getElementById(
+            "btnGerar"
+        );
+
 
     const carregando =
-        document.getElementById("carregando");
+        document.getElementById(
+            "carregando"
+        );
 
 
     const cliente =
-        document.getElementById("cliente")
-        .value
-        .trim();
+        document
+            .getElementById("cliente")
+            .value
+            .trim();
+
 
     const cpf =
-        document.getElementById("cpf")
-        .value
-        .trim();
+        document
+            .getElementById("cpf")
+            .value
+            .trim();
+
 
     const telefone =
-        document.getElementById("telefone")
-        .value
-        .trim();
+        document
+            .getElementById("telefone")
+            .value
+            .trim();
+
 
     const endereco =
-        document.getElementById("endereco")
-        .value
-        .trim();
+        document
+            .getElementById("endereco")
+            .value
+            .trim();
+
 
     const valorTotal =
         Number(
-            document.getElementById("valor").value
+            document
+                .getElementById("valor")
+                .value
         );
+
 
     const quantidade =
         Number(
-            document.getElementById("parcelas").value
+            document
+                .getElementById("parcelas")
+                .value
         );
 
+
     const primeiroVencimento =
-        document.getElementById(
-            "primeiroVencimento"
-        ).value;
+        document
+            .getElementById(
+                "primeiroVencimento"
+            )
+            .value;
+
 
     const pix =
-        document.getElementById("pix")
-        .value
-        .trim();
+        document
+            .getElementById("pix")
+            .value
+            .trim();
+
 
     const multa =
         Number(
-            document.getElementById("multa").value
+            document
+                .getElementById("multa")
+                .value
         ) || 0;
+
 
     const juros =
         Number(
-            document.getElementById("juros").value
+            document
+                .getElementById("juros")
+                .value
         ) || 0;
 
 
-    /* VALIDAÇÕES */
+    /* =================================================
+       VALIDAÇÕES
+    ================================================= */
+
 
     if(!cliente){
 
-        alert("Informe o nome do cliente.");
+        alert(
+            "Informe o nome do cliente."
+        );
+
         return;
     }
 
-    if(!valorTotal || valorTotal <= 0){
 
-        alert("Informe o valor total da venda.");
+    if(
+        !valorTotal ||
+        valorTotal <= 0
+    ){
+
+        alert(
+            "Informe o valor total da venda."
+        );
+
         return;
     }
 
-    if(!quantidade || quantidade < 1){
 
-        alert("Informe o número de parcelas.");
+    if(
+        !quantidade ||
+        quantidade < 1
+    ){
+
+        alert(
+            "Informe o número de parcelas."
+        );
+
         return;
     }
+
 
     if(!primeiroVencimento){
 
-        alert("Informe o primeiro vencimento.");
+        alert(
+            "Informe o primeiro vencimento."
+        );
+
         return;
     }
 
+
     if(!pix){
 
-        alert("Informe a chave PIX.");
+        alert(
+            "Informe a chave PIX."
+        );
+
         return;
     }
 
@@ -1438,7 +2020,8 @@ async function gerarCarne(){
     */
 
     if(
-        window.location.protocol === "file:"
+        window.location.protocol ===
+        "file:"
     ){
 
         alert(
@@ -1453,10 +2036,13 @@ async function gerarCarne(){
 
         btn.disabled = true;
 
-        carregando.style.display = "block";
+        carregando.style.display =
+            "block";
 
 
-        /* LOGO */
+        /* =================================================
+           LOGO
+        ================================================= */
 
         const logo =
             await carregarImagemLogo();
@@ -1471,10 +2057,13 @@ async function gerarCarne(){
                 valorTotal * 100
             );
 
+
         const valorBase =
             Math.floor(
-                totalCentavos / quantidade
+                totalCentavos /
+                quantidade
             );
+
 
         const resto =
             totalCentavos -
@@ -1512,6 +2101,7 @@ async function gerarCarne(){
             let valorParcela =
                 valorBase;
 
+
             /*
                 Diferença de arredondamento
                 fica na última parcela.
@@ -1521,7 +2111,8 @@ async function gerarCarne(){
                 i === quantidade - 1
             ){
 
-                valorParcela += resto;
+                valorParcela +=
+                    resto;
             }
 
 
@@ -1534,29 +2125,37 @@ async function gerarCarne(){
 
             const dadosCobranca = {
 
-                cliente:cliente,
+                cliente:
+                    cliente,
 
-                cpf:cpf,
+                cpf:
+                    cpf,
 
-                telefone:telefone,
+                telefone:
+                    telefone,
 
-                endereco:endereco,
+                endereco:
+                    endereco,
 
                 parcela:
                     (i + 1) +
                     "/" +
                     quantidade,
 
-                vencimento:vencimento,
+                vencimento:
+                    vencimento,
 
                 valor:
                     valorParcela / 100,
 
-                multa:multa,
+                multa:
+                    multa,
 
-                juros:juros,
+                juros:
+                    juros,
 
-                pix:pix
+                pix:
+                    pix
             };
 
 
@@ -1567,8 +2166,12 @@ async function gerarCarne(){
 
 
             cobrancas.push({
-                dados:dadosCobranca,
-                token:token
+
+                dados:
+                    dadosCobranca,
+
+                token:
+                    token
             });
         }
 
@@ -1598,6 +2201,7 @@ async function gerarCarne(){
 
             const posicao =
                 i % 2;
+
 
             const y =
                 posicao === 0
@@ -1643,7 +2247,9 @@ async function gerarCarne(){
                 Linha de corte entre as parcelas.
             */
 
-            if(posicao === 0){
+            if(
+                posicao === 0
+            ){
 
                 pdf.setDrawColor(
                     120,
@@ -1651,10 +2257,12 @@ async function gerarCarne(){
                     120
                 );
 
+
                 pdf.setLineDashPattern(
                     [3,2],
                     0
                 );
+
 
                 pdf.line(
                     8,
@@ -1662,6 +2270,7 @@ async function gerarCarne(){
                     289,
                     105
                 );
+
 
                 pdf.setLineDashPattern(
                     [],
@@ -1696,7 +2305,10 @@ async function gerarCarne(){
 
     }catch(erro){
 
-        console.error(erro);
+        console.error(
+            erro
+        );
+
 
         alert(
             "Erro ao gerar o carnê:\n\n" +
@@ -1706,34 +2318,40 @@ async function gerarCarne(){
             )
         );
 
+
     }finally{
 
         btn.disabled = false;
 
-        carregando.style.display = "none";
+        carregando.style.display =
+            "none";
     }
 }
 
 
 /* =========================================================
-   PAGINA DE PAGAMENTO
+   PÁGINA DE PAGAMENTO
 ========================================================= */
 
 async function abrirPaginaPagamento(token){
 
     document.getElementById(
         "paginaGerador"
-    ).style.display = "none";
+    ).style.display =
+        "none";
+
 
     document.getElementById(
         "paginaPagamento"
-    ).style.display = "block";
+    ).style.display =
+        "block";
 
 
     const status =
         document.getElementById(
             "statusPagamento"
         );
+
 
     const conteudo =
         document.getElementById(
@@ -1750,7 +2368,9 @@ async function abrirPaginaPagamento(token){
         const resposta =
             await fetch(
                 "/api/cobranca?token=" +
-                encodeURIComponent(token)
+                encodeURIComponent(
+                    token
+                )
             );
 
 
@@ -1773,6 +2393,10 @@ async function abrirPaginaPagamento(token){
         const dados =
             resultado.dados;
 
+
+        /* =================================================
+           CALCULAR ATRASO
+        ================================================= */
 
         const vencimento =
             new Date(
@@ -1806,26 +2430,37 @@ async function abrirPaginaPagamento(token){
                     )
                 );
 
-            if(diasAtraso < 0){
+
+            if(
+                diasAtraso < 0
+            ){
+
                 diasAtraso = 0;
             }
         }
 
 
         const valorOriginal =
-            Number(dados.valor || 0);
+            Number(
+                dados.valor || 0
+            );
 
 
         let valorMulta = 0;
+
         let valorJuros = 0;
 
 
-        if(diasAtraso > 0){
+        if(
+            diasAtraso > 0
+        ){
 
             valorMulta =
                 valorOriginal *
                 (
-                    Number(dados.multa || 0) /
+                    Number(
+                        dados.multa || 0
+                    ) /
                     100
                 );
 
@@ -1833,7 +2468,9 @@ async function abrirPaginaPagamento(token){
             valorJuros =
                 valorOriginal *
                 (
-                    Number(dados.juros || 0) /
+                    Number(
+                        dados.juros || 0
+                    ) /
                     100
                 ) *
                 diasAtraso;
@@ -1858,7 +2495,8 @@ async function abrirPaginaPagamento(token){
                     valorOriginal +
                     valorMulta +
                     valorJuros
-                ) * 100
+                ) *
+                100
             ) / 100;
 
 
@@ -1873,14 +2511,23 @@ async function abrirPaginaPagamento(token){
             );
 
 
+        /* =================================================
+           QR CODE PIX
+        ================================================= */
+
         const qrContainer =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         qrContainer.style.position =
             "absolute";
 
+
         qrContainer.style.left =
             "-99999px";
+
 
         document.body.appendChild(
             qrContainer
@@ -1890,9 +2537,15 @@ async function abrirPaginaPagamento(token){
         new QRCode(
             qrContainer,
             {
-                text:pixCopiaECola,
-                width:500,
-                height:500,
+                text:
+                    pixCopiaECola,
+
+                width:
+                    500,
+
+                height:
+                    500,
+
                 correctLevel:
                     QRCode.CorrectLevel.M
             }
@@ -1912,6 +2565,14 @@ async function abrirPaginaPagamento(token){
             qrContainer.querySelector(
                 "canvas"
             );
+
+
+        if(!canvas){
+
+            throw new Error(
+                "Não foi possível gerar o QR Code PIX."
+            );
+        }
 
 
         const qrData =
@@ -1939,41 +2600,66 @@ async function abrirPaginaPagamento(token){
 
 
         html += `
+
             <div class="resumo">
 
+
                 <div class="item">
-                    <span>Cliente</span>
+
+                    <span>
+                        Cliente
+                    </span>
+
                     <strong>
                         ${escaparHTML(
                             dados.cliente || "-"
                         )}
                     </strong>
+
                 </div>
 
+
                 <div class="item">
-                    <span>Parcela</span>
+
+                    <span>
+                        Parcela
+                    </span>
+
                     <strong>
                         ${escaparHTML(
                             dados.parcela || "-"
                         )}
                     </strong>
+
                 </div>
 
+
                 <div class="item">
-                    <span>Vencimento</span>
+
+                    <span>
+                        Vencimento
+                    </span>
+
                     <strong>
                         ${formatarData(
                             dados.vencimento
                         )}
                     </strong>
+
                 </div>
+
 
                 ${
                     dados.telefone
                     ?
                     `
+
                     <div class="item">
-                        <span>Telefone</span>
+
+                        <span>
+                            Telefone
+                        </span>
+
                         <strong>
                             ${escaparHTML(
                                 formatarTelefone(
@@ -1981,68 +2667,104 @@ async function abrirPaginaPagamento(token){
                                 )
                             )}
                         </strong>
+
                     </div>
+
                     `
                     :
                     ""
                 }
+
 
                 ${
                     diasAtraso > 0
                     ?
                     `
+
                     <div class="item">
-                        <span>Dias em atraso</span>
+
+                        <span>
+                            Dias em atraso
+                        </span>
+
                         <strong>
                             ${diasAtraso}
                         </strong>
+
                     </div>
 
+
                     <div class="item">
-                        <span>Valor original</span>
+
+                        <span>
+                            Valor original
+                        </span>
+
                         <strong>
                             ${formatarMoeda(
                                 valorOriginal
                             )}
                         </strong>
+
                     </div>
 
+
                     <div class="item">
-                        <span>Multa</span>
+
+                        <span>
+                            Multa
+                        </span>
+
                         <strong>
                             ${formatarMoeda(
                                 valorMulta
                             )}
                         </strong>
+
                     </div>
 
+
                     <div class="item">
-                        <span>Juros</span>
+
+                        <span>
+                            Juros
+                        </span>
+
                         <strong>
                             ${formatarMoeda(
                                 valorJuros
                             )}
                         </strong>
+
                     </div>
+
                     `
                     :
                     ""
                 }
 
+
                 <div class="item total">
-                    <span>Total para pagamento</span>
+
+                    <span>
+                        Total para pagamento
+                    </span>
+
                     <strong>
                         ${formatarMoeda(
                             valorTotal
                         )}
                     </strong>
+
                 </div>
+
 
             </div>
         `;
 
 
         html += `
+
             <div class="qr-area">
 
                 <img
@@ -2055,6 +2777,7 @@ async function abrirPaginaPagamento(token){
                     "
                 >
 
+
                 <div
                     style="
                         color:#111;
@@ -2064,6 +2787,7 @@ async function abrirPaginaPagamento(token){
                 >
                     PIX
                 </div>
+
 
                 <div
                     style="
@@ -2081,11 +2805,13 @@ async function abrirPaginaPagamento(token){
 
 
         html += `
+
             <div class="pix-box">
 
                 <label>
                     PIX COPIA E COLA
                 </label>
+
 
                 <div
                     class="pix-code"
@@ -2095,6 +2821,7 @@ async function abrirPaginaPagamento(token){
                         pixCopiaECola
                     )}
                 </div>
+
 
                 <button
                     class="copiar"
@@ -2107,7 +2834,8 @@ async function abrirPaginaPagamento(token){
         `;
 
 
-        conteudo.innerHTML = html;
+        conteudo.innerHTML =
+            html;
 
 
         window.pixAtual =
@@ -2116,19 +2844,28 @@ async function abrirPaginaPagamento(token){
 
     }catch(erro){
 
-        console.error(erro);
+        console.error(
+            erro
+        );
 
-        status.innerText = "";
+
+        status.innerText =
+            "";
+
 
         conteudo.innerHTML = `
+
             <div class="erro">
+
                 ${
                     escaparHTML(
                         erro.message ||
                         "Não foi possível carregar esta cobrança."
                     )
                 }
+
             </div>
+
         `;
     }
 }
@@ -2136,33 +2873,73 @@ async function abrirPaginaPagamento(token){
 
 /* =========================================================
    PIX BR CODE
+   CRC-16-CCITT-FALSE
 ========================================================= */
 
 function gerarPix(chave, valor){
 
-    const valorFormatado =
-        Number(valor)
-            .toFixed(2);
+    /*
+        Remove espaços acidentais
+        do início e do final da chave.
+    */
 
+    const chavePix =
+        String(
+            chave || ""
+        ).trim();
+
+
+    /*
+        Valor sempre com duas casas decimais.
+    */
+
+    const valorFormatado =
+        Number(
+            valor
+        ).toFixed(2);
+
+
+    /* =====================================================
+       CRIAR CAMPO EM FORMATO EMV
+    ===================================================== */
 
     function campo(id, valor){
 
-        const tamanho =
-            String(valor).length
-                .toString()
-                .padStart(2,"0");
+        const texto =
+            String(
+                valor
+            );
+
 
         return (
             id +
-            tamanho +
-            valor
+            texto.length
+                .toString()
+                .padStart(2,"0") +
+            texto
         );
     }
 
 
+    /* =====================================================
+       CRC-16-CCITT-FALSE
+
+       POLINÔMIO:
+       0x1021
+
+       VALOR INICIAL:
+       0xFFFF
+
+       SEM REFLEXÃO
+
+       XOR FINAL:
+       0x0000
+    ===================================================== */
+
     function crc16(payload){
 
-        let crc = 0xFFFF;
+        let crc =
+            0xFFFF;
 
 
         for(
@@ -2171,7 +2948,8 @@ function gerarPix(chave, valor){
             i++
         ){
 
-            crc ^= payload.charCodeAt(i);
+            crc ^=
+                payload.charCodeAt(i) << 8;
 
 
             for(
@@ -2181,56 +2959,65 @@ function gerarPix(chave, valor){
             ){
 
                 if(
-                    crc & 0x0001
+                    crc & 0x8000
                 ){
 
                     crc =
                         (
-                            crc >>> 1
+                            crc << 1
                         ) ^
-                        0xA001;
+                        0x1021;
 
                 }else{
 
                     crc =
-                        crc >>> 1;
+                        crc << 1;
                 }
+
+
+                crc &=
+                    0xFFFF;
             }
         }
 
 
-        const hex =
-            crc
-                .toString(16)
-                .toUpperCase()
-                .padStart(4,"0");
-
-
-        /*
-            O algoritmo acima trabalha em
-            representação little-endian.
-        */
-
-        return (
-            hex.slice(2) +
-            hex.slice(0,2)
-        );
+        return crc
+            .toString(16)
+            .toUpperCase()
+            .padStart(
+                4,
+                "0"
+            );
     }
 
 
+    /* =====================================================
+       MERCHANT ACCOUNT INFORMATION
+    ===================================================== */
+
     const merchantAccountInformation =
+
         campo(
             "00",
-            "BR.GOV.BCB.PIX"
+            "br.gov.bcb.pix"
         ) +
+
         campo(
             "01",
-            chave
+            chavePix
         );
 
 
+    /* =====================================================
+       PAYLOAD PRINCIPAL
+    ===================================================== */
+
     let payload = "";
 
+
+    /* =====================================================
+       PAYLOAD FORMAT INDICATOR
+    ===================================================== */
 
     payload += campo(
         "00",
@@ -2238,11 +3025,19 @@ function gerarPix(chave, valor){
     );
 
 
+    /* =====================================================
+       MERCHANT ACCOUNT INFORMATION
+    ===================================================== */
+
     payload += campo(
         "26",
         merchantAccountInformation
     );
 
+
+    /* =====================================================
+       MERCHANT CATEGORY CODE
+    ===================================================== */
 
     payload += campo(
         "52",
@@ -2250,11 +3045,21 @@ function gerarPix(chave, valor){
     );
 
 
+    /* =====================================================
+       CURRENCY
+
+       986 = BRL
+    ===================================================== */
+
     payload += campo(
         "53",
         "986"
     );
 
+
+    /* =====================================================
+       TRANSACTION AMOUNT
+    ===================================================== */
 
     payload += campo(
         "54",
@@ -2262,11 +3067,19 @@ function gerarPix(chave, valor){
     );
 
 
+    /* =====================================================
+       COUNTRY CODE
+    ===================================================== */
+
     payload += campo(
         "58",
         "BR"
     );
 
+
+    /* =====================================================
+       MERCHANT NAME
+    ===================================================== */
 
     payload += campo(
         "59",
@@ -2274,16 +3087,21 @@ function gerarPix(chave, valor){
     );
 
 
+    /* =====================================================
+       MERCHANT CITY
+    ===================================================== */
+
     payload += campo(
         "60",
         "LONDRINA"
     );
 
 
-    /*
-        Campo adicional obrigatório
-        com TXID genérico.
-    */
+    /* =====================================================
+       ADDITIONAL DATA FIELD
+
+       TXID = ***
+    ===================================================== */
 
     const campo62 =
         campo(
@@ -2298,12 +3116,33 @@ function gerarPix(chave, valor){
     );
 
 
-    payload += "6304";
+    /* =====================================================
+       CRC
 
+       O "6304" participa do cálculo.
+
+       O próprio CRC é acrescentado
+       somente depois do cálculo.
+    ===================================================== */
+
+    const payloadParaCRC =
+        payload +
+        "6304";
+
+
+    const crc =
+        crc16(
+            payloadParaCRC
+        );
+
+
+    /* =====================================================
+       PIX COPIA E COLA FINAL
+    ===================================================== */
 
     return (
-        payload +
-        crc16(payload + "")
+        payloadParaCRC +
+        crc
     );
 }
 
@@ -2315,6 +3154,7 @@ function gerarPix(chave, valor){
 async function copiarPix(){
 
     if(!window.pixAtual){
+
         return;
     }
 
@@ -2369,27 +3209,34 @@ async function copiarPix(){
 
 function escaparHTML(valor){
 
-    return String(valor || "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(
+        valor || ""
+    )
+
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+
+    .replace(
+        /</g,
+        "&lt;"
+    )
+
+    .replace(
+        />/g,
+        "&gt;"
+    )
+
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 }
 
 
@@ -2406,7 +3253,9 @@ function escaparHTML(valor){
 
 
     const token =
-        parametros.get("token");
+        parametros.get(
+            "token"
+        );
 
 
     if(token){
@@ -2419,16 +3268,20 @@ function escaparHTML(valor){
 
         document.getElementById(
             "paginaGerador"
-        ).style.display = "block";
+        ).style.display =
+            "block";
+
 
         document.getElementById(
             "paginaPagamento"
-        ).style.display = "none";
+        ).style.display =
+            "none";
     }
 
 })();
-
 </script>
 
+
 </body>
+
 </html>
