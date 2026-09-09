@@ -3416,6 +3416,487 @@ function escaparHTML(valor){
 
 let clientesAdmin = [];
 
+/* =========================================================
+   ZER01 — CARREGAR CLIENTES DO SUPABASE
+========================================================= */
+
+async function carregarClientesAdmin() {
+
+    try {
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        if (!sessionData?.session) {
+
+            console.warn(
+                "Usuário não autenticado."
+            );
+
+            return;
+
+        }
+
+
+        /* =====================================================
+           BUSCAR DADOS
+        ===================================================== */
+
+        const [
+            clientesResponse,
+            vendasResponse,
+            parcelasResponse,
+            carnesResponse
+        ] = await Promise.all([
+
+            supabaseClient
+                .from("clientes")
+                .select("*")
+                .order("nome", {
+                    ascending: true
+                }),
+
+            supabaseClient
+                .from("vendas")
+                .select("*"),
+
+            supabaseClient
+                .from("parcelas")
+                .select("*"),
+
+            supabaseClient
+                .from("carnes")
+                .select(
+                    "id, cliente_id, codigo_acesso, ativo"
+                )
+
+        ]);
+
+
+        /* =====================================================
+           VERIFICAR ERROS
+        ===================================================== */
+
+        if (clientesResponse.error) {
+            throw clientesResponse.error;
+        }
+
+        if (vendasResponse.error) {
+            throw vendasResponse.error;
+        }
+
+        if (parcelasResponse.error) {
+            throw parcelasResponse.error;
+        }
+
+        if (carnesResponse.error) {
+            throw carnesResponse.error;
+        }
+
+
+        const clientes =
+            clientesResponse.data || [];
+
+        const vendas =
+            vendasResponse.data || [];
+
+        const parcelas =
+            parcelasResponse.data || [];
+
+        const carnes =
+            carnesResponse.data || [];
+
+
+        /* =====================================================
+           DATA DE HOJE
+        ===================================================== */
+
+        const agora = new Date();
+
+        const hoje =
+            agora.getFullYear() +
+            "-" +
+            String(
+                agora.getMonth() + 1
+            ).padStart(2, "0") +
+            "-" +
+            String(
+                agora.getDate()
+            ).padStart(2, "0");
+
+
+        /* =====================================================
+           ORGANIZAR VENDAS POR CLIENTE
+        ===================================================== */
+
+        const vendasPorCliente = {};
+
+        vendas.forEach(venda => {
+
+            if (!venda.cliente_id) {
+                return;
+            }
+
+            if (!vendasPorCliente[venda.cliente_id]) {
+                vendasPorCliente[venda.cliente_id] = [];
+            }
+
+            vendasPorCliente[venda.cliente_id]
+                .push(venda);
+
+        });
+
+
+        /* =====================================================
+           ORGANIZAR PARCELAS POR VENDA
+        ===================================================== */
+
+        const parcelasPorVenda = {};
+
+        parcelas.forEach(parcela => {
+
+            if (!parcela.venda_id) {
+                return;
+            }
+
+            if (!parcelasPorVenda[parcela.venda_id]) {
+                parcelasPorVenda[parcela.venda_id] = [];
+            }
+
+            parcelasPorVenda[parcela.venda_id]
+                .push(parcela);
+
+        });
+
+
+        /* =====================================================
+           ORGANIZAR CARNÊS POR CLIENTE
+        ===================================================== */
+
+        const carnePorCliente = {};
+
+        carnes.forEach(carne => {
+
+            if (!carne.cliente_id) {
+                return;
+            }
+
+            carnePorCliente[carne.cliente_id] =
+                carne;
+
+        });
+
+
+        /* =====================================================
+           MONTAR CLIENTES
+        ===================================================== */
+
+        clientesAdmin =
+            clientes.map(cliente => {
+
+                const vendasCliente =
+                    vendasPorCliente[cliente.id] || [];
+
+
+                let parcelasCliente = [];
+
+
+                vendasCliente.forEach(venda => {
+
+                    const parcelasVenda =
+                        parcelasPorVenda[venda.id] || [];
+
+                    parcelasCliente =
+                        parcelasCliente.concat(
+                            parcelasVenda
+                        );
+
+                });
+
+
+                /* =================================================
+                   CALCULAR VALORES
+                ================================================= */
+
+                let totalAberto = 0;
+                let totalAtrasado = 0;
+
+                let parcelasAbertas = 0;
+                let parcelasAtrasadas = 0;
+
+
+                const mesesVencimento = [];
+
+
+                parcelasCliente.forEach(parcela => {
+
+                    const status =
+                        String(
+                            parcela.status || ""
+                        )
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(
+                            /[\u0300-\u036f]/g,
+                            ""
+                        );
+
+
+                    const valorOriginal =
+                        Number(
+                            parcela.valor || 0
+                        );
+
+
+                    const valorPago =
+                        Number(
+                            parcela.valor_pago || 0
+                        );
+
+
+                    const saldo =
+                        Math.max(
+                            valorOriginal -
+                            valorPago,
+                            0
+                        );
+
+
+                    /* =============================================
+                       PARCELA PAGA
+                    ============================================= */
+
+                    const paga =
+                        status.includes("pago") ||
+                        status.includes("quitado") ||
+                        status.includes("receb");
+
+
+                    const cancelada =
+                        status.includes("cancel");
+
+
+                    if (
+                        paga ||
+                        cancelada ||
+                        saldo <= 0
+                    ) {
+                        return;
+                    }
+
+
+                    /* =============================================
+                       PARCELA EM ABERTO
+                    ============================================= */
+
+                    parcelasAbertas++;
+
+                    totalAberto += saldo;
+
+
+                    /* =============================================
+                       MÊS DO VENCIMENTO
+                    ============================================= */
+
+                    if (parcela.vencimento) {
+
+                        const dataVencimento =
+                            String(
+                                parcela.vencimento
+                            );
+
+                        const mes =
+                            dataVencimento
+                                .substring(5, 7);
+
+                        if (
+                            mes &&
+                            !mesesVencimento
+                                .includes(mes)
+                        ) {
+
+                            mesesVencimento.push(
+                                mes
+                            );
+
+                        }
+
+
+                        /* =========================================
+                           ATRASADA
+                        ========================================= */
+
+                        if (
+                            dataVencimento < hoje
+                        ) {
+
+                            parcelasAtrasadas++;
+
+                            totalAtrasado += saldo;
+
+                        }
+
+                    }
+
+                });
+
+
+                /* =================================================
+                   STATUS DO CLIENTE
+                ================================================= */
+
+                let statusCliente =
+                    "quitado";
+
+
+                if (
+                    parcelasAtrasadas > 0
+                ) {
+
+                    statusCliente =
+                        "atrasado";
+
+                } else if (
+                    parcelasAbertas > 0
+                ) {
+
+                    statusCliente =
+                        "aberto";
+
+                }
+
+
+                /* =================================================
+                   CARNÊ DIGITAL
+                ================================================= */
+
+                const carne =
+                    carnePorCliente[cliente.id] || null;
+
+
+                return {
+
+                    id: cliente.id,
+
+                    nome:
+                        cliente.nome || "",
+
+                    cpf_cnpj:
+                        cliente.cpf_cnpj || "",
+
+                    telefone:
+                        cliente.telefone || "",
+
+                    endereco:
+                        cliente.endereco || "",
+
+                    totalAberto:
+                        totalAberto,
+
+                    totalAtrasado:
+                        totalAtrasado,
+
+                    parcelasAbertas:
+                        parcelasAbertas,
+
+                    parcelasAtrasadas:
+                        parcelasAtrasadas,
+
+                    status:
+                        statusCliente,
+
+                    mesesVencimento:
+                        mesesVencimento,
+
+                    /*
+                     * Mantemos este campo para
+                     * o botão GERAR CARNÊ COMPLETO.
+                     */
+
+                    codigoCarne:
+                        carne?.codigo_acesso || ""
+
+                };
+
+            });
+
+
+        /* =====================================================
+           MOSTRAR NO PAINEL
+        ===================================================== */
+
+        renderClientesAdmin(
+            clientesAdmin
+        );
+
+
+        console.log(
+            "Clientes carregados:",
+            clientesAdmin
+        );
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao carregar clientes:",
+            erro
+        );
+
+
+        clientesAdmin = [];
+
+
+        const desktop =
+            document.getElementById(
+                "adminListaDesktop"
+            );
+
+        const mobile =
+            document.getElementById(
+                "adminListaMobile"
+            );
+
+
+        const mensagem = `
+            <div class="admin-empty">
+                <strong>
+                    Erro ao carregar os clientes
+                </strong>
+
+                <span>
+                    Verifique a conexão com o Supabase.
+                </span>
+            </div>
+        `;
+
+
+        if (desktop) {
+            desktop.innerHTML =
+                mensagem;
+        }
+
+        if (mobile) {
+            mobile.innerHTML =
+                mensagem;
+        }
+
+
+        console.error(
+            "Detalhes do erro:",
+            erro?.message || erro
+        );
+
+    }
+
+}
+
 
 /* =========================================================
    ABRIR PAINEL ADMIN
@@ -3491,7 +3972,7 @@ async function abrirPaginaAdmin() {
     }
 
 
-    renderClientesAdmin([]);
+    carregarClientesAdmin();
 
 }
 
@@ -4050,12 +4531,15 @@ function filtrarClientesAdmin() {
 
         /* MÊS */
 
-        if (
-            filtroMes !== "todos" &&
-            cliente.mesVencimento &&
-            String(cliente.mesVencimento).padStart(2, "0") !== filtroMes
-        ) {
-            return false;
+        if (filtroMes !== "todos") {
+
+            const meses =
+                cliente.mesesVencimento || [];
+        
+            if (!meses.includes(filtroMes)) {
+                return false;
+            }
+        
         }
 
 
