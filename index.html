@@ -7,6 +7,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{
@@ -669,23 +670,136 @@ h1{
     .admin-summary-value {
         font-size: 18px;
     }
+}
 
-    .botao-voltar-painel{
-        width:100%;
-        margin:0 0 18px;
-        padding:13px 16px;
-        border:1px solid #333;
-        border-radius:8px;
-        background:#1d1d1d;
-        color:#fff;
-        font-size:13px;
-        font-weight:700;
-        cursor:pointer;
+/* =========================================================
+   ZER01 — LOGIN ADMINISTRATIVO
+========================================================= */
+
+#paginaLogin {
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    background:#0d0d0d;
+}
+
+.login-box {
+    width:100%;
+    max-width:420px;
+    background:#171717;
+    border:1px solid #292929;
+    border-radius:16px;
+    padding:32px;
+    box-shadow:0 15px 50px rgba(0,0,0,.45);
+}
+
+.login-logo {
+    display:block;
+    width:180px;
+    max-height:90px;
+    object-fit:contain;
+    margin:0 auto 25px;
+}
+
+.login-title {
+    text-align:center;
+    font-size:24px;
+    font-weight:800;
+    margin:0 0 6px;
+}
+
+.login-subtitle {
+    text-align:center;
+    color:#999;
+    font-size:13px;
+    margin:0 0 28px;
+}
+
+.login-campo {
+    margin-bottom:17px;
+}
+
+.login-campo label {
+    display:block;
+    font-size:13px;
+    font-weight:bold;
+    margin-bottom:7px;
+}
+
+.login-campo input {
+    width:100%;
+    height:48px;
+    padding:0 14px;
+    border-radius:9px;
+    border:1px solid #363636;
+    background:#0f0f0f;
+    color:#fff;
+    font-size:15px;
+    outline:none;
+}
+
+.login-campo input:focus {
+    border-color:#777;
+}
+
+.login-botao {
+    width:100%;
+    height:50px;
+    border:0;
+    border-radius:10px;
+    background:#fff;
+    color:#000;
+    font-size:14px;
+    font-weight:800;
+    cursor:pointer;
+    margin-top:5px;
+}
+
+.login-botao:hover {
+    opacity:.9;
+}
+
+.login-botao:disabled {
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.login-erro {
+    display:none;
+    margin-top:15px;
+    padding:12px;
+    border-radius:9px;
+    background:rgba(255,60,60,.1);
+    border:1px solid rgba(255,60,60,.25);
+    color:#ff6b6b;
+    font-size:13px;
+    text-align:center;
+}
+
+.login-carregando {
+    display:none;
+    text-align:center;
+    color:#999;
+    font-size:12px;
+    margin-top:12px;
+}
+
+@media(max-width:500px){
+
+    #paginaLogin {
+        padding:15px;
     }
-    
-    .botao-voltar-painel:hover{
-        background:#292929;
+
+    .login-box {
+        padding:25px 20px;
     }
+
+    .login-title {
+        font-size:21px;
+    }
+
 }
 </style>
 </head>
@@ -695,6 +809,88 @@ h1{
 <!-- =========================
      GERADOR
 ========================= -->
+
+<!-- =========================================================
+     ZER01 — LOGIN ADMINISTRATIVO
+========================================================= -->
+
+<div id="paginaLogin">
+
+    <div class="login-box">
+
+        <img
+            src="logoTitulo.png"
+            class="login-logo"
+            alt="ZER01"
+        >
+
+        <h1 class="login-title">
+            Área Administrativa
+        </h1>
+
+        <p class="login-subtitle">
+            Entre para acessar os carnês e recebimentos
+        </p>
+
+
+        <div class="login-campo">
+
+            <label for="loginEmail">
+                E-mail
+            </label>
+
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="Digite seu e-mail"
+                autocomplete="email"
+            >
+
+        </div>
+
+
+        <div class="login-campo">
+
+            <label for="loginSenha">
+                Senha
+            </label>
+
+            <input
+                type="password"
+                id="loginSenha"
+                placeholder="Digite sua senha"
+                autocomplete="current-password"
+            >
+
+        </div>
+
+
+        <button
+            type="button"
+            id="botaoLogin"
+            class="login-botao"
+            onclick="fazerLoginAdmin()"
+        >
+            ENTRAR NO PAINEL
+        </button>
+
+
+        <div
+            id="loginCarregando"
+            class="login-carregando"
+        >
+            Entrando...
+        </div>
+
+
+        <div
+            id="loginErro"
+            class="login-erro"
+        ></div>
+
+    </div>
+
+</div>
 
 <!-- =========================================================
      ZER01 — PAINEL ADMINISTRATIVO
@@ -929,13 +1125,6 @@ h1{
 <div id="paginaGerador">
 
     <div class="container">
-        <button
-            type="button"
-            class="botao-voltar-painel"
-            onclick="abrirPaginaAdmin()"
-        >
-            ← VOLTAR AO PAINEL
-        </button>
 
         <img src="logoTitulo.png" class="logo" id="logoGerador">
 
@@ -1117,6 +1306,153 @@ h1{
 
 const { jsPDF } = window.jspdf;
 
+/* =========================================================
+   SUPABASE — AUTENTICAÇÃO
+========================================================= */
+
+const SUPABASE_URL = "https://efqolftrbsrlssjynppn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_8X_nPFays64uHe-79mC68Q_AitP_c3l";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+);
+
+/* =========================================================
+   LOGIN ADMINISTRATIVO
+========================================================= */
+
+async function fazerLoginAdmin() {
+
+    const email =
+        document.getElementById("loginEmail")
+            ?.value
+            .trim();
+
+    const senha =
+        document.getElementById("loginSenha")
+            ?.value;
+
+
+    const botao =
+        document.getElementById("botaoLogin");
+
+    const erro =
+        document.getElementById("loginErro");
+
+    const carregando =
+        document.getElementById("loginCarregando");
+
+
+    if (erro) {
+
+        erro.style.display = "none";
+        erro.textContent = "";
+
+    }
+
+
+    if (!email || !senha) {
+
+        mostrarErroLogin(
+            "Digite seu e-mail e sua senha."
+        );
+
+        return;
+
+    }
+
+
+    if (botao) {
+        botao.disabled = true;
+    }
+
+    if (carregando) {
+        carregando.style.display = "block";
+    }
+
+
+    try {
+
+        const { data, error } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: senha
+            });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!data.session) {
+            throw new Error(
+                "Não foi possível criar a sessão."
+            );
+        }
+
+
+        abrirPaginaAdmin();
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro no login:",
+            error
+        );
+
+
+        let mensagem =
+            "E-mail ou senha incorretos.";
+
+
+        if (
+            error?.message
+                ?.toLowerCase()
+                ?.includes("email not confirmed")
+        ) {
+
+            mensagem =
+                "O e-mail do administrador ainda não foi confirmado.";
+
+        }
+
+
+        mostrarErroLogin(mensagem);
+
+
+    } finally {
+
+        if (botao) {
+            botao.disabled = false;
+        }
+
+        if (carregando) {
+            carregando.style.display = "none";
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   ERRO LOGIN
+========================================================= */
+
+function mostrarErroLogin(mensagem) {
+
+    const erro =
+        document.getElementById("loginErro");
+
+    if (!erro) return;
+
+    erro.textContent = mensagem;
+    erro.style.display = "block";
+
+}
 
 /* =========================================================
    FORMATAÇÃO CPF / CNPJ
@@ -3045,34 +3381,134 @@ let clientesAdmin = [];
    ABRIR PAINEL ADMIN
 ========================================================= */
 
-function abrirPaginaAdmin() {
+/* =========================================================
+   ABRIR PAINEL ADMIN
+========================================================= */
 
-    const admin = document.getElementById("paginaAdmin");
-    const gerador = document.getElementById("paginaGerador");
-    const pagamento = document.getElementById("paginaPagamento");
+async function abrirPaginaAdmin() {
 
-    if (admin) admin.style.display = "block";
-    if (gerador) gerador.style.display = "none";
-    if (pagamento) pagamento.style.display = "none";
+    const login =
+        document.getElementById("paginaLogin");
+
+    const admin =
+        document.getElementById("paginaAdmin");
+
+    const gerador =
+        document.getElementById("paginaGerador");
+
+    const pagamento =
+        document.getElementById("paginaPagamento");
+
+
+    const {
+        data: {
+            session
+        }
+    } = await supabaseClient.auth.getSession();
+
+
+    /* SEM LOGIN */
+
+    if (!session) {
+
+        if (login) {
+            login.style.display = "flex";
+        }
+
+        if (admin) {
+            admin.style.display = "none";
+        }
+
+        if (gerador) {
+            gerador.style.display = "none";
+        }
+
+        if (pagamento) {
+            pagamento.style.display = "none";
+        }
+
+        return;
+
+    }
+
+
+    /* COM LOGIN */
+
+    if (login) {
+        login.style.display = "none";
+    }
+
+    if (admin) {
+        admin.style.display = "block";
+    }
+
+    if (gerador) {
+        gerador.style.display = "none";
+    }
+
+    if (pagamento) {
+        pagamento.style.display = "none";
+    }
+
 
     renderClientesAdmin([]);
 
 }
 
+/* =========================================================
+   ABRIR GERADOR
+========================================================= */
 
 /* =========================================================
    ABRIR GERADOR
 ========================================================= */
 
-function abrirGerador() {
+async function abrirGerador() {
 
-    const admin = document.getElementById("paginaAdmin");
-    const gerador = document.getElementById("paginaGerador");
-    const pagamento = document.getElementById("paginaPagamento");
+    const {
+        data: {
+            session
+        }
+    } = await supabaseClient.auth.getSession();
 
-    if (admin) admin.style.display = "none";
-    if (gerador) gerador.style.display = "block";
-    if (pagamento) pagamento.style.display = "none";
+
+    if (!session) {
+
+        abrirPaginaAdmin();
+
+        return;
+
+    }
+
+
+    const login =
+        document.getElementById("paginaLogin");
+
+    const admin =
+        document.getElementById("paginaAdmin");
+
+    const gerador =
+        document.getElementById("paginaGerador");
+
+    const pagamento =
+        document.getElementById("paginaPagamento");
+
+
+    if (login) {
+        login.style.display = "none";
+    }
+
+    if (admin) {
+        admin.style.display = "none";
+    }
+
+    if (gerador) {
+        gerador.style.display = "block";
+    }
+
+    if (pagamento) {
+        pagamento.style.display = "none";
+    }
 
 }
 
@@ -3632,56 +4068,32 @@ function iniciarFiltrosAdmin() {
 
 }
 
-function abrirPaginaAdmin(){
-
-    document.getElementById(
-        "paginaGerador"
-    ).style.display = "none";
-
-    document.getElementById(
-        "paginaPagamento"
-    ).style.display = "none";
-
-    document.getElementById(
-        "paginaAdmin"
-    ).style.display = "block";
-
-    window.scrollTo(0, 0);
-}
-
-
-function abrirGerador(){
-
-    document.getElementById(
-        "paginaAdmin"
-    ).style.display = "none";
-
-    document.getElementById(
-        "paginaPagamento"
-    ).style.display = "none";
-
-    document.getElementById(
-        "paginaGerador"
-    ).style.display = "block";
-
-    window.scrollTo(0, 0);
-}
+/* =========================================================
+   INICIALIZAÇÃO
+========================================================= */
 
 /* =========================================================
    INICIALIZAÇÃO
 ========================================================= */
 
-(function iniciarSistema() {
+(async function iniciarSistema() {
 
-    const params = new URLSearchParams(
-        window.location.search
-    );
-
-    const token = params.get("token");
-    const carne = params.get("carne");
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
 
 
-    /* PAGAMENTO DE PARCELA */
+    const token =
+        params.get("token");
+
+    const carne =
+        params.get("carne");
+
+
+    /* =====================================================
+       PAGAMENTO DE PARCELA
+    ===================================================== */
 
     if (token) {
 
@@ -3692,13 +4104,15 @@ function abrirGerador(){
     }
 
 
-    /* CARNÊ DIGITAL */
+    /* =====================================================
+       CARNÊ DIGITAL
+    ===================================================== */
 
     if (carne) {
 
         /*
-         * A página do carnê digital será conectada
-         * na próxima etapa.
+         * A página do carnê digital será
+         * ativada na próxima etapa.
          */
 
         abrirPaginaAdmin();
@@ -3708,9 +4122,14 @@ function abrirGerador(){
     }
 
 
-    /* PAINEL ADMINISTRATIVO */
+    /* =====================================================
+       PAINEL ADMINISTRATIVO
+    ===================================================== */
 
-    abrirPaginaAdmin();
+    await abrirPaginaAdmin();
+
+
+    /* FILTROS */
 
     iniciarFiltrosAdmin();
 
