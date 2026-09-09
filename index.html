@@ -4295,10 +4295,11 @@ function renderClientesAdmin(lista) {
                         :
                         `
                         <button
-                            class="admin-btn admin-btn-secondary"
-                            disabled
+                            class="admin-btn admin-btn-primary"
+                            data-cliente-id="${escaparAtributoAdmin(cliente.id)}"
+                            onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
                         >
-                            SEM CARNÊ
+                            GERAR CARNÊ COMPLETO
                         </button>
                         `
                     }
@@ -4405,10 +4406,11 @@ function renderClientesAdmin(lista) {
                     :
                     `
                     <button
-                        class="admin-btn admin-btn-secondary cliente-card-action"
-                        disabled
+                        class="admin-btn admin-btn-primary"
+                        data-cliente-id="${escaparAtributoAdmin(cliente.id)}"
+                        onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
                     >
-                        CARNÊ NÃO DISPONÍVEL
+                        GERAR CARNÊ COMPLETO
                     </button>
                     `
                 }
@@ -4424,6 +4426,184 @@ function renderClientesAdmin(lista) {
 
 }
 
+/* =========================================================
+   ZER01 — CRIAR / ABRIR CARNÊ DO CLIENTE
+========================================================= */
+
+async function gerarCarneCliente(clienteId) {
+
+    try {
+
+        if (!clienteId) {
+            alert("Cliente inválido.");
+            return;
+        }
+
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } = await supabaseClient.auth.getSession();
+
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+
+        if (!sessionData?.session) {
+
+            alert(
+                "Sua sessão expirou. Faça login novamente."
+            );
+
+            await supabaseClient.auth.signOut();
+
+            abrirPaginaAdmin();
+
+            return;
+        }
+
+
+        /* =====================================================
+           ENCONTRAR CLIENTE
+        ===================================================== */
+
+        const cliente =
+            clientesAdmin.find(
+                c => c.id === clienteId
+            );
+
+
+        if (!cliente) {
+
+            alert(
+                "Cliente não encontrado."
+            );
+
+            return;
+        }
+
+
+        /* =====================================================
+           MOSTRAR PROCESSANDO
+        ===================================================== */
+
+        const botoes =
+            document.querySelectorAll(
+                `[data-cliente-id="${clienteId}"]`
+            );
+
+
+        botoes.forEach(botao => {
+
+            botao.disabled = true;
+            botao.textContent = "CRIANDO CARNÊ...";
+
+        });
+
+
+        /* =====================================================
+           CRIAR / REUTILIZAR CARNÊ
+        ===================================================== */
+
+        const resposta =
+            await fetch(
+                "/api/cobranca",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        acao: "criarCarne",
+
+                        clienteId:
+                            clienteId,
+
+                        multa: 2,
+
+                        juros: 0.033,
+
+                        pix:
+                            cliente.pix || ""
+
+                    })
+
+                }
+            );
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado?.erro ||
+                resultado?.error ||
+                "Não foi possível criar o carnê."
+            );
+
+        }
+
+
+        /* =====================================================
+           PEGAR CÓDIGO
+        ===================================================== */
+
+        const codigo =
+            resultado.codigo_acesso ||
+            resultado.codigo ||
+            resultado.carne?.codigo_acesso;
+
+
+        if (!codigo) {
+
+            throw new Error(
+                "O servidor criou o carnê, mas não retornou o código de acesso."
+            );
+
+        }
+
+
+        /* =====================================================
+           ABRIR CARNÊ
+        ===================================================== */
+
+        const url =
+            `${window.location.origin}/?carne=${encodeURIComponent(codigo)}`;
+
+
+        window.location.href = url;
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao gerar carnê:",
+            erro
+        );
+
+
+        alert(
+            erro?.message ||
+            "Erro ao criar o carnê."
+        );
+
+
+        /* Restaurar botões */
+
+        carregarClientesAdmin();
+
+    }
+
+}
 
 /* =========================================================
    ESCAPAR HTML
