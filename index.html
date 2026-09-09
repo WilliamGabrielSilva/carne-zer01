@@ -1,730 +1,907 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>
-        ZER01 Moda Masculina - Carnês
-    </title>
-
-
-    <!-- =====================================================
-         JSPDF
-    ====================================================== -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-
-    <!-- =====================================================
-         QR CODE
-    ====================================================== -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-
-    <!-- =====================================================
-         ESTILO
-    ====================================================== -->
-
-    <style>
-
-        *{
-            box-sizing:border-box;
-            margin:0;
-            padding:0;
-        }
-
-
-        body{
-
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
-
-            background:#111;
-
-            color:#fff;
-
-            min-height:100vh;
-        }
-
-
-        /* =================================================
-           GERADOR
-        ================================================= */
-
-        #paginaGerador{
-
-            display:none;
-
-            min-height:100vh;
-
-            padding:30px 20px;
-        }
-
-
-        .container{
-
-            width:100%;
-
-            max-width:700px;
-
-            margin:auto;
-        }
-
-
-        .titulo{
-
-            text-align:center;
-
-            margin-bottom:30px;
-        }
-
-
-        .titulo h1{
-
-            font-size:30px;
-
-            margin-bottom:8px;
-        }
-
-
-        .titulo p{
-
-            color:#aaa;
-
-            font-size:14px;
-        }
-
-
-        .formulario{
-
-            background:#1b1b1b;
-
-            border:1px solid #333;
-
-            border-radius:12px;
-
-            padding:25px;
-        }
-
-
-        .campo{
-
-            margin-bottom:18px;
-        }
-
-
-        .campo label{
-
-            display:block;
-
-            font-size:13px;
-
-            font-weight:bold;
-
-            margin-bottom:7px;
-
-            color:#ddd;
-        }
-
-
-        .campo input{
-
-            width:100%;
-
-            padding:13px;
-
-            border-radius:7px;
-
-            border:1px solid #444;
-
-            background:#101010;
-
-            color:#fff;
-
-            outline:none;
-
-            font-size:15px;
-        }
-
-
-        .campo input:focus{
-
-            border-color:#777;
-        }
-
-
-        .linha{
-
-            display:grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
-            gap:15px;
-        }
-
-
-        .linha-3{
-
-            display:grid;
-
-            grid-template-columns:
-                1fr 1fr 1fr;
-
-            gap:15px;
-        }
-
-
-        button{
-
-            width:100%;
-
-            padding:15px;
-
-            border:0;
-
-            border-radius:8px;
-
-            background:#fff;
-
-            color:#111;
-
-            font-weight:bold;
-
-            font-size:15px;
-
-            cursor:pointer;
-
-            margin-top:5px;
-        }
-
-
-        button:hover{
-
-            opacity:.9;
-        }
-
-
-        button:disabled{
-
-            opacity:.5;
-
-            cursor:not-allowed;
-        }
-
-
-        #carregando{
-
-            display:none;
-
-            text-align:center;
-
-            margin-top:15px;
-
-            color:#aaa;
-
-            font-size:14px;
-        }
-
-
-        /* =================================================
-           PAGAMENTO
-        ================================================= */
-
-        #paginaPagamento{
-
-            display:none;
-
-            min-height:100vh;
-
-            padding:30px 20px;
-        }
-
-
-        .pagamento-container{
-
-            width:100%;
-
-            max-width:700px;
-
-            margin:auto;
-
-            background-color: #111;
-        }
-
-
-        .pagamento-header{
-
-            text-align:center;
-
-            margin-bottom:25px;
-        }
-
-
-        .pagamento-header h1{
-
-            font-size:28px;
-
-            margin-bottom:8px;
-        }
-
-
-        #statusPagamento{
-
-            color:#aaa;
-
-            font-size:14px;
-        }
-
-
-        #conteudoPagamento{
-
-            background:#1b1b1b;
-        
-            color:#fff;
-        
-            border:1px solid #333;
-        
-            border-radius:12px;
-        
-            padding:25px;
-        }
-
-
-        .resumo{
-
-            display:grid;
-
-            grid-template-columns:
-                1fr 1fr;
-
-            gap:12px;
-
-            margin-bottom:25px;
-        }
-
-
-        .item{
-
-            border:1px solid #333;
-        
-            border-radius:8px;
-        
-            padding:12px;
-        
-            background:#151515;
-        }
-
-
-       .item span{
-
-            display:block;
-        
-            font-size:12px;
-        
-            color:#999;
-        
-            margin-bottom:5px;
-        }
-
-
-        .item strong{
-
-            font-size:15px;
-        }
-
-
-        .item.total{
-
-            grid-column:1 / -1;
-        
-            background:#222;
-        
-            border-color:#444;
-        
-            text-align:center;
-        }
-
-
-        .item.total strong{
-
-            font-size:22px;
-        }
-
-
-        .qr-area{
-
-            text-align:center;
-        
-            padding:20px;
-        
-            border-top:1px solid #333;
-        
-            border-bottom:1px solid #333;
-        
-            margin-bottom:25px;
-        }
-
-
-        .pix-box{
-
-            text-align:center;
-        }
-
-
-        .pix-box label{
-
-            display:block;
-
-            font-size:13px;
-
-            font-weight:bold;
-
-            margin-bottom:8px;
-        }
-
-
-        .pix-code{
-
-            background:#f2f2f2;
-
-            border:1px solid #ddd;
-
-            border-radius:8px;
-
-            padding:15px;
-
-            font-size:12px;
-
-            word-break:break-all;
-
-            color:#333;
-
-            max-height:160px;
-
-            overflow:auto;
-
-            text-align:left;
-
-            margin-bottom:12px;
-        }
-
-
-        .copiar{
-
-            background:#111;
-
-            color:#fff;
-
-            margin-top:0;
-        }
-
-
-        .erro{
-
-            background:#ffecec;
-
-            border:1px solid #ffb0b0;
-
-            color:#a00000;
-
-            padding:15px;
-
-            border-radius:8px;
-
-            text-align:center;
-        }
-
-
-        @media(max-width:600px){
-
-            .linha,
-            .linha-3{
-
-                grid-template-columns:1fr;
-            }
-
-
-            .resumo{
-
-                grid-template-columns:1fr;
-            }
-
-
-            .item.total{
-
-                grid-column:auto;
-            }
-
-
-            .formulario{
-
-                padding:18px;
-            }
-
-
-            #paginaGerador,
-            #paginaPagamento{
-
-                padding:20px 12px;
-            }
-
-            
-        }
-
-        .logo{
-            display:block;
-            max-width:220px;
-            max-height:90px;
-            margin:0 auto 25px;
-            object-fit:contain;
-        }
-    </style>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZER01 - Carnê</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:0;
+    background:#0d0d0d;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+#paginaGerador{
+    min-height:100vh;
+    padding:30px 15px;
+}
+
+.container{
+    width:100%;
+    max-width:720px;
+    margin:auto;
+    background:#171717;
+    border:1px solid #292929;
+    border-radius:16px;
+    padding:30px;
+    box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+
+.logo{
+    display:block;
+    max-width:220px;
+    max-height:90px;
+    margin:0 auto 25px;
+    object-fit:contain;
+}
+
+h1{
+    text-align:center;
+    margin:0 0 8px;
+    font-size:28px;
+}
+
+.subtitulo{
+    text-align:center;
+    color:#aaa;
+    margin-bottom:28px;
+}
+
+.campo{
+    margin-bottom:17px;
+}
+
+.campo label{
+    display:block;
+    margin-bottom:7px;
+    font-weight:bold;
+    font-size:14px;
+}
+
+.campo input,
+.campo textarea{
+    width:100%;
+    border:1px solid #363636;
+    background:#0f0f0f;
+    color:#fff;
+    border-radius:9px;
+    padding:13px;
+    font-size:16px;
+    outline:none;
+}
+
+.campo input:focus,
+.campo textarea:focus{
+    border-color:#777;
+}
+
+.campo textarea{
+    min-height:75px;
+    resize:vertical;
+}
+
+.linha{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.botao{
+    width:100%;
+    border:0;
+    border-radius:10px;
+    padding:16px;
+    background:#fff;
+    color:#000;
+    font-size:17px;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:8px;
+}
+
+.botao:hover{
+    opacity:.9;
+}
+
+.botao:disabled{
+    opacity:.5;
+    cursor:not-allowed;
+}
+
+.info{
+    background:#101010;
+    border:1px solid #292929;
+    border-radius:10px;
+    padding:14px;
+    color:#aaa;
+    font-size:13px;
+    margin-top:20px;
+    line-height:1.5;
+}
+
+#carregando{
+    display:none;
+    text-align:center;
+    margin-top:18px;
+    color:#ccc;
+}
+
+#paginaPagamento{
+    display:none;
+    min-height:100vh;
+    padding:25px 15px;
+}
+
+.pagamento{
+    width:100%;
+    max-width:600px;
+    margin:auto;
+    background:#171717;
+    border:1px solid #292929;
+    border-radius:16px;
+    padding:25px;
+}
+
+.pagamento .logo{
+    margin-bottom:15px;
+}
+
+.pagamento h1{
+    margin-bottom:5px;
+}
+
+.status{
+    text-align:center;
+    color:#aaa;
+    margin-bottom:25px;
+}
+
+.resumo{
+    border:1px solid #333;
+    border-radius:12px;
+    overflow:hidden;
+    margin-bottom:20px;
+}
+
+.item{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    padding:14px;
+    border-bottom:1px solid #292929;
+}
+
+.item:last-child{
+    border-bottom:0;
+}
+
+.item span:first-child{
+    color:#aaa;
+}
+
+.item strong{
+    text-align:right;
+}
+
+.total{
+    background:#222;
+    font-size:20px;
+}
+
+.total strong{
+    font-size:23px;
+}
+
+.qr-area{
+    background:#fff;
+    border-radius:12px;
+    padding:20px;
+    text-align:center;
+    margin-top:20px;
+}
+
+#qrPagamento{
+    width:240px;
+    height:240px;
+    margin:auto;
+}
+
+#qrPagamento img{
+    width:240px !important;
+    height:240px !important;
+}
+
+.pix-box{
+    margin-top:20px;
+}
+
+.pix-box label{
+    display:block;
+    color:#aaa;
+    margin-bottom:7px;
+    font-size:13px;
+}
+
+.pix-code{
+    background:#0c0c0c;
+    border:1px solid #333;
+    border-radius:9px;
+    padding:12px;
+    word-break:break-all;
+    font-size:12px;
+    line-height:1.4;
+    color:#ddd;
+}
+
+.copiar{
+    width:100%;
+    margin-top:10px;
+    padding:13px;
+    border:0;
+    border-radius:8px;
+    background:#fff;
+    color:#000;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.erro{
+    background:#260d0d;
+    border:1px solid #602020;
+    padding:15px;
+    border-radius:10px;
+    color:#ffb3b3;
+    text-align:center;
+}
+
+.rodape{
+    text-align:center;
+    color:#777;
+    font-size:12px;
+    margin-top:25px;
+}
+
+@media(max-width:600px){
+    .container,
+    .pagamento{
+        padding:20px;
+    }
+
+    .linha{
+        grid-template-columns:1fr;
+        gap:0;
+    }
+}
+
+/* =========================================================
+   ZER01 — PAINEL ADMINISTRATIVO
+========================================================= */
+
+#paginaAdmin {
+    min-height: 100vh;
+    padding: 24px 16px 50px;
+}
+
+.admin-shell {
+    width: 100%;
+    max-width: 1150px;
+    margin: 0 auto;
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 10px 0 25px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.admin-brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-logo {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.admin-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.admin-subtitle {
+    margin: 5px 0 0;
+    color: #999;
+    font-size: 13px;
+}
+
+/* BOTÕES */
+
+.admin-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.admin-btn {
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.admin-btn:hover {
+    transform: translateY(-1px);
+}
+
+.admin-btn-primary {
+    background: #fff;
+    color: #111;
+}
+
+.admin-btn-secondary {
+    background: #242424;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.1);
+}
+
+/* FILTROS */
+
+.admin-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 190px 190px;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.admin-search {
+    position: relative;
+}
+
+.admin-search input,
+.admin-filter select {
+    width: 100%;
+    height: 48px;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: #171717;
+    color: #fff;
+    padding: 0 14px;
+    outline: none;
+    font-size: 14px;
+}
+
+.admin-search input:focus,
+.admin-filter select:focus {
+    border-color: rgba(255,255,255,.3);
+}
+
+.admin-filter select {
+    cursor: pointer;
+}
+
+/* RESUMO */
+
+.admin-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.admin-summary-card {
+    background: #171717;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 12px;
+    padding: 17px;
+}
+
+.admin-summary-label {
+    display: block;
+    color: #888;
+    font-size: 12px;
+    margin-bottom: 7px;
+}
+
+.admin-summary-value {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+/* LISTA */
+
+.admin-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    background: #141414;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 15px;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: #777;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.admin-table td {
+    padding: 16px 15px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.admin-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.admin-client-name {
+    font-weight: 800;
+}
+
+.admin-client-document {
+    color: #777;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.admin-money {
+    font-weight: 800;
+}
+
+.admin-installments {
+    color: #aaa;
+}
+
+/* STATUS */
+
+.admin-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.status-aberto {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+}
+
+.status-atrasado {
+    background: rgba(255,60,60,.12);
+    color: #ff6464;
+}
+
+.status-quitado {
+    background: rgba(100,100,100,.12);
+    color: #aaa;
+}
+
+/* ESTADO VAZIO */
+
+.admin-empty {
+    text-align: center;
+    padding: 70px 20px;
+    color: #777;
+}
+
+.admin-empty strong {
+    display: block;
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.admin-empty span {
+    font-size: 13px;
+}
+
+/* MOBILE */
+
+.admin-mobile-list {
+    display: none;
+}
+
+.cliente-card {
+    background: #141414;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.cliente-card + .cliente-card {
+    margin-top: 12px;
+}
+
+.cliente-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.cliente-card-name {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.cliente-card-document {
+    color: #777;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.cliente-card-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.cliente-card-info div {
+    background: #1a1a1a;
+    border-radius: 9px;
+    padding: 10px;
+}
+
+.cliente-card-info small {
+    display: block;
+    color: #777;
+    font-size: 10px;
+    margin-bottom: 4px;
+}
+
+.cliente-card-info strong {
+    font-size: 13px;
+}
+
+.cliente-card-action {
+    width: 100%;
+    margin-top: 14px;
+}
+
+/* RODAPÉ ADMIN */
+
+.admin-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 800px) {
+
+    .admin-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .admin-actions {
+        width: 100%;
+    }
+
+    .admin-actions .admin-btn {
+        flex: 1;
+    }
+
+    .admin-toolbar {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-summary-card:last-child {
+        grid-column: span 2;
+    }
+
+    .admin-table-wrap {
+        display: none;
+    }
+
+    .admin-mobile-list {
+        display: block;
+    }
+}
+
+@media (max-width: 500px) {
+
+    #paginaAdmin {
+        padding: 15px 10px 35px;
+    }
+
+    .admin-logo {
+        width: 48px;
+        height: 48px;
+    }
+
+    .admin-title {
+        font-size: 19px;
+    }
+
+    .admin-subtitle {
+        font-size: 11px;
+    }
+
+    .admin-summary {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .admin-summary-card:last-child {
+        grid-column: span 2;
+    }
+
+    .admin-summary-value {
+        font-size: 18px;
+    }
+}
+</style>
 </head>
-
 
 <body>
 
+<!-- =========================
+     GERADOR
+========================= -->
 
 <!-- =========================================================
-     PÁGINA DO GERADOR
+     ZER01 — PAINEL ADMINISTRATIVO
 ========================================================= -->
 
-<div id="paginaGerador">
+<div id="paginaAdmin">
 
-    <div class="container">
-        <img src="logoTitulo.png" class="logo" id="logoGerador">
+    <div class="admin-shell">
 
-        <div class="titulo">
+        <!-- CABEÇALHO -->
+        <header class="admin-header">
 
-            <h1>
-                ZER01 MODA MASCULINA
-            </h1>
+            <div class="admin-brand">
 
-            <p>
-                Gerador de Carnês
-            </p>
+                <img
+                    src="logoTitulo.png"
+                    alt="ZER01"
+                    class="admin-logo"
+                    onerror="this.style.display='none'"
+                >
+
+                <div>
+                    <h1 class="admin-title">
+                        ZER01 - MODA MASCULINA
+                    </h1>
+
+                    <p class="admin-subtitle">
+                        Controle de carnês e recebimentos
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="admin-actions">
+
+                <button
+                    class="admin-btn admin-btn-primary"
+                    onclick="abrirGerador()"
+                >
+                    + NOVO CARNÊ
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- FILTROS -->
+
+        <div class="admin-toolbar">
+
+            <div class="admin-search">
+
+                <input
+                    type="text"
+                    id="buscaClienteAdmin"
+                    placeholder="Buscar cliente por nome, CPF ou telefone..."
+                    autocomplete="off"
+                >
+
+            </div>
+
+
+            <div class="admin-filter">
+
+                <select id="filtroStatusAdmin">
+
+                    <option value="todos">
+                        TODOS OS STATUS
+                    </option>
+
+                    <option value="aberto">
+                        EM ABERTO
+                    </option>
+
+                    <option value="atrasado">
+                        ATRASADOS
+                    </option>
+
+                    <option value="quitado">
+                        QUITADOS
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="admin-filter">
+
+                <select id="filtroMesAdmin">
+
+                    <option value="todos">
+                        TODOS OS MESES
+                    </option>
+
+                    <option value="01">JANEIRO</option>
+                    <option value="02">FEVEREIRO</option>
+                    <option value="03">MARÇO</option>
+                    <option value="04">ABRIL</option>
+                    <option value="05">MAIO</option>
+                    <option value="06">JUNHO</option>
+                    <option value="07">JULHO</option>
+                    <option value="08">AGOSTO</option>
+                    <option value="09">SETEMBRO</option>
+                    <option value="10">OUTUBRO</option>
+                    <option value="11">NOVEMBRO</option>
+                    <option value="12">DEZEMBRO</option>
+
+                </select>
+
+            </div>
 
         </div>
 
 
-        <div class="formulario">
+        <!-- RESUMO -->
 
+        <div class="admin-summary">
 
-            <!-- CLIENTE -->
+            <div class="admin-summary-card">
 
-            <div class="campo">
+                <span class="admin-summary-label">
+                    CLIENTES
+                </span>
 
-                <label for="cliente">
-                    Nome do cliente
-                </label>
-
-                <input
-                    type="text"
-                    id="cliente"
-                    placeholder="Digite o nome do cliente"
+                <strong
+                    class="admin-summary-value"
+                    id="adminTotalClientes"
                 >
+                    0
+                </strong>
 
             </div>
 
 
-            <!-- CPF / TELEFONE -->
+            <div class="admin-summary-card">
 
-            <div class="linha">
+                <span class="admin-summary-label">
+                    EM ABERTO
+                </span>
 
-
-                <div class="campo">
-
-                    <label for="cpf">
-                        CPF / CNPJ
-                    </label>
-
-                    <input
-                        type="text"
-                        id="cpf"
-                        placeholder="CPF ou CNPJ"
-                        maxlength="18"
-                    >
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label for="telefone">
-                        Telefone
-                    </label>
-
-                    <input
-                        type="text"
-                        id="telefone"
-                        placeholder="(00) 00000-0000"
-                        maxlength="15"
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <!-- ENDEREÇO -->
-
-            <div class="campo">
-
-                <label for="endereco">
-                    Endereço
-                </label>
-
-                <input
-                    type="text"
-                    id="endereco"
-                    placeholder="Endereço do cliente"
+                <strong
+                    class="admin-summary-value"
+                    id="adminTotalAberto"
                 >
+                    R$ 0,00
+                </strong>
 
             </div>
 
 
-            <!-- VALOR / PARCELAS -->
+            <div class="admin-summary-card">
 
-            <div class="linha">
+                <span class="admin-summary-label">
+                    ATRASADOS
+                </span>
 
-
-                <div class="campo">
-
-                    <label for="valor">
-                        Valor total da venda
-                    </label>
-
-                    <input
-                        type="number"
-                        id="valor"
-                        placeholder="0,00"
-                        min="0"
-                        step="0.01"
-                    >
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label for="parcelas">
-                        Número de parcelas
-                    </label>
-
-                    <input
-                        type="number"
-                        id="parcelas"
-                        placeholder="Ex.: 5"
-                        min="1"
-                        step="1"
-                    >
-
-                </div>
-
-
-            </div>
-
-
-            <!-- VENCIMENTO / PIX -->
-
-            <div class="campo">
-
-                <label for="primeiroVencimento">
-                    Primeiro vencimento
-                </label>
-
-                <input
-                    type="date"
-                    id="primeiroVencimento"
+                <strong
+                    class="admin-summary-value"
+                    id="adminTotalAtrasado"
                 >
+                    R$ 0,00
+                </strong>
 
             </div>
 
-
-            <div class="campo">
-
-                <label for="pix">
-                    Chave PIX
-                </label>
-
-                <input
-                    type="text"
-                    id="pix"
-                    placeholder="Digite a chave PIX"
-                >
-
-            </div>
+        </div>
 
 
-            <!-- MULTA / JUROS -->
+        <!-- LISTA DESKTOP -->
 
-            <div class="linha">
+        <div
+            id="adminListaDesktop"
+            class="admin-table-wrap"
+        >
 
+            <div class="admin-empty">
 
-                <div class="campo">
+                <strong>
+                    Nenhum cliente carregado
+                </strong>
 
-                    <label for="multa">
-                        Multa por atraso (%)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="multa"
-                        value="2"
-                        min="0"
-                        step="0.01"
-                    >
-
-                </div>
-
-
-                <div class="campo">
-
-                    <label for="juros">
-                        Juros por dia (%)
-                    </label>
-
-                    <input
-                        type="number"
-                        id="juros"
-                        value="0.033"
-                        min="0"
-                        step="0.001"
-                    >
-
-                </div>
-
+                <span>
+                    A conexão com o Supabase será adicionada na próxima etapa.
+                </span>
 
             </div>
 
+        </div>
 
-            <!-- BOTÃO -->
+
+        <!-- LISTA MOBILE -->
+
+        <div
+            id="adminListaMobile"
+            class="admin-mobile-list"
+        >
+
+            <div class="admin-empty">
+
+                <strong>
+                    Nenhum cliente carregado
+                </strong>
+
+                <span>
+                    A conexão com o Supabase será adicionada na próxima etapa.
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- RODAPÉ -->
+
+        <div class="admin-footer">
 
             <button
-                id="btnGerar"
-                onclick="gerarCarne()"
+                class="admin-btn admin-btn-secondary"
+                onclick="abrirGerador()"
             >
-                GERAR CARNÊ
+                ABRIR GERADOR
             </button>
-
-
-            <div id="carregando">
-                Gerando carnê, aguarde...
-            </div>
-
 
         </div>
 
@@ -732,31 +909,180 @@
 
 </div>
 
+<div id="paginaGerador">
 
-<!-- =========================================================
-     PÁGINA DE PAGAMENTO
-========================================================= -->
+    <div class="container">
 
-<div id="paginaPagamento">
+        <img src="logoTitulo.png" class="logo" id="logoGerador">
 
-    <div class="pagamento-container">
+        <h1>Gerador de Carnê</h1>
 
+        <div class="subtitulo">
+            ZER01 Moda Masculina
+        </div>
 
-        <div class="pagamento-header">
+        <div class="campo">
+            <label>Nome do cliente</label>
+            <input
+                type="text"
+                id="cliente"
+                placeholder="Nome completo"
+            >
+        </div>
 
-            <h1>
-                ZER01 MODA MASCULINA
-            </h1>
+        <div class="linha">
 
-            <div id="statusPagamento">
-                Validando cobrança...
+            <div class="campo">
+                <label>CPF / CNPJ</label>
+                <input
+                    type="text"
+                    id="cpf"
+                    placeholder="CPF ou CNPJ"
+                    inputmode="numeric"
+                    maxlength="18"
+                >
+            </div>
+
+            <div class="campo">
+                <label>Telefone</label>
+                <input
+                    type="text"
+                    id="telefone"
+                    placeholder="(43) 99999-9999"
+                    inputmode="numeric"
+                    maxlength="15"
+                >
             </div>
 
         </div>
 
+        <div class="campo">
+            <label>Endereço</label>
+            <textarea
+                id="endereco"
+                placeholder="Rua, número, bairro, cidade..."
+            ></textarea>
+        </div>
+
+        <div class="linha">
+
+            <div class="campo">
+                <label>Valor total da venda</label>
+                <input
+                    type="number"
+                    id="valor"
+                    placeholder="0,00"
+                    step="0.01"
+                    min="0"
+                >
+            </div>
+
+            <div class="campo">
+                <label>Número de parcelas</label>
+                <input
+                    type="number"
+                    id="parcelas"
+                    placeholder="Ex.: 5"
+                    min="1"
+                    max="60"
+                >
+            </div>
+
+        </div>
+
+        <div class="linha">
+
+            <div class="campo">
+                <label>Primeiro vencimento</label>
+                <input
+                    type="date"
+                    id="primeiroVencimento"
+                >
+            </div>
+
+            <div class="campo">
+                <label>Chave PIX</label>
+                <input
+                    type="text"
+                    id="pix"
+                    placeholder="Chave PIX"
+                >
+            </div>
+
+        </div>
+
+        <div class="linha">
+
+            <div class="campo">
+                <label>Multa por atraso (%)</label>
+                <input
+                    type="number"
+                    id="multa"
+                    value="2"
+                    step="0.01"
+                    min="0"
+                >
+            </div>
+
+            <div class="campo">
+                <label>Juros ao dia (%)</label>
+                <input
+                    type="number"
+                    id="juros"
+                    value="0.033"
+                    step="0.001"
+                    min="0"
+                >
+            </div>
+
+        </div>
+
+        <button
+            class="botao"
+            id="btnGerar"
+            onclick="gerarCarne()"
+        >
+            GERAR CARNÊ EM PDF
+        </button>
+
+        <div id="carregando">
+            Gerando carnê, aguarde...
+        </div>
+
+        <div class="info">
+            <strong>Formato do carnê:</strong><br>
+            A4 horizontal, com 2 parcelas por folha.
+            O QR Code de cada parcela abre a página de pagamento
+            com o valor atualizado automaticamente em caso de atraso.
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================
+     PAGAMENTO
+========================= -->
+
+<div id="paginaPagamento">
+
+    <div class="pagamento">
+
+        <img src="logoTitulo.png" class="logo">
+
+        <h1>Pagamento</h1>
+
+        <div class="status" id="statusPagamento">
+            Carregando cobrança...
+        </div>
 
         <div id="conteudoPagamento"></div>
 
+        <div class="rodape">
+            ZER01 MODA MASCULINA<br>
+            Tel.: (43) 9 9678-8303
+        </div>
 
     </div>
 
@@ -764,10 +1090,6 @@
 
 
 <script>
-
-/* =========================================================
-   JSPDF
-========================================================= */
 
 const { jsPDF } = window.jspdf;
 
@@ -778,37 +1100,29 @@ const { jsPDF } = window.jspdf;
 
 function formatarCpfCnpj(valor){
 
-    let n =
-        String(valor || "")
-            .replace(/\D/g,"")
-            .slice(0,14);
-
+    let n = String(valor || "")
+        .replace(/\D/g,"")
+        .slice(0,14);
 
     if(n.length <= 11){
 
         if(n.length <= 3){
-
             return n;
         }
 
-
         if(n.length <= 6){
-
             return n.replace(
                 /(\d{3})(\d+)/,
                 "$1.$2"
             );
         }
 
-
         if(n.length <= 9){
-
             return n.replace(
                 /(\d{3})(\d{3})(\d+)/,
                 "$1.$2.$3"
             );
         }
-
 
         return n.replace(
             /(\d{3})(\d{3})(\d{3})(\d{1,2})/,
@@ -816,25 +1130,11 @@ function formatarCpfCnpj(valor){
         );
     }
 
-
     return n.replace(
         /(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/,
         function(_,a,b,c,d,e){
-
-            return (
-                a +
-                "." +
-                b +
-                "." +
-                c +
-                "/" +
-                d +
-                (
-                    e
-                        ? "-" + e
-                        : ""
-                )
-            );
+            return a+"."+b+"."+c+"/"+d+
+                (e ? "-"+e : "");
         }
     );
 }
@@ -846,89 +1146,49 @@ function formatarCpfCnpj(valor){
 
 function formatarTelefone(valor){
 
-    let n =
-        String(valor || "")
-            .replace(/\D/g,"")
-            .slice(0,11);
-
+    let n = String(valor || "")
+        .replace(/\D/g,"")
+        .slice(0,11);
 
     if(!n){
-
         return "";
     }
 
-
     if(n.length <= 2){
-
         return "(" + n;
     }
 
-
     if(n.length <= 6){
-
-        return (
-            "(" +
-            n.slice(0,2) +
-            ") " +
-            n.slice(2)
-        );
+        return "(" + n.slice(0,2) + ") " +
+            n.slice(2);
     }
-
 
     if(n.length <= 10){
-
-        return (
-            "(" +
-            n.slice(0,2) +
-            ") " +
-            n.slice(2,6) +
-            "-" +
-            n.slice(6)
-        );
+        return "(" + n.slice(0,2) + ") " +
+            n.slice(2,6) + "-" +
+            n.slice(6);
     }
 
-
-    return (
-        "(" +
-        n.slice(0,2) +
-        ") " +
-        n.slice(2,7) +
-        "-" +
-        n.slice(7)
-    );
+    return "(" + n.slice(0,2) + ") " +
+        n.slice(2,7) + "-" +
+        n.slice(7);
 }
 
 
-/* =========================================================
-   EVENTOS DE FORMATAÇÃO
-========================================================= */
-
-document
-    .getElementById("cpf")
-    .addEventListener(
-        "input",
-        function(){
-
-            this.value =
-                formatarCpfCnpj(
-                    this.value
-                );
-        }
-    );
+document.getElementById("cpf").addEventListener(
+    "input",
+    function(){
+        this.value = formatarCpfCnpj(this.value);
+    }
+);
 
 
-document
-    .getElementById("telefone")
-    .addEventListener(
-        "input",
-        function(){
-
-            this.value =
-                formatarTelefone(
-                    this.value
-                );
-        }
-    );
+document.getElementById("telefone").addEventListener(
+    "input",
+    function(){
+        this.value = formatarTelefone(this.value);
+    }
+);
 
 
 /* =========================================================
@@ -937,9 +1197,7 @@ document
 
 function formatarMoeda(valor){
 
-    return Number(
-        valor || 0
-    ).toLocaleString(
+    return Number(valor || 0).toLocaleString(
         "pt-BR",
         {
             style:"currency",
@@ -956,28 +1214,18 @@ function formatarMoeda(valor){
 function formatarData(data){
 
     if(!data){
-
         return "";
     }
 
-
-    const partes =
-        data.split("-");
-
+    const partes = data.split("-");
 
     if(partes.length !== 3){
-
         return data;
     }
 
-
-    return (
-        partes[2] +
-        "/" +
-        partes[1] +
-        "/" +
-        partes[0]
-    );
+    return partes[2] + "/" +
+        partes[1] + "/" +
+        partes[0];
 }
 
 
@@ -987,53 +1235,30 @@ function formatarData(data){
 
 function adicionarMeses(data, meses){
 
-    const d =
-        new Date(
-            data + "T12:00:00"
-        );
+    const d = new Date(data + "T12:00:00");
 
-
-    const diaOriginal =
-        d.getDate();
-
+    const diaOriginal = d.getDate();
 
     d.setMonth(
         d.getMonth() + meses
     );
 
-
-    if(
-        d.getDate() !==
-        diaOriginal
-    ){
+    if(d.getDate() !== diaOriginal){
 
         d.setDate(0);
     }
 
+    const ano = d.getFullYear();
 
-    const ano =
-        d.getFullYear();
+    const mes = String(
+        d.getMonth()+1
+    ).padStart(2,"0");
 
+    const dia = String(
+        d.getDate()
+    ).padStart(2,"0");
 
-    const mes =
-        String(
-            d.getMonth()+1
-        ).padStart(2,"0");
-
-
-    const dia =
-        String(
-            d.getDate()
-        ).padStart(2,"0");
-
-
-    return (
-        ano +
-        "-" +
-        mes +
-        "-" +
-        dia
-    );
+    return ano + "-" + mes + "-" + dia;
 }
 
 
@@ -1046,59 +1271,41 @@ function carregarImagemLogo(){
     return new Promise(
         function(resolve,reject){
 
-            const imagem =
-                new Image();
+            const imagem = new Image();
 
+            imagem.onload = function(){
 
-            imagem.onload =
-                function(){
+                const canvas =
+                    document.createElement("canvas");
 
-                    const canvas =
-                        document.createElement(
-                            "canvas"
-                        );
+                canvas.width =
+                    imagem.naturalWidth;
 
+                canvas.height =
+                    imagem.naturalHeight;
 
-                    canvas.width =
-                        imagem.naturalWidth;
+                const ctx =
+                    canvas.getContext("2d");
 
+                ctx.drawImage(
+                    imagem,
+                    0,
+                    0
+                );
 
-                    canvas.height =
-                        imagem.naturalHeight;
+                resolve(
+                    canvas.toDataURL("image/png")
+                );
+            };
 
+            imagem.onerror = function(){
 
-                    const ctx =
-                        canvas.getContext(
-                            "2d"
-                        );
+                reject(
+                    "Não foi possível carregar logo.png"
+                );
+            };
 
-
-                    ctx.drawImage(
-                        imagem,
-                        0,
-                        0
-                    );
-
-
-                    resolve(
-                        canvas.toDataURL(
-                            "image/png"
-                        )
-                    );
-                };
-
-
-            imagem.onerror =
-                function(){
-
-                    reject(
-                        "Não foi possível carregar logo.png"
-                    );
-                };
-
-
-            imagem.src =
-                "logo.png";
+            imagem.src = "logo.png";
         }
     );
 }
@@ -1110,40 +1317,27 @@ function carregarImagemLogo(){
 
 async function criarCobranca(dados){
 
-    const resposta =
-        await fetch(
-            "/api/cobranca",
-            {
-                method:"POST",
-
-                headers:{
-                    "Content-Type":
-                        "application/json"
-                },
-
-                body:
-                    JSON.stringify(
-                        dados
-                    )
-            }
-        );
-
+    const resposta = await fetch(
+        "/api/cobranca",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify(dados)
+        }
+    );
 
     const resultado =
         await resposta.json();
 
-
-    if(
-        !resposta.ok ||
-        !resultado.token
-    ){
+    if(!resposta.ok || !resultado.token){
 
         throw new Error(
             resultado.erro ||
             "Não foi possível criar a cobrança."
         );
     }
-
 
     return resultado.token;
 }
@@ -1159,23 +1353,12 @@ async function gerarImagemQR(texto){
         function(resolve,reject){
 
             const div =
-                document.createElement(
-                    "div"
-                );
+                document.createElement("div");
 
+            div.style.position = "absolute";
+            div.style.left = "-99999px";
 
-            div.style.position =
-                "absolute";
-
-
-            div.style.left =
-                "-99999px";
-
-
-            document.body.appendChild(
-                div
-            );
-
+            document.body.appendChild(div);
 
             try{
 
@@ -1183,11 +1366,8 @@ async function gerarImagemQR(texto){
                     div,
                     {
                         text:texto,
-
                         width:400,
-
                         height:400,
-
                         correctLevel:
                             QRCode.CorrectLevel.M
                     }
@@ -1195,31 +1375,20 @@ async function gerarImagemQR(texto){
 
             }catch(e){
 
-                document.body.removeChild(
-                    div
-                );
-
+                document.body.removeChild(div);
                 reject(e);
-
                 return;
             }
-
 
             setTimeout(
                 function(){
 
                     const canvas =
-                        div.querySelector(
-                            "canvas"
-                        );
-
+                        div.querySelector("canvas");
 
                     if(!canvas){
 
-                        document.body.removeChild(
-                            div
-                        );
-
+                        document.body.removeChild(div);
 
                         reject(
                             "Não foi possível gerar o QR Code."
@@ -1228,17 +1397,10 @@ async function gerarImagemQR(texto){
                         return;
                     }
 
-
                     const imagem =
-                        canvas.toDataURL(
-                            "image/png"
-                        );
+                        canvas.toDataURL("image/png");
 
-
-                    document.body.removeChild(
-                        div
-                    );
-
+                    document.body.removeChild(div);
 
                     resolve(imagem);
 
@@ -1266,11 +1428,8 @@ function desenharParcela(
 ){
 
     const x = 8;
-
     const largura = 281;
-
     const altura = 95;
-
 
     /*
         DIVISÃO PRINCIPAL
@@ -1279,22 +1438,15 @@ function desenharParcela(
         DIREITA  = CLIENTE
     */
 
-    const divisaoX =
-        x + 190;
+    const divisaoX = x + 190;
 
 
     /* ==========================================
        BORDA EXTERNA
     ========================================== */
 
-    pdf.setDrawColor(
-        35,
-        35,
-        35
-    );
-
+    pdf.setDrawColor(35,35,35);
     pdf.setLineWidth(.5);
-
 
     pdf.roundedRect(
         x,
@@ -1310,14 +1462,8 @@ function desenharParcela(
        DIVISÃO VERTICAL
     ========================================== */
 
-    pdf.setDrawColor(
-        100,
-        100,
-        100
-    );
-
+    pdf.setDrawColor(100,100,100);
     pdf.setLineWidth(.4);
-
 
     pdf.line(
         divisaoX,
@@ -1349,21 +1495,14 @@ function desenharParcela(
        TÍTULO
     ========================================== */
 
-    pdf.setTextColor(
-        20,
-        20,
-        20
-    );
-
+    pdf.setTextColor(20,20,20);
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
-
     pdf.setFontSize(15);
-
 
     pdf.text(
         "CARNÊ DE PAGAMENTO",
@@ -1380,7 +1519,6 @@ function desenharParcela(
     ========================================== */
 
     pdf.setFontSize(10);
-
 
     pdf.text(
         "PARCELA " +
@@ -1399,12 +1537,7 @@ function desenharParcela(
        LINHA DO CABEÇALHO
     ========================================== */
 
-    pdf.setDrawColor(
-        100,
-        100,
-        100
-    );
-
+    pdf.setDrawColor(100,100,100);
 
     pdf.line(
         x + 5,
@@ -1428,9 +1561,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(8);
-
 
     pdf.text(
         "VENCIMENTO",
@@ -1438,9 +1569,7 @@ function desenharParcela(
         y + 31
     );
 
-
     pdf.setFontSize(13);
-
 
     pdf.text(
         formatarData(
@@ -1457,16 +1586,13 @@ function desenharParcela(
 
     pdf.setFontSize(8);
 
-
     pdf.text(
         "VALOR DA PARCELA",
         x + 75,
         y + 31
     );
 
-
     pdf.setFontSize(15);
-
 
     pdf.text(
         formatarMoeda(
@@ -1486,9 +1612,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(9);
-
 
     pdf.text(
         "PAGAMENTO VIA PIX",
@@ -1502,16 +1626,13 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.setFontSize(7.5);
-
 
     pdf.text(
         "Aponte a câmera para o QR Code",
         x + 7,
         y + 56
     );
-
 
     pdf.text(
         "para consultar e pagar esta parcela.",
@@ -1543,9 +1664,7 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.setFontSize(6.5);
-
 
     pdf.text(
         "Escaneie para acessar",
@@ -1555,7 +1674,6 @@ function desenharParcela(
             align:"center"
         }
     );
-
 
     pdf.text(
         "a página de pagamento.",
@@ -1573,7 +1691,6 @@ function desenharParcela(
 
     pdf.setFontSize(6.5);
 
-
     pdf.text(
         "Valor atualizado automaticamente em caso de atraso.",
         x + 7,
@@ -1588,14 +1705,11 @@ function desenharParcela(
     const clienteX =
         divisaoX + 7;
 
-
     const clienteDireita =
         x + largura - 7;
 
-
     const clienteLargura =
-        clienteDireita -
-        clienteX;
+        clienteDireita - clienteX;
 
 
     /* ==========================================
@@ -1607,9 +1721,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(11);
-
 
     pdf.text(
         "DADOS DO CLIENTE",
@@ -1622,12 +1734,7 @@ function desenharParcela(
        LINHA DO TÍTULO
     ========================================== */
 
-    pdf.setDrawColor(
-        120,
-        120,
-        120
-    );
-
+    pdf.setDrawColor(120,120,120);
 
     pdf.line(
         clienteX,
@@ -1646,9 +1753,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(7);
-
 
     pdf.text(
         "CLIENTE",
@@ -1662,13 +1767,10 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.setFontSize(9);
-
 
     const nome =
         dados.cliente || "-";
-
 
     const nomeLinhas =
         pdf.splitTextToSize(
@@ -1693,9 +1795,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(7);
-
 
     pdf.text(
         "CPF / CNPJ",
@@ -1709,9 +1809,7 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.setFontSize(9);
-
 
     pdf.text(
         formatarCpfCnpj(
@@ -1731,9 +1829,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(7);
-
 
     pdf.text(
         "ENDEREÇO",
@@ -1747,9 +1843,7 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.setFontSize(8.5);
-
 
     const endereco =
         dados.endereco || "-";
@@ -1784,9 +1878,7 @@ function desenharParcela(
         "bold"
     );
 
-
     pdf.setFontSize(7);
-
 
     pdf.text(
         "TELEFONE",
@@ -1800,9 +1892,7 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.setFontSize(9);
-
 
     pdf.text(
         formatarTelefone(
@@ -1817,12 +1907,7 @@ function desenharParcela(
        LINHA DO RODAPÉ
     ========================================== */
 
-    pdf.setDrawColor(
-        180,
-        180,
-        180
-    );
-
+    pdf.setDrawColor(180,180,180);
 
     pdf.line(
         clienteX,
@@ -1836,21 +1921,14 @@ function desenharParcela(
        RODAPÉ DO QUADRO
     ========================================== */
 
-    pdf.setTextColor(
-        20,
-        20,
-        20
-    );
-
+    pdf.setTextColor(20,20,20);
 
     pdf.setFont(
         "helvetica",
         "bold"
     );
 
-
     pdf.setFontSize(6.5);
-
 
     pdf.text(
         "ZER01 MODA MASCULINA",
@@ -1864,7 +1942,6 @@ function desenharParcela(
         "normal"
     );
 
-
     pdf.text(
         "Tel.: (43) 9 9678-8303",
         clienteDireita,
@@ -1875,7 +1952,6 @@ function desenharParcela(
     );
 }
 
-
 /* =========================================================
    GERAR CARNÊ
 ========================================================= */
@@ -1883,149 +1959,92 @@ function desenharParcela(
 async function gerarCarne(){
 
     const btn =
-        document.getElementById(
-            "btnGerar"
-        );
-
+        document.getElementById("btnGerar");
 
     const carregando =
-        document.getElementById(
-            "carregando"
-        );
+        document.getElementById("carregando");
 
 
     const cliente =
-        document
-            .getElementById("cliente")
-            .value
-            .trim();
-
+        document.getElementById("cliente")
+        .value
+        .trim();
 
     const cpf =
-        document
-            .getElementById("cpf")
-            .value
-            .trim();
-
+        document.getElementById("cpf")
+        .value
+        .trim();
 
     const telefone =
-        document
-            .getElementById("telefone")
-            .value
-            .trim();
-
+        document.getElementById("telefone")
+        .value
+        .trim();
 
     const endereco =
-        document
-            .getElementById("endereco")
-            .value
-            .trim();
-
+        document.getElementById("endereco")
+        .value
+        .trim();
 
     const valorTotal =
         Number(
-            document
-                .getElementById("valor")
-                .value
+            document.getElementById("valor").value
         );
-
 
     const quantidade =
         Number(
-            document
-                .getElementById("parcelas")
-                .value
+            document.getElementById("parcelas").value
         );
 
-
     const primeiroVencimento =
-        document
-            .getElementById(
-                "primeiroVencimento"
-            )
-            .value;
-
+        document.getElementById(
+            "primeiroVencimento"
+        ).value;
 
     const pix =
-        document
-            .getElementById("pix")
-            .value
-            .trim();
-
+        document.getElementById("pix")
+        .value
+        .trim();
 
     const multa =
         Number(
-            document
-                .getElementById("multa")
-                .value
+            document.getElementById("multa").value
         ) || 0;
-
 
     const juros =
         Number(
-            document
-                .getElementById("juros")
-                .value
+            document.getElementById("juros").value
         ) || 0;
 
 
-    /* =================================================
-       VALIDAÇÕES
-    ================================================= */
-
+    /* VALIDAÇÕES */
 
     if(!cliente){
 
-        alert(
-            "Informe o nome do cliente."
-        );
-
+        alert("Informe o nome do cliente.");
         return;
     }
 
+    if(!valorTotal || valorTotal <= 0){
 
-    if(
-        !valorTotal ||
-        valorTotal <= 0
-    ){
-
-        alert(
-            "Informe o valor total da venda."
-        );
-
+        alert("Informe o valor total da venda.");
         return;
     }
 
+    if(!quantidade || quantidade < 1){
 
-    if(
-        !quantidade ||
-        quantidade < 1
-    ){
-
-        alert(
-            "Informe o número de parcelas."
-        );
-
+        alert("Informe o número de parcelas.");
         return;
     }
-
 
     if(!primeiroVencimento){
 
-        alert(
-            "Informe o primeiro vencimento."
-        );
-
+        alert("Informe o primeiro vencimento.");
         return;
     }
 
-
     if(!pix){
 
-        alert(
-            "Informe a chave PIX."
-        );
-
+        alert("Informe a chave PIX.");
         return;
     }
 
@@ -2037,8 +2056,7 @@ async function gerarCarne(){
     */
 
     if(
-        window.location.protocol ===
-        "file:"
+        window.location.protocol === "file:"
     ){
 
         alert(
@@ -2053,13 +2071,10 @@ async function gerarCarne(){
 
         btn.disabled = true;
 
-        carregando.style.display =
-            "block";
+        carregando.style.display = "block";
 
 
-        /* =================================================
-           LOGO
-        ================================================= */
+        /* LOGO */
 
         const logo =
             await carregarImagemLogo();
@@ -2074,13 +2089,10 @@ async function gerarCarne(){
                 valorTotal * 100
             );
 
-
         const valorBase =
             Math.floor(
-                totalCentavos /
-                quantidade
+                totalCentavos / quantidade
             );
-
 
         const resto =
             totalCentavos -
@@ -2118,7 +2130,6 @@ async function gerarCarne(){
             let valorParcela =
                 valorBase;
 
-
             /*
                 Diferença de arredondamento
                 fica na última parcela.
@@ -2128,8 +2139,7 @@ async function gerarCarne(){
                 i === quantidade - 1
             ){
 
-                valorParcela +=
-                    resto;
+                valorParcela += resto;
             }
 
 
@@ -2142,37 +2152,29 @@ async function gerarCarne(){
 
             const dadosCobranca = {
 
-                cliente:
-                    cliente,
+                cliente:cliente,
 
-                cpf:
-                    cpf,
+                cpf:cpf,
 
-                telefone:
-                    telefone,
+                telefone:telefone,
 
-                endereco:
-                    endereco,
+                endereco:endereco,
 
                 parcela:
                     (i + 1) +
                     "/" +
                     quantidade,
 
-                vencimento:
-                    vencimento,
+                vencimento:vencimento,
 
                 valor:
                     valorParcela / 100,
 
-                multa:
-                    multa,
+                multa:multa,
 
-                juros:
-                    juros,
+                juros:juros,
 
-                pix:
-                    pix
+                pix:pix
             };
 
 
@@ -2183,12 +2185,8 @@ async function gerarCarne(){
 
 
             cobrancas.push({
-
-                dados:
-                    dadosCobranca,
-
-                token:
-                    token
+                dados:dadosCobranca,
+                token:token
             });
         }
 
@@ -2218,7 +2216,6 @@ async function gerarCarne(){
 
             const posicao =
                 i % 2;
-
 
             const y =
                 posicao === 0
@@ -2264,9 +2261,7 @@ async function gerarCarne(){
                 Linha de corte entre as parcelas.
             */
 
-            if(
-                posicao === 0
-            ){
+            if(posicao === 0){
 
                 pdf.setDrawColor(
                     120,
@@ -2274,12 +2269,10 @@ async function gerarCarne(){
                     120
                 );
 
-
                 pdf.setLineDashPattern(
                     [3,2],
                     0
                 );
-
 
                 pdf.line(
                     8,
@@ -2287,7 +2280,6 @@ async function gerarCarne(){
                     289,
                     105
                 );
-
 
                 pdf.setLineDashPattern(
                     [],
@@ -2322,10 +2314,7 @@ async function gerarCarne(){
 
     }catch(erro){
 
-        console.error(
-            erro
-        );
-
+        console.error(erro);
 
         alert(
             "Erro ao gerar o carnê:\n\n" +
@@ -2335,40 +2324,34 @@ async function gerarCarne(){
             )
         );
 
-
     }finally{
 
         btn.disabled = false;
 
-        carregando.style.display =
-            "none";
+        carregando.style.display = "none";
     }
 }
 
 
 /* =========================================================
-   PÁGINA DE PAGAMENTO
+   PAGINA DE PAGAMENTO
 ========================================================= */
 
 async function abrirPaginaPagamento(token){
 
     document.getElementById(
         "paginaGerador"
-    ).style.display =
-        "none";
-
+    ).style.display = "none";
 
     document.getElementById(
         "paginaPagamento"
-    ).style.display =
-        "block";
+    ).style.display = "block";
 
 
     const status =
         document.getElementById(
             "statusPagamento"
         );
-
 
     const conteudo =
         document.getElementById(
@@ -2385,9 +2368,7 @@ async function abrirPaginaPagamento(token){
         const resposta =
             await fetch(
                 "/api/cobranca?token=" +
-                encodeURIComponent(
-                    token
-                )
+                encodeURIComponent(token)
             );
 
 
@@ -2410,10 +2391,6 @@ async function abrirPaginaPagamento(token){
         const dados =
             resultado.dados;
 
-
-        /* =================================================
-           CALCULAR ATRASO
-        ================================================= */
 
         const vencimento =
             new Date(
@@ -2447,37 +2424,26 @@ async function abrirPaginaPagamento(token){
                     )
                 );
 
-
-            if(
-                diasAtraso < 0
-            ){
-
+            if(diasAtraso < 0){
                 diasAtraso = 0;
             }
         }
 
 
         const valorOriginal =
-            Number(
-                dados.valor || 0
-            );
+            Number(dados.valor || 0);
 
 
         let valorMulta = 0;
-
         let valorJuros = 0;
 
 
-        if(
-            diasAtraso > 0
-        ){
+        if(diasAtraso > 0){
 
             valorMulta =
                 valorOriginal *
                 (
-                    Number(
-                        dados.multa || 0
-                    ) /
+                    Number(dados.multa || 0) /
                     100
                 );
 
@@ -2485,9 +2451,7 @@ async function abrirPaginaPagamento(token){
             valorJuros =
                 valorOriginal *
                 (
-                    Number(
-                        dados.juros || 0
-                    ) /
+                    Number(dados.juros || 0) /
                     100
                 ) *
                 diasAtraso;
@@ -2512,8 +2476,7 @@ async function abrirPaginaPagamento(token){
                     valorOriginal +
                     valorMulta +
                     valorJuros
-                ) *
-                100
+                ) * 100
             ) / 100;
 
 
@@ -2528,23 +2491,14 @@ async function abrirPaginaPagamento(token){
             );
 
 
-        /* =================================================
-           QR CODE PIX
-        ================================================= */
-
         const qrContainer =
-            document.createElement(
-                "div"
-            );
-
+            document.createElement("div");
 
         qrContainer.style.position =
             "absolute";
 
-
         qrContainer.style.left =
             "-99999px";
-
 
         document.body.appendChild(
             qrContainer
@@ -2554,15 +2508,9 @@ async function abrirPaginaPagamento(token){
         new QRCode(
             qrContainer,
             {
-                text:
-                    pixCopiaECola,
-
-                width:
-                    500,
-
-                height:
-                    500,
-
+                text:pixCopiaECola,
+                width:500,
+                height:500,
                 correctLevel:
                     QRCode.CorrectLevel.M
             }
@@ -2582,14 +2530,6 @@ async function abrirPaginaPagamento(token){
             qrContainer.querySelector(
                 "canvas"
             );
-
-
-        if(!canvas){
-
-            throw new Error(
-                "Não foi possível gerar o QR Code PIX."
-            );
-        }
 
 
         const qrData =
@@ -2617,66 +2557,41 @@ async function abrirPaginaPagamento(token){
 
 
         html += `
-
             <div class="resumo">
 
-
                 <div class="item">
-
-                    <span>
-                        Cliente
-                    </span>
-
+                    <span>Cliente</span>
                     <strong>
                         ${escaparHTML(
                             dados.cliente || "-"
                         )}
                     </strong>
-
                 </div>
 
-
                 <div class="item">
-
-                    <span>
-                        Parcela
-                    </span>
-
+                    <span>Parcela</span>
                     <strong>
                         ${escaparHTML(
                             dados.parcela || "-"
                         )}
                     </strong>
-
                 </div>
 
-
                 <div class="item">
-
-                    <span>
-                        Vencimento
-                    </span>
-
+                    <span>Vencimento</span>
                     <strong>
                         ${formatarData(
                             dados.vencimento
                         )}
                     </strong>
-
                 </div>
-
 
                 ${
                     dados.telefone
                     ?
                     `
-
                     <div class="item">
-
-                        <span>
-                            Telefone
-                        </span>
-
+                        <span>Telefone</span>
                         <strong>
                             ${escaparHTML(
                                 formatarTelefone(
@@ -2684,104 +2599,68 @@ async function abrirPaginaPagamento(token){
                                 )
                             )}
                         </strong>
-
                     </div>
-
                     `
                     :
                     ""
                 }
-
 
                 ${
                     diasAtraso > 0
                     ?
                     `
-
                     <div class="item">
-
-                        <span>
-                            Dias em atraso
-                        </span>
-
+                        <span>Dias em atraso</span>
                         <strong>
                             ${diasAtraso}
                         </strong>
-
                     </div>
 
-
                     <div class="item">
-
-                        <span>
-                            Valor original
-                        </span>
-
+                        <span>Valor original</span>
                         <strong>
                             ${formatarMoeda(
                                 valorOriginal
                             )}
                         </strong>
-
                     </div>
 
-
                     <div class="item">
-
-                        <span>
-                            Multa
-                        </span>
-
+                        <span>Multa</span>
                         <strong>
                             ${formatarMoeda(
                                 valorMulta
                             )}
                         </strong>
-
                     </div>
 
-
                     <div class="item">
-
-                        <span>
-                            Juros
-                        </span>
-
+                        <span>Juros</span>
                         <strong>
                             ${formatarMoeda(
                                 valorJuros
                             )}
                         </strong>
-
                     </div>
-
                     `
                     :
                     ""
                 }
 
-
                 <div class="item total">
-
-                    <span>
-                        Total para pagamento
-                    </span>
-
+                    <span>Total para pagamento</span>
                     <strong>
                         ${formatarMoeda(
                             valorTotal
                         )}
                     </strong>
-
                 </div>
-
 
             </div>
         `;
 
 
         html += `
-
             <div class="qr-area">
 
                 <img
@@ -2794,7 +2673,6 @@ async function abrirPaginaPagamento(token){
                     "
                 >
 
-
                 <div
                     style="
                         color:#111;
@@ -2804,7 +2682,6 @@ async function abrirPaginaPagamento(token){
                 >
                     PIX
                 </div>
-
 
                 <div
                     style="
@@ -2822,13 +2699,11 @@ async function abrirPaginaPagamento(token){
 
 
         html += `
-
             <div class="pix-box">
 
                 <label>
                     PIX COPIA E COLA
                 </label>
-
 
                 <div
                     class="pix-code"
@@ -2838,7 +2713,6 @@ async function abrirPaginaPagamento(token){
                         pixCopiaECola
                     )}
                 </div>
-
 
                 <button
                     class="copiar"
@@ -2851,8 +2725,7 @@ async function abrirPaginaPagamento(token){
         `;
 
 
-        conteudo.innerHTML =
-            html;
+        conteudo.innerHTML = html;
 
 
         window.pixAtual =
@@ -2861,28 +2734,19 @@ async function abrirPaginaPagamento(token){
 
     }catch(erro){
 
-        console.error(
-            erro
-        );
+        console.error(erro);
 
-
-        status.innerText =
-            "";
-
+        status.innerText = "";
 
         conteudo.innerHTML = `
-
             <div class="erro">
-
                 ${
                     escaparHTML(
                         erro.message ||
                         "Não foi possível carregar esta cobrança."
                     )
                 }
-
             </div>
-
         `;
     }
 }
@@ -2890,73 +2754,33 @@ async function abrirPaginaPagamento(token){
 
 /* =========================================================
    PIX BR CODE
-   CRC-16-CCITT-FALSE
 ========================================================= */
 
 function gerarPix(chave, valor){
 
-    /*
-        Remove espaços acidentais
-        do início e do final da chave.
-    */
-
-    const chavePix =
-        String(
-            chave || ""
-        ).trim();
-
-
-    /*
-        Valor sempre com duas casas decimais.
-    */
-
     const valorFormatado =
-        Number(
-            valor
-        ).toFixed(2);
+        Number(valor)
+            .toFixed(2);
 
-
-    /* =====================================================
-       CRIAR CAMPO EM FORMATO EMV
-    ===================================================== */
 
     function campo(id, valor){
 
-        const texto =
-            String(
-                valor
-            );
-
+        const tamanho =
+            String(valor).length
+                .toString()
+                .padStart(2,"0");
 
         return (
             id +
-            texto.length
-                .toString()
-                .padStart(2,"0") +
-            texto
+            tamanho +
+            valor
         );
     }
 
 
-    /* =====================================================
-       CRC-16-CCITT-FALSE
-
-       POLINÔMIO:
-       0x1021
-
-       VALOR INICIAL:
-       0xFFFF
-
-       SEM REFLEXÃO
-
-       XOR FINAL:
-       0x0000
-    ===================================================== */
-
     function crc16(payload){
 
-        let crc =
-            0xFFFF;
+        let crc = 0xFFFF;
 
 
         for(
@@ -2965,8 +2789,7 @@ function gerarPix(chave, valor){
             i++
         ){
 
-            crc ^=
-                payload.charCodeAt(i) << 8;
+            crc ^= payload.charCodeAt(i);
 
 
             for(
@@ -2976,65 +2799,56 @@ function gerarPix(chave, valor){
             ){
 
                 if(
-                    crc & 0x8000
+                    crc & 0x0001
                 ){
 
                     crc =
                         (
-                            crc << 1
+                            crc >>> 1
                         ) ^
-                        0x1021;
+                        0xA001;
 
                 }else{
 
                     crc =
-                        crc << 1;
+                        crc >>> 1;
                 }
-
-
-                crc &=
-                    0xFFFF;
             }
         }
 
 
-        return crc
-            .toString(16)
-            .toUpperCase()
-            .padStart(
-                4,
-                "0"
-            );
+        const hex =
+            crc
+                .toString(16)
+                .toUpperCase()
+                .padStart(4,"0");
+
+
+        /*
+            O algoritmo acima trabalha em
+            representação little-endian.
+        */
+
+        return (
+            hex.slice(2) +
+            hex.slice(0,2)
+        );
     }
 
 
-    /* =====================================================
-       MERCHANT ACCOUNT INFORMATION
-    ===================================================== */
-
     const merchantAccountInformation =
-
         campo(
             "00",
-            "br.gov.bcb.pix"
+            "BR.GOV.BCB.PIX"
         ) +
-
         campo(
             "01",
-            chavePix
+            chave
         );
 
 
-    /* =====================================================
-       PAYLOAD PRINCIPAL
-    ===================================================== */
-
     let payload = "";
 
-
-    /* =====================================================
-       PAYLOAD FORMAT INDICATOR
-    ===================================================== */
 
     payload += campo(
         "00",
@@ -3042,19 +2856,11 @@ function gerarPix(chave, valor){
     );
 
 
-    /* =====================================================
-       MERCHANT ACCOUNT INFORMATION
-    ===================================================== */
-
     payload += campo(
         "26",
         merchantAccountInformation
     );
 
-
-    /* =====================================================
-       MERCHANT CATEGORY CODE
-    ===================================================== */
 
     payload += campo(
         "52",
@@ -3062,21 +2868,11 @@ function gerarPix(chave, valor){
     );
 
 
-    /* =====================================================
-       CURRENCY
-
-       986 = BRL
-    ===================================================== */
-
     payload += campo(
         "53",
         "986"
     );
 
-
-    /* =====================================================
-       TRANSACTION AMOUNT
-    ===================================================== */
 
     payload += campo(
         "54",
@@ -3084,19 +2880,11 @@ function gerarPix(chave, valor){
     );
 
 
-    /* =====================================================
-       COUNTRY CODE
-    ===================================================== */
-
     payload += campo(
         "58",
         "BR"
     );
 
-
-    /* =====================================================
-       MERCHANT NAME
-    ===================================================== */
 
     payload += campo(
         "59",
@@ -3104,21 +2892,16 @@ function gerarPix(chave, valor){
     );
 
 
-    /* =====================================================
-       MERCHANT CITY
-    ===================================================== */
-
     payload += campo(
         "60",
         "LONDRINA"
     );
 
 
-    /* =====================================================
-       ADDITIONAL DATA FIELD
-
-       TXID = ***
-    ===================================================== */
+    /*
+        Campo adicional obrigatório
+        com TXID genérico.
+    */
 
     const campo62 =
         campo(
@@ -3133,33 +2916,12 @@ function gerarPix(chave, valor){
     );
 
 
-    /* =====================================================
-       CRC
+    payload += "6304";
 
-       O "6304" participa do cálculo.
-
-       O próprio CRC é acrescentado
-       somente depois do cálculo.
-    ===================================================== */
-
-    const payloadParaCRC =
-        payload +
-        "6304";
-
-
-    const crc =
-        crc16(
-            payloadParaCRC
-        );
-
-
-    /* =====================================================
-       PIX COPIA E COLA FINAL
-    ===================================================== */
 
     return (
-        payloadParaCRC +
-        crc
+        payload +
+        crc16(payload + "")
     );
 }
 
@@ -3171,7 +2933,6 @@ function gerarPix(chave, valor){
 async function copiarPix(){
 
     if(!window.pixAtual){
-
         return;
     }
 
@@ -3226,79 +2987,677 @@ async function copiarPix(){
 
 function escaparHTML(valor){
 
-    return String(
-        valor || ""
-    )
-
-    .replace(
-        /&/g,
-        "&amp;"
-    )
-
-    .replace(
-        /</g,
-        "&lt;"
-    )
-
-    .replace(
-        />/g,
-        "&gt;"
-    )
-
-    .replace(
-        /"/g,
-        "&quot;"
-    )
-
-    .replace(
-        /'/g,
-        "&#039;"
-    );
+    return String(valor || "")
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
+/* =========================================================
+   ZER01 — PAINEL ADMINISTRATIVO
+========================================================= */
+
+let clientesAdmin = [];
+
+
+/* =========================================================
+   ABRIR PAINEL ADMIN
+========================================================= */
+
+function abrirPaginaAdmin() {
+
+    const admin = document.getElementById("paginaAdmin");
+    const gerador = document.getElementById("paginaGerador");
+    const pagamento = document.getElementById("paginaPagamento");
+
+    if (admin) admin.style.display = "block";
+    if (gerador) gerador.style.display = "none";
+    if (pagamento) pagamento.style.display = "none";
+
+    renderClientesAdmin([]);
+
+}
+
+
+/* =========================================================
+   ABRIR GERADOR
+========================================================= */
+
+function abrirGerador() {
+
+    const admin = document.getElementById("paginaAdmin");
+    const gerador = document.getElementById("paginaGerador");
+    const pagamento = document.getElementById("paginaPagamento");
+
+    if (admin) admin.style.display = "none";
+    if (gerador) gerador.style.display = "block";
+    if (pagamento) pagamento.style.display = "none";
+
+}
+
+
+/* =========================================================
+   FORMATAÇÃO DE MOEDA
+========================================================= */
+
+function formatarMoedaAdmin(valor) {
+
+    const numero = Number(valor || 0);
+
+    return numero.toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+
+}
+
+
+/* =========================================================
+   NORMALIZAR STATUS
+========================================================= */
+
+function normalizarStatusAdmin(status) {
+
+    const texto = String(status || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+
+    if (
+        texto.includes("atras") ||
+        texto.includes("venc")
+    ) {
+        return "atrasado";
+    }
+
+    if (
+        texto.includes("quit") ||
+        texto.includes("pago") ||
+        texto.includes("final")
+    ) {
+        return "quitado";
+    }
+
+    return "aberto";
+
+}
+
+
+/* =========================================================
+   CLASSE DO STATUS
+========================================================= */
+
+function classeStatusAdmin(status) {
+
+    const statusNormalizado = normalizarStatusAdmin(status);
+
+    if (statusNormalizado === "atrasado") {
+        return "status-atrasado";
+    }
+
+    if (statusNormalizado === "quitado") {
+        return "status-quitado";
+    }
+
+    return "status-aberto";
+
+}
+
+
+/* =========================================================
+   TEXTO DO STATUS
+========================================================= */
+
+function textoStatusAdmin(status) {
+
+    const statusNormalizado = normalizarStatusAdmin(status);
+
+    if (statusNormalizado === "atrasado") {
+        return "Atrasado";
+    }
+
+    if (statusNormalizado === "quitado") {
+        return "Quitado";
+    }
+
+    return "Em aberto";
+
+}
+
+
+/* =========================================================
+   RENDERIZAR CLIENTES
+========================================================= */
+
+function renderClientesAdmin(lista) {
+
+    const desktop = document.getElementById("adminListaDesktop");
+    const mobile = document.getElementById("adminListaMobile");
+
+    const totalClientes = document.getElementById("adminTotalClientes");
+    const totalAberto = document.getElementById("adminTotalAberto");
+    const totalAtrasado = document.getElementById("adminTotalAtrasado");
+
+    if (!desktop || !mobile) return;
+
+
+    /* RESUMO */
+
+    let valorAberto = 0;
+    let valorAtrasado = 0;
+
+    lista.forEach(cliente => {
+
+        valorAberto += Number(cliente.totalAberto || 0);
+        valorAtrasado += Number(cliente.totalAtrasado || 0);
+
+    });
+
+
+    if (totalClientes) {
+        totalClientes.textContent = lista.length;
+    }
+
+    if (totalAberto) {
+        totalAberto.textContent = formatarMoedaAdmin(valorAberto);
+    }
+
+    if (totalAtrasado) {
+        totalAtrasado.textContent = formatarMoedaAdmin(valorAtrasado);
+    }
+
+
+    /* NENHUM RESULTADO */
+
+    if (!lista.length) {
+
+        desktop.innerHTML = `
+            <div class="admin-empty">
+
+                <strong>
+                    Nenhum cliente encontrado
+                </strong>
+
+                <span>
+                    Quando os clientes forem carregados do Supabase,
+                    eles aparecerão aqui.
+                </span>
+
+            </div>
+        `;
+
+
+        mobile.innerHTML = `
+            <div class="admin-empty">
+
+                <strong>
+                    Nenhum cliente encontrado
+                </strong>
+
+                <span>
+                    Quando os clientes forem carregados do Supabase,
+                    eles aparecerão aqui.
+                </span>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    /* =====================================================
+       DESKTOP
+    ===================================================== */
+
+    let tabela = `
+        <table class="admin-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>Cliente</th>
+                    <th>Total a receber</th>
+                    <th>Parcelas</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+    `;
+
+
+    lista.forEach(cliente => {
+
+        const status = normalizarStatusAdmin(cliente.status);
+
+        const codigo = cliente.codigoCarne || "";
+
+        tabela += `
+
+            <tr>
+
+                <td>
+
+                    <div class="admin-client-name">
+                        ${escaparHTMLAdmin(cliente.nome || "Cliente")}
+                    </div>
+
+                    <div class="admin-client-document">
+                        ${escaparHTMLAdmin(cliente.cpf_cnpj || "")}
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <span class="admin-money">
+                        ${formatarMoedaAdmin(cliente.totalAberto)}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="admin-installments">
+                        ${cliente.parcelasAbertas || 0} em aberto
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="admin-status ${classeStatusAdmin(status)}">
+                        ${textoStatusAdmin(status)}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${
+                        codigo
+                        ?
+                        `
+                        <button
+                            class="admin-btn admin-btn-primary"
+                            onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
+                        >
+                            GERAR CARNÊ COMPLETO
+                        </button>
+                        `
+                        :
+                        `
+                        <button
+                            class="admin-btn admin-btn-secondary"
+                            disabled
+                        >
+                            SEM CARNÊ
+                        </button>
+                        `
+                    }
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+
+    tabela += `
+            </tbody>
+
+        </table>
+    `;
+
+    desktop.innerHTML = tabela;
+
+
+    /* =====================================================
+       MOBILE
+    ===================================================== */
+
+    let cards = "";
+
+
+    lista.forEach(cliente => {
+
+        const status = normalizarStatusAdmin(cliente.status);
+
+        const codigo = cliente.codigoCarne || "";
+
+
+        cards += `
+
+            <div class="cliente-card">
+
+                <div class="cliente-card-header">
+
+                    <div>
+
+                        <div class="cliente-card-name">
+                            ${escaparHTMLAdmin(cliente.nome || "Cliente")}
+                        </div>
+
+                        <div class="cliente-card-document">
+                            ${escaparHTMLAdmin(cliente.cpf_cnpj || "")}
+                        </div>
+
+                    </div>
+
+
+                    <span class="admin-status ${classeStatusAdmin(status)}">
+                        ${textoStatusAdmin(status)}
+                    </span>
+
+                </div>
+
+
+                <div class="cliente-card-info">
+
+                    <div>
+
+                        <small>
+                            TOTAL A RECEBER
+                        </small>
+
+                        <strong>
+                            ${formatarMoedaAdmin(cliente.totalAberto)}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            PARCELAS
+                        </small>
+
+                        <strong>
+                            ${cliente.parcelasAbertas || 0}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                ${
+                    codigo
+                    ?
+                    `
+                    <button
+                        class="admin-btn admin-btn-primary cliente-card-action"
+                        onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
+                    >
+                        GERAR CARNÊ COMPLETO
+                    </button>
+                    `
+                    :
+                    `
+                    <button
+                        class="admin-btn admin-btn-secondary cliente-card-action"
+                        disabled
+                    >
+                        CARNÊ NÃO DISPONÍVEL
+                    </button>
+                    `
+                }
+
+            </div>
+
+        `;
+
+    });
+
+
+    mobile.innerHTML = cards;
+
+}
+
+
+/* =========================================================
+   ESCAPAR HTML
+========================================================= */
+
+function escaparHTMLAdmin(valor) {
+
+    return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   ESCAPAR ATRIBUTO
+========================================================= */
+
+function escaparAtributoAdmin(valor) {
+
+    return String(valor ?? "")
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+
+}
+
+
+/* =========================================================
+   ABRIR CARNÊ
+========================================================= */
+
+function abrirCarneAdmin(codigo) {
+
+    if (!codigo) {
+        alert("Este cliente ainda não possui um carnê.");
+        return;
+    }
+
+    window.location.href =
+        `${window.location.pathname}?carne=${encodeURIComponent(codigo)}`;
+
+}
+
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+function filtrarClientesAdmin() {
+
+    const busca =
+        document.getElementById("buscaClienteAdmin")
+            ?.value
+            ?.toLowerCase()
+            .trim() || "";
+
+    const filtroStatus =
+        document.getElementById("filtroStatusAdmin")
+            ?.value || "todos";
+
+    const filtroMes =
+        document.getElementById("filtroMesAdmin")
+            ?.value || "todos";
+
+
+    const filtrados = clientesAdmin.filter(cliente => {
+
+        /* BUSCA */
+
+        const textoBusca = [
+
+            cliente.nome,
+            cliente.cpf_cnpj,
+            cliente.telefone
+
+        ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+        if (
+            busca &&
+            !textoBusca.includes(busca)
+        ) {
+            return false;
+        }
+
+
+        /* STATUS */
+
+        const status =
+            normalizarStatusAdmin(cliente.status);
+
+        if (
+            filtroStatus !== "todos" &&
+            status !== filtroStatus
+        ) {
+            return false;
+        }
+
+
+        /* MÊS */
+
+        if (
+            filtroMes !== "todos" &&
+            cliente.mesVencimento &&
+            String(cliente.mesVencimento).padStart(2, "0") !== filtroMes
+        ) {
+            return false;
+        }
+
+
+        return true;
+
+    });
+
+
+    renderClientesAdmin(filtrados);
+
+}
+
+
+/* =========================================================
+   EVENTOS DOS FILTROS
+========================================================= */
+
+function iniciarFiltrosAdmin() {
+
+    const busca =
+        document.getElementById("buscaClienteAdmin");
+
+    const status =
+        document.getElementById("filtroStatusAdmin");
+
+    const mes =
+        document.getElementById("filtroMesAdmin");
+
+
+    if (busca) {
+        busca.addEventListener(
+            "input",
+            filtrarClientesAdmin
+        );
+    }
+
+    if (status) {
+        status.addEventListener(
+            "change",
+            filtrarClientesAdmin
+        );
+    }
+
+    if (mes) {
+        mes.addEventListener(
+            "change",
+            filtrarClientesAdmin
+        );
+    }
+
+}
 
 /* =========================================================
    INICIALIZAÇÃO
 ========================================================= */
 
-(function(){
+(function iniciarSistema() {
 
-    const parametros =
-        new URLSearchParams(
-            window.location.search
-        );
+    const params = new URLSearchParams(
+        window.location.search
+    );
 
-
-    const token =
-        parametros.get(
-            "token"
-        );
+    const token = params.get("token");
+    const carne = params.get("carne");
 
 
-    if(token){
+    /* PAGAMENTO DE PARCELA */
 
-        abrirPaginaPagamento(
-            token
-        );
+    if (token) {
 
-    }else{
+        abrirPaginaPagamento(token);
 
-        document.getElementById(
-            "paginaGerador"
-        ).style.display =
-            "block";
+        return;
 
-
-        document.getElementById(
-            "paginaPagamento"
-        ).style.display =
-            "none";
     }
 
+
+    /* CARNÊ DIGITAL */
+
+    if (carne) {
+
+        /*
+         * A página do carnê digital será conectada
+         * na próxima etapa.
+         */
+
+        abrirPaginaAdmin();
+
+        return;
+
+    }
+
+
+    /* PAINEL ADMINISTRATIVO */
+
+    abrirPaginaAdmin();
+
+    iniciarFiltrosAdmin();
+
 })();
+
 </script>
 
-
 </body>
-
 </html>
