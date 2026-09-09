@@ -669,6 +669,23 @@ h1{
     .admin-summary-value {
         font-size: 18px;
     }
+
+    .botao-voltar-painel{
+        width:100%;
+        margin:0 0 18px;
+        padding:13px 16px;
+        border:1px solid #333;
+        border-radius:8px;
+        background:#1d1d1d;
+        color:#fff;
+        font-size:13px;
+        font-weight:700;
+        cursor:pointer;
+    }
+    
+    .botao-voltar-painel:hover{
+        background:#292929;
+    }
 }
 </style>
 </head>
@@ -912,6 +929,13 @@ h1{
 <div id="paginaGerador">
 
     <div class="container">
+        <button
+            type="button"
+            class="botao-voltar-painel"
+            onclick="abrirPaginaAdmin()"
+        >
+            ← VOLTAR AO PAINEL
+        </button>
 
         <img src="logoTitulo.png" class="logo" id="logoGerador">
 
@@ -3606,6 +3630,41 @@ function iniciarFiltrosAdmin() {
         );
     }
 
+}
+
+function abrirPaginaAdmin(){
+
+    document.getElementById(
+        "paginaGerador"
+    ).style.display = "none";
+
+    document.getElementById(
+        "paginaPagamento"
+    ).style.display = "none";
+
+    document.getElementById(
+        "paginaAdmin"
+    ).style.display = "block";
+
+    window.scrollTo(0, 0);
+}
+
+
+function abrirGerador(){
+
+    document.getElementById(
+        "paginaAdmin"
+    ).style.display = "none";
+
+    document.getElementById(
+        "paginaPagamento"
+    ).style.display = "none";
+
+    document.getElementById(
+        "paginaGerador"
+    ).style.display = "block";
+
+    window.scrollTo(0, 0);
 }
 
 /* =========================================================
