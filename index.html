@@ -5242,23 +5242,27 @@ function renderClientesAdmin(lista) {
 
                 <td>
 
-                    ${cliente.codigoCarne
+                    ${codigo
                         ? `
-                            <button class="btn-primary" onclick="window.location.href='/?carne=${cliente.codigoCarne}'">
-                                GERAR CARNÊ COMPLETO
+                            <button
+                                class="admin-btn admin-btn-primary"
+                                onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
+                            >
+                                VER CARNÊ
                             </button>
                           `
                         : `
                             <button
-                                class="btn-primary"
-                                onclick="window.location.href='/?carne=${cliente.codigoCarne}'"
+                                class="admin-btn admin-btn-primary"
+                                onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
                             >
-                                VER CARNÊ
+                                GERAR CARNÊ COMPLETO
                             </button>
                           `
                     }
 
                 </td>
+
 
             </tr>
 
