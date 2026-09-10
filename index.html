@@ -3818,54 +3818,16 @@ let chavesPixAdmin = [];
    ZER01 — CARREGAR CLIENTES DO SUPABASE
 ========================================================= */
 
-const [
-    clientesResponse,
-    vendasResponse,
-    parcelasResponse,
-    carnesResponse,
-    chavesPixResponse
-] = await Promise.all([
+async function carregarClientesAdmin() {
 
-    supabaseClient
-        .from("clientes")
-        .select("*")
-        .order("nome", {
-            ascending: true
-        }),
-
-    supabaseClient
-        .from("vendas")
-        .select("*"),
-
-    supabaseClient
-        .from("parcelas")
-        .select("*"),
-
-    supabaseClient
-        .from("carnes")
-        .select(
-            "id, cliente_id, codigo_acesso, ativo, pix"
-        ),
-
-    supabaseClient
-        .from("chaves_pix")
-        .select("*")
-        .eq("ativo", true)
-        .order("nome", {
-            ascending: true
-        })
-
-]);
-
-        /* =====================================================
-           BUSCAR DADOS
-        ===================================================== */
+    try {
 
         const [
             clientesResponse,
             vendasResponse,
             parcelasResponse,
-            carnesResponse
+            carnesResponse,
+            chavesPixResponse
         ] = await Promise.all([
 
             supabaseClient
@@ -3886,8 +3848,16 @@ const [
             supabaseClient
                 .from("carnes")
                 .select(
-                    "id, cliente_id, codigo_acesso, ativo"
-                )
+                    "id, cliente_id, codigo_acesso, ativo, pix"
+                ),
+
+            supabaseClient
+                .from("chaves_pix")
+                .select("*")
+                .eq("ativo", true)
+                .order("nome", {
+                    ascending: true
+                })
 
         ]);
 
@@ -4511,38 +4481,6 @@ async function abrirGerador() {
         0,
         0
     );
-
-}
-
-
-    const login =
-        document.getElementById("paginaLogin");
-
-    const admin =
-        document.getElementById("paginaAdmin");
-
-    const gerador =
-        document.getElementById("paginaGerador");
-
-    const pagamento =
-        document.getElementById("paginaPagamento");
-
-
-    if (login) {
-        login.style.display = "none";
-    }
-
-    if (admin) {
-        admin.style.display = "none";
-    }
-
-    if (gerador) {
-        gerador.style.display = "block";
-    }
-
-    if (pagamento) {
-        pagamento.style.display = "none";
-    }
 
 }
 
@@ -5413,145 +5351,6 @@ async function confirmarGeracaoCarne() {
 }
 
 
-        /* =====================================================
-           ENCONTRAR CLIENTE
-        ===================================================== */
-
-        const cliente =
-            clientesAdmin.find(
-                c => c.id === clienteId
-            );
-
-
-        if (!cliente) {
-
-            alert(
-                "Cliente não encontrado."
-            );
-
-            return;
-        }
-
-
-        /* =====================================================
-           MOSTRAR PROCESSANDO
-        ===================================================== */
-
-        const botoes =
-            document.querySelectorAll(
-                `[data-cliente-id="${clienteId}"]`
-            );
-
-
-        botoes.forEach(botao => {
-
-            botao.disabled = true;
-            botao.textContent = "CRIANDO CARNÊ...";
-
-        });
-
-
-        /* =====================================================
-           CRIAR / REUTILIZAR CARNÊ
-        ===================================================== */
-
-        const resposta =
-            await fetch(
-                "/api/cobranca",
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        acao: "criarCarne",
-
-                        clienteId:
-                            clienteId,
-
-                        multa: 2,
-
-                        juros: 0.033,
-
-                        pix:
-                            cliente.pix || ""
-
-                    })
-
-                }
-            );
-
-
-        const resultado =
-            await resposta.json();
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                resultado?.erro ||
-                resultado?.error ||
-                "Não foi possível criar o carnê."
-            );
-
-        }
-
-
-        /* =====================================================
-           PEGAR CÓDIGO
-        ===================================================== */
-
-        const codigo =
-            resultado.codigo_acesso ||
-            resultado.codigo ||
-            resultado.carne?.codigo_acesso;
-
-
-        if (!codigo) {
-
-            throw new Error(
-                "O servidor criou o carnê, mas não retornou o código de acesso."
-            );
-
-        }
-
-
-        /* =====================================================
-           ABRIR CARNÊ
-        ===================================================== */
-
-        const url =
-            `${window.location.origin}/?carne=${encodeURIComponent(codigo)}`;
-
-
-        window.location.href = url;
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao gerar carnê:",
-            erro
-        );
-
-
-        alert(
-            erro?.message ||
-            "Erro ao criar o carnê."
-        );
-
-
-        /* Restaurar botões */
-
-        carregarClientesAdmin();
-
-    }
-
-}
 
 /* =========================================================
    ESCAPAR HTML
