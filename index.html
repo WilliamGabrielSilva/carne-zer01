@@ -1623,17 +1623,17 @@ const supabaseClient = window.supabase.createClient(
    LOGIN ADMINISTRATIVO
 ========================================================= */
 
+/* =========================================================
+   ZER01 — LOGIN ADMINISTRATIVO
+========================================================= */
+
 async function fazerLoginAdmin() {
 
     const email =
-        document.getElementById("loginEmail")
-            ?.value
-            .trim();
+        document.getElementById("loginEmail")?.value.trim();
 
     const senha =
-        document.getElementById("loginSenha")
-            ?.value;
-
+        document.getElementById("loginSenha")?.value;
 
     const botao =
         document.getElementById("botaoLogin");
@@ -1677,8 +1677,11 @@ async function fazerLoginAdmin() {
 
         const { data, error } =
             await supabaseClient.auth.signInWithPassword({
+
                 email: email,
+
                 password: senha
+
             });
 
 
@@ -1688,13 +1691,15 @@ async function fazerLoginAdmin() {
 
 
         if (!data.session) {
+
             throw new Error(
                 "Não foi possível criar a sessão."
             );
+
         }
 
 
-        abrirPaginaAdmin();
+        await abrirPaginaAdmin();
 
 
     } catch (error) {
@@ -1721,7 +1726,9 @@ async function fazerLoginAdmin() {
         }
 
 
-        mostrarErroLogin(mensagem);
+        mostrarErroLogin(
+            mensagem
+        );
 
 
     } finally {
@@ -1735,6 +1742,32 @@ async function fazerLoginAdmin() {
         }
 
     }
+
+}
+
+
+/* =========================================================
+   MOSTRAR ERRO DO LOGIN
+========================================================= */
+
+function mostrarErroLogin(mensagem) {
+
+    const erro =
+        document.getElementById(
+            "loginErro"
+        );
+
+
+    if (!erro) {
+        return;
+    }
+
+
+    erro.textContent =
+        mensagem;
+
+    erro.style.display =
+        "block";
 
 }
 
@@ -4190,29 +4223,48 @@ const [
    ABRIR PAINEL ADMIN
 ========================================================= */
 
+/* =========================================================
+   ZER01 — ABRIR PAINEL ADMIN
+========================================================= */
+
 async function abrirPaginaAdmin() {
 
     const login =
-        document.getElementById("paginaLogin");
+        document.getElementById(
+            "paginaLogin"
+        );
 
     const admin =
-        document.getElementById("paginaAdmin");
+        document.getElementById(
+            "paginaAdmin"
+        );
 
     const gerador =
-        document.getElementById("paginaGerador");
+        document.getElementById(
+            "paginaGerador"
+        );
 
     const pagamento =
-        document.getElementById("paginaPagamento");
+        document.getElementById(
+            "paginaPagamento"
+        );
 
+
+    /* =====================================================
+       VERIFICAR SESSÃO
+    ===================================================== */
 
     const {
         data: {
             session
         }
-    } = await supabaseClient.auth.getSession();
+    } =
+        await supabaseClient.auth.getSession();
 
 
-    /* SEM LOGIN */
+    /* =====================================================
+       SEM LOGIN
+    ===================================================== */
 
     if (!session) {
 
@@ -4233,11 +4285,12 @@ async function abrirPaginaAdmin() {
         }
 
         return;
-
     }
 
 
-    /* COM LOGIN */
+    /* =====================================================
+       COM LOGIN
+    ===================================================== */
 
     if (login) {
         login.style.display = "none";
@@ -4256,7 +4309,29 @@ async function abrirPaginaAdmin() {
     }
 
 
-    carregarClientesAdmin();
+    /* =====================================================
+       CARREGAR CLIENTES
+    ===================================================== */
+
+    if (
+        typeof carregarClientesAdmin ===
+        "function"
+    ) {
+
+        carregarClientesAdmin();
+
+    } else {
+
+        if (
+            typeof renderClientesAdmin ===
+            "function"
+        ) {
+
+            renderClientesAdmin([]);
+
+        }
+
+    }
 
 }
 
@@ -4268,22 +4343,73 @@ async function abrirPaginaAdmin() {
    ABRIR GERADOR
 ========================================================= */
 
+/* =========================================================
+   ZER01 — ABRIR GERADOR
+========================================================= */
+
 async function abrirGerador() {
 
     const {
         data: {
             session
         }
-    } = await supabaseClient.auth.getSession();
+    } =
+        await supabaseClient.auth.getSession();
 
 
     if (!session) {
 
-        abrirPaginaAdmin();
+        await abrirPaginaAdmin();
 
         return;
 
     }
+
+
+    const login =
+        document.getElementById(
+            "paginaLogin"
+        );
+
+    const admin =
+        document.getElementById(
+            "paginaAdmin"
+        );
+
+    const gerador =
+        document.getElementById(
+            "paginaGerador"
+        );
+
+    const pagamento =
+        document.getElementById(
+            "paginaPagamento"
+        );
+
+
+    if (login) {
+        login.style.display = "none";
+    }
+
+    if (admin) {
+        admin.style.display = "none";
+    }
+
+    if (gerador) {
+        gerador.style.display = "block";
+    }
+
+    if (pagamento) {
+        pagamento.style.display = "none";
+    }
+
+
+    window.scrollTo(
+        0,
+        0
+    );
+
+}
 
 
     const login =
