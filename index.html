@@ -819,6 +819,267 @@ h1{
     margin-top:12px;
 }
 
+/* =========================================================
+   MODAL — ESCOLHER CHAVE PIX
+========================================================= */
+
+.modal-pix-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(0, 0, 0, 0.75);
+
+    backdrop-filter: blur(5px);
+
+}
+
+
+.modal-pix {
+
+    width: 100%;
+
+    max-width: 520px;
+
+    background: #171717;
+
+    border: 1px solid #333;
+
+    border-radius: 14px;
+
+    box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.65);
+
+    overflow: hidden;
+
+}
+
+
+.modal-pix-header {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 22px;
+
+    border-bottom: 1px solid #303030;
+
+}
+
+
+.modal-pix-header h2 {
+
+    margin: 0 0 6px;
+
+    font-size: 20px;
+
+    color: #fff;
+
+}
+
+
+.modal-pix-header p {
+
+    margin: 0;
+
+    color: #999;
+
+    font-size: 13px;
+
+}
+
+
+.modal-pix-fechar {
+
+    width: 34px;
+
+    height: 34px;
+
+    border: 1px solid #333;
+
+    border-radius: 8px;
+
+    background: #222;
+
+    color: #fff;
+
+    font-size: 22px;
+
+    cursor: pointer;
+
+}
+
+
+.modal-pix-fechar:hover {
+
+    background: #2b2b2b;
+
+}
+
+
+.modal-pix-conteudo {
+
+    padding: 22px;
+
+}
+
+
+.modal-pix-conteudo label {
+
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    color: #fff;
+
+}
+
+
+.modal-pix-select {
+
+    width: 100%;
+
+    height: 48px;
+
+    padding: 0 14px;
+
+    border: 1px solid #383838;
+
+    border-radius: 8px;
+
+    background: #0f0f0f;
+
+    color: #fff;
+
+    outline: none;
+
+    box-sizing: border-box;
+
+}
+
+
+.modal-pix-select:focus {
+
+    border-color: #666;
+
+}
+
+
+.detalhes-chave-pix {
+
+    display: grid;
+
+    gap: 10px;
+
+    margin-top: 16px;
+
+    padding: 15px;
+
+    border: 1px solid #303030;
+
+    border-radius: 9px;
+
+    background: #111;
+
+}
+
+
+.detalhes-chave-pix div {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+}
+
+
+.detalhes-chave-pix span {
+
+    color: #888;
+
+    font-size: 12px;
+
+}
+
+
+.detalhes-chave-pix strong {
+
+    color: #fff;
+
+    font-size: 13px;
+
+    text-align: right;
+
+    word-break: break-word;
+
+}
+
+
+.modal-pix-acoes {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 18px 22px;
+
+    border-top: 1px solid #303030;
+
+}
+
+
+@media(max-width:500px) {
+
+    .modal-pix-overlay {
+
+        padding: 12px;
+
+    }
+
+    .modal-pix {
+
+        max-width: 100%;
+
+    }
+
+    .modal-pix-acoes {
+
+        flex-direction: column-reverse;
+
+    }
+
+    .modal-pix-acoes button {
+
+        width: 100%;
+
+    }
+
+}
+
 @media(max-width:500px){
 
     #paginaLogin {
@@ -3415,34 +3676,50 @@ function escaparHTML(valor){
 ========================================================= */
 
 let clientesAdmin = [];
+let chavesPixAdmin = [];
 
 /* =========================================================
    ZER01 — CARREGAR CLIENTES DO SUPABASE
 ========================================================= */
 
-async function carregarClientesAdmin() {
+const [
+    clientesResponse,
+    vendasResponse,
+    parcelasResponse,
+    carnesResponse,
+    chavesPixResponse
+] = await Promise.all([
 
-    try {
+    supabaseClient
+        .from("clientes")
+        .select("*")
+        .order("nome", {
+            ascending: true
+        }),
 
-        const {
-            data: sessionData,
-            error: sessionError
-        } = await supabaseClient.auth.getSession();
+    supabaseClient
+        .from("vendas")
+        .select("*"),
 
-        if (sessionError) {
-            throw sessionError;
-        }
+    supabaseClient
+        .from("parcelas")
+        .select("*"),
 
-        if (!sessionData?.session) {
+    supabaseClient
+        .from("carnes")
+        .select(
+            "id, cliente_id, codigo_acesso, ativo, pix"
+        ),
 
-            console.warn(
-                "Usuário não autenticado."
-            );
+    supabaseClient
+        .from("chaves_pix")
+        .select("*")
+        .eq("ativo", true)
+        .order("nome", {
+            ascending: true
+        })
 
-            return;
-
-        }
-
+]);
 
         /* =====================================================
            BUSCAR DADOS
@@ -3499,6 +3776,10 @@ async function carregarClientesAdmin() {
             throw carnesResponse.error;
         }
 
+        if (chavesPixResponse.error) {
+            throw chavesPixResponse.error;
+        }
+
 
         const clientes =
             clientesResponse.data || [];
@@ -3511,6 +3792,9 @@ async function carregarClientesAdmin() {
 
         const carnes =
             carnesResponse.data || [];
+
+        chavesPixAdmin =
+            chavesPixResponse.data || [];
 
 
         /* =====================================================
@@ -4430,20 +4714,345 @@ function renderClientesAdmin(lista) {
    ZER01 — CRIAR / ABRIR CARNÊ DO CLIENTE
 ========================================================= */
 
-async function gerarCarneCliente(clienteId) {
+/* =========================================================
+   ZER01 — ABRIR SELETOR DE CHAVE PIX
+========================================================= */
+
+let clienteSelecionadoParaCarne = null;
+
+
+function gerarCarneCliente(clienteId) {
+
+    const cliente =
+        clientesAdmin.find(
+            c => c.id === clienteId
+        );
+
+
+    if (!cliente) {
+
+        alert(
+            "Cliente não encontrado."
+        );
+
+        return;
+
+    }
+
+
+    clienteSelecionadoParaCarne =
+        cliente;
+
+
+    const modal =
+        document.getElementById(
+            "modalEscolherPix"
+        );
+
+    const select =
+        document.getElementById(
+            "selectChavePix"
+        );
+
+    const nomeCliente =
+        document.getElementById(
+            "modalPixCliente"
+        );
+
+
+    if (!modal || !select) {
+
+        alert(
+            "Erro ao abrir seleção de PIX."
+        );
+
+        return;
+
+    }
+
+
+    nomeCliente.textContent =
+        cliente.nome ||
+        "Cliente";
+
+
+    /* =====================================================
+       LIMPAR SELECT
+    ===================================================== */
+
+    select.innerHTML = `
+        <option value="">
+            Selecione uma chave PIX...
+        </option>
+    `;
+
+
+    /* =====================================================
+       ADICIONAR CHAVES
+    ===================================================== */
+
+    if (
+        !chavesPixAdmin ||
+        chavesPixAdmin.length === 0
+    ) {
+
+        select.innerHTML = `
+            <option value="">
+                Nenhuma chave PIX cadastrada
+            </option>
+        `;
+
+    } else {
+
+        chavesPixAdmin.forEach(pix => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                pix.id;
+
+            option.textContent =
+                pix.nome ||
+                "Chave PIX";
+
+
+            select.appendChild(
+                option
+            );
+
+        });
+
+    }
+
+
+    /* =====================================================
+       RESETAR DETALHES
+    ===================================================== */
+
+    document
+        .getElementById(
+            "detalhesChavePix"
+        )
+        .style.display = "none";
+
+
+    /* =====================================================
+       ABRIR MODAL
+    ===================================================== */
+
+    modal.style.display =
+        "flex";
+
+}
+
+
+/* =========================================================
+   FECHAR MODAL
+========================================================= */
+
+function fecharModalPix() {
+
+    const modal =
+        document.getElementById(
+            "modalEscolherPix"
+        );
+
+
+    if (modal) {
+
+        modal.style.display =
+            "none";
+
+    }
+
+
+    clienteSelecionadoParaCarne =
+        null;
+
+}
+
+
+/* =========================================================
+   MOSTRAR DETALHES DA CHAVE
+========================================================= */
+
+document.addEventListener(
+    "change",
+    function(event) {
+
+        if (
+            event.target.id !==
+            "selectChavePix"
+        ) {
+
+            return;
+
+        }
+
+
+        const id =
+            event.target.value;
+
+
+        const detalhes =
+            document.getElementById(
+                "detalhesChavePix"
+            );
+
+
+        if (!id) {
+
+            detalhes.style.display =
+                "none";
+
+            return;
+
+        }
+
+
+        const pix =
+            chavesPixAdmin.find(
+                item =>
+                    String(item.id) ===
+                    String(id)
+            );
+
+
+        if (!pix) {
+
+            detalhes.style.display =
+                "none";
+
+            return;
+
+        }
+
+
+        document
+            .getElementById(
+                "pixBancoSelecionado"
+            )
+            .textContent =
+                pix.banco ||
+                "-";
+
+
+        document
+            .getElementById(
+                "pixTipoSelecionado"
+            )
+            .textContent =
+                pix.tipo ||
+                "-";
+
+
+        document
+            .getElementById(
+                "pixChaveSelecionada"
+            )
+            .textContent =
+                pix.chave ||
+                "-";
+
+
+        detalhes.style.display =
+            "grid";
+
+    }
+);
+
+
+/* =========================================================
+   CONFIRMAR GERAÇÃO
+========================================================= */
+
+async function confirmarGeracaoCarne() {
+
+    if (
+        !clienteSelecionadoParaCarne
+    ) {
+
+        alert(
+            "Cliente não selecionado."
+        );
+
+        return;
+
+    }
+
+
+    const select =
+        document.getElementById(
+            "selectChavePix"
+        );
+
+
+    const pixId =
+        select.value;
+
+
+    if (!pixId) {
+
+        alert(
+            "Selecione uma chave PIX."
+        );
+
+        return;
+
+    }
+
+
+    const pix =
+        chavesPixAdmin.find(
+            item =>
+                String(item.id) ===
+                String(pixId)
+        );
+
+
+    if (!pix) {
+
+        alert(
+            "Chave PIX não encontrada."
+        );
+
+        return;
+
+    }
+
+
+    const cliente =
+        clienteSelecionadoParaCarne;
+
+
+    const botao =
+        document.getElementById(
+            "btnConfirmarGeracaoCarne"
+        );
+
 
     try {
 
-        if (!clienteId) {
-            alert("Cliente inválido.");
-            return;
-        }
+        botao.disabled = true;
 
+        botao.textContent =
+            "CRIANDO CARNÊ...";
+
+
+        /* =================================================
+           VERIFICAR LOGIN
+        ================================================= */
 
         const {
             data: sessionData,
             error: sessionError
-        } = await supabaseClient.auth.getSession();
+        } =
+            await supabaseClient
+                .auth
+                .getSession();
 
 
         if (sessionError) {
@@ -4453,16 +5062,126 @@ async function gerarCarneCliente(clienteId) {
 
         if (!sessionData?.session) {
 
-            alert(
+            throw new Error(
                 "Sua sessão expirou. Faça login novamente."
             );
 
-            await supabaseClient.auth.signOut();
-
-            abrirPaginaAdmin();
-
-            return;
         }
+
+
+        /* =================================================
+           CRIAR / REUTILIZAR CARNÊ
+        ================================================= */
+
+        const resposta =
+            await fetch(
+                "/api/cobranca",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        acao:
+                            "criarCarne",
+
+                        clienteId:
+                            cliente.id,
+
+                        multa: 2,
+
+                        juros: 0.033,
+
+                        pix:
+                            pix.chave
+
+                    })
+
+                }
+            );
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado?.erro ||
+                resultado?.error ||
+                "Não foi possível criar o carnê."
+            );
+
+        }
+
+
+        /* =================================================
+           CÓDIGO DO CARNÊ
+        ================================================= */
+
+        const codigo =
+            resultado.codigo_acesso ||
+            resultado.codigo ||
+            resultado.carne?.codigo_acesso;
+
+
+        if (!codigo) {
+
+            throw new Error(
+                "O servidor não retornou o código do carnê."
+            );
+
+        }
+
+
+        /* =================================================
+           FECHAR MODAL
+        ================================================= */
+
+        fecharModalPix();
+
+
+        /* =================================================
+           ABRIR CARNÊ
+        ================================================= */
+
+        const url =
+            `${window.location.origin}/?carne=${encodeURIComponent(codigo)}`;
+
+
+        window.location.href =
+            url;
+
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao criar carnê:",
+            erro
+        );
+
+
+        alert(
+            erro?.message ||
+            "Erro ao criar carnê."
+        );
+
+
+        botao.disabled =
+            false;
+
+        botao.textContent =
+            "GERAR CARNÊ";
+
+    }
+
+}
 
 
         /* =====================================================
@@ -4840,6 +5559,112 @@ function iniciarFiltrosAdmin() {
 })();
 
 </script>
+<!-- =========================================================
+     MODAL — ESCOLHER CHAVE PIX
+========================================================= -->
 
+<div
+    id="modalEscolherPix"
+    class="modal-pix-overlay"
+    style="display:none;"
+>
+
+    <div class="modal-pix">
+
+        <div class="modal-pix-header">
+
+            <div>
+                <h2>Gerar Carnê Completo</h2>
+
+                <p id="modalPixCliente">
+                    Cliente
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-pix-fechar"
+                onclick="fecharModalPix()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-pix-conteudo">
+
+            <label for="selectChavePix">
+                Escolha a chave PIX
+            </label>
+
+            <select
+                id="selectChavePix"
+                class="modal-pix-select"
+            >
+
+                <option value="">
+                    Selecione uma chave PIX...
+                </option>
+
+            </select>
+
+
+            <div
+                id="detalhesChavePix"
+                class="detalhes-chave-pix"
+                style="display:none;"
+            >
+
+                <div>
+                    <span>Banco</span>
+                    <strong id="pixBancoSelecionado">
+                        -
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Tipo</span>
+                    <strong id="pixTipoSelecionado">
+                        -
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Chave</span>
+                    <strong id="pixChaveSelecionada">
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-pix-acoes">
+
+            <button
+                type="button"
+                class="admin-btn admin-btn-secondary"
+                onclick="fecharModalPix()"
+            >
+                CANCELAR
+            </button>
+
+            <button
+                type="button"
+                class="admin-btn admin-btn-primary"
+                id="btnConfirmarGeracaoCarne"
+                onclick="confirmarGeracaoCarne()"
+            >
+                GERAR CARNÊ
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 </body>
 </html>
