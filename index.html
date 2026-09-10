@@ -5249,7 +5249,10 @@ function renderClientesAdmin(lista) {
                             </button>
                           `
                         : `
-                            <button class="btn-primary" onclick="gerarCarneCliente('${cliente.id}')">
+                            <button
+                                class="btn-primary"
+                                onclick="window.location.href='/?carne=${cliente.codigoCarne}'"
+                            >
                                 VER CARNÊ
                             </button>
                           `
@@ -6597,6 +6600,15 @@ async function abrirPagamentoParcela(
     iniciarFiltrosAdmin();
 
 })();
+
+function verCarne(codigoCarne) {
+    if (!codigoCarne) {
+        alert("Este cliente ainda não possui um carnê.");
+        return;
+    }
+
+    window.location.href = `/?carne=${encodeURIComponent(codigoCarne)}`;
+}
 
 </script>
 <!-- =========================================================
