@@ -6566,46 +6566,6 @@ async function abrirPagamentoParcela(
 
     await abrirPaginaAdmin();
 
-})();
-
-
-    /* =====================================================
-       PAGAMENTO DE PARCELA
-    ===================================================== */
-
-    if (token) {
-
-        abrirPaginaPagamento(token);
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       CARNÊ DIGITAL
-    ===================================================== */
-
-    if (carne) {
-
-        /*
-         * A página do carnê digital será
-         * ativada na próxima etapa.
-         */
-
-        abrirPaginaAdmin();
-
-        return;
-
-    }
-
-
-    /* =====================================================
-       PAINEL ADMINISTRATIVO
-    ===================================================== */
-
-    await abrirPaginaAdmin();
-
 
     /* FILTROS */
 
