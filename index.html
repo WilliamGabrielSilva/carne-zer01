@@ -1080,6 +1080,307 @@ h1{
 
 }
 
+/* =========================================================
+   ZER01 — CARNÊ DIGITAL
+========================================================= */
+
+#paginaCarneDigital {
+    min-height:100vh;
+    padding:20px 14px 40px;
+    background:#0d0d0d;
+    box-sizing:border-box;
+}
+
+.carne-digital-container {
+    width:100%;
+    max-width:850px;
+    margin:0 auto;
+}
+
+.carne-digital-header {
+    display:flex;
+    align-items:center;
+    gap:18px;
+    padding:20px 0 25px;
+    border-bottom:1px solid #292929;
+    margin-bottom:22px;
+}
+
+.carne-digital-logo {
+    width:160px;
+    max-height:70px;
+    object-fit:contain;
+}
+
+.carne-digital-header h1 {
+    margin:0 0 5px;
+    font-size:22px;
+    font-weight:800;
+    color:#fff;
+}
+
+.carne-digital-header p {
+    margin:0;
+    color:#999;
+    font-size:13px;
+}
+
+.carne-digital-loading {
+    padding:50px 20px;
+    text-align:center;
+    color:#999;
+}
+
+.carne-digital-erro {
+    padding:18px;
+    border:1px solid rgba(255,70,70,.25);
+    border-radius:10px;
+    background:rgba(255,70,70,.08);
+    color:#ff7777;
+    text-align:center;
+}
+
+.carne-cliente-box {
+    background:#171717;
+    border:1px solid #2b2b2b;
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:15px;
+}
+
+.carne-cliente-box span {
+    display:block;
+    color:#777;
+    font-size:11px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.carne-cliente-box strong {
+    display:block;
+    color:#fff;
+    font-size:21px;
+    margin-bottom:8px;
+}
+
+.carne-cliente-box small {
+    display:block;
+    color:#999;
+    font-size:13px;
+    margin-top:3px;
+}
+
+.carne-resumo {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-bottom:18px;
+}
+
+.carne-resumo-card {
+    background:#171717;
+    border:1px solid #2b2b2b;
+    border-radius:12px;
+    padding:18px;
+}
+
+.carne-resumo-card span {
+    display:block;
+    color:#777;
+    font-size:10px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.carne-resumo-card strong {
+    color:#fff;
+    font-size:20px;
+}
+
+.carne-parcelas-box {
+    background:#171717;
+    border:1px solid #2b2b2b;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.carne-secao-titulo {
+    padding:20px;
+    border-bottom:1px solid #2b2b2b;
+}
+
+.carne-secao-titulo h2 {
+    margin:0 0 5px;
+    font-size:18px;
+    color:#fff;
+}
+
+.carne-secao-titulo span {
+    color:#777;
+    font-size:12px;
+}
+
+.carne-lista-parcelas {
+    padding:12px;
+}
+
+.carne-parcela {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+    padding:16px;
+    margin-bottom:10px;
+    background:#101010;
+    border:1px solid #292929;
+    border-radius:10px;
+}
+
+.carne-parcela:last-child {
+    margin-bottom:0;
+}
+
+.carne-parcela-info {
+    min-width:0;
+}
+
+.carne-parcela-numero {
+    color:#fff;
+    font-size:14px;
+    font-weight:800;
+    margin-bottom:5px;
+}
+
+.carne-parcela-data {
+    color:#888;
+    font-size:12px;
+}
+
+.carne-parcela-valor {
+    text-align:right;
+}
+
+.carne-parcela-valor strong {
+    display:block;
+    color:#fff;
+    font-size:17px;
+    margin-bottom:7px;
+}
+
+.carne-status {
+    display:inline-block;
+    padding:5px 8px;
+    border-radius:5px;
+    font-size:9px;
+    font-weight:800;
+}
+
+.carne-status-aberta {
+    background:#222;
+    color:#fff;
+}
+
+.carne-status-atrasada {
+    background:#3a1717;
+    color:#ff7070;
+}
+
+.carne-status-paga {
+    background:#18351f;
+    color:#70d98a;
+}
+
+.carne-btn-pagar {
+    border:0;
+    border-radius:7px;
+    padding:9px 13px;
+    background:#fff;
+    color:#000;
+    font-size:11px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+.carne-btn-pagar:hover {
+    opacity:.9;
+}
+
+.carne-footer {
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    margin-top:20px;
+    padding:18px 5px;
+    color:#777;
+    font-size:11px;
+}
+
+.carne-footer strong {
+    color:#aaa;
+}
+
+.carne-vazia {
+    padding:35px 20px;
+    text-align:center;
+    color:#777;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:600px) {
+
+    #paginaCarneDigital {
+        padding:12px 10px 30px;
+    }
+
+    .carne-digital-header {
+        gap:12px;
+        padding:12px 0 18px;
+    }
+
+    .carne-digital-logo {
+        width:110px;
+    }
+
+    .carne-digital-header h1 {
+        font-size:16px;
+    }
+
+    .carne-digital-header p {
+        font-size:11px;
+    }
+
+    .carne-resumo {
+        grid-template-columns:1fr;
+    }
+
+    .carne-resumo-card {
+        padding:14px;
+    }
+
+    .carne-parcela {
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .carne-parcela-valor {
+        width:100%;
+        text-align:left;
+    }
+
+    .carne-btn-pagar {
+        width:100%;
+    }
+
+    .carne-footer {
+        flex-direction:column;
+    }
+
+}
+
 @media(max-width:500px){
 
     #paginaLogin {
@@ -1409,6 +1710,180 @@ h1{
             >
                 ABRIR GERADOR
             </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     ZER01 — CARNÊ DIGITAL DO CLIENTE
+========================================================= -->
+
+<div id="paginaCarneDigital" style="display:none;">
+
+    <div class="carne-digital-container">
+
+        <div class="carne-digital-header">
+
+            <img
+                src="logoTitulo.png"
+                class="carne-digital-logo"
+                alt="ZER01"
+            >
+
+            <div>
+                <h1>ZER01 - MODA MASCULINA</h1>
+
+                <p>
+                    Carnê Digital
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- CARREGANDO -->
+
+        <div
+            id="carneDigitalCarregando"
+            class="carne-digital-loading"
+        >
+            Carregando carnê...
+        </div>
+
+
+        <!-- ERRO -->
+
+        <div
+            id="carneDigitalErro"
+            class="carne-digital-erro"
+            style="display:none;"
+        ></div>
+
+
+        <!-- CONTEÚDO -->
+
+        <div
+            id="carneDigitalConteudo"
+            style="display:none;"
+        >
+
+            <!-- CLIENTE -->
+
+            <div class="carne-cliente-box">
+
+                <span>CLIENTE</span>
+
+                <strong
+                    id="carneClienteNome"
+                >
+                    -
+                </strong>
+
+                <small
+                    id="carneClienteDocumento"
+                >
+                    -
+                </small>
+
+                <small
+                    id="carneClienteTelefone"
+                >
+                    -
+                </small>
+
+            </div>
+
+
+            <!-- RESUMO -->
+
+            <div class="carne-resumo">
+
+                <div class="carne-resumo-card">
+
+                    <span>
+                        TOTAL EM ABERTO
+                    </span>
+
+                    <strong
+                        id="carneTotalAberto"
+                    >
+                        R$ 0,00
+                    </strong>
+
+                </div>
+
+
+                <div class="carne-resumo-card">
+
+                    <span>
+                        PARCELAS
+                    </span>
+
+                    <strong
+                        id="carneQuantidadeParcelas"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="carne-resumo-card">
+
+                    <span>
+                        ATRASADAS
+                    </span>
+
+                    <strong
+                        id="carneQuantidadeAtrasadas"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- PARCELAS -->
+
+            <div class="carne-parcelas-box">
+
+                <div class="carne-secao-titulo">
+
+                    <h2>
+                        Suas parcelas
+                    </h2>
+
+                    <span>
+                        Selecione uma parcela para pagar
+                    </span>
+
+                </div>
+
+
+                <div
+                    id="carneListaParcelas"
+                    class="carne-lista-parcelas"
+                ></div>
+
+            </div>
+
+
+            <div class="carne-footer">
+
+                <strong>
+                    ZER01 MODA MASCULINA
+                </strong>
+
+                <span>
+                    Tel.: (43) 9 9678-8303
+                </span>
+
+            </div>
 
         </div>
 
@@ -5520,6 +5995,514 @@ function iniciarFiltrosAdmin() {
 }
 
 /* =========================================================
+   ZER01 — CARNÊ DIGITAL
+========================================================= */
+
+async function abrirPaginaCarne(codigo) {
+
+    const login =
+        document.getElementById("paginaLogin");
+
+    const admin =
+        document.getElementById("paginaAdmin");
+
+    const gerador =
+        document.getElementById("paginaGerador");
+
+    const pagamento =
+        document.getElementById("paginaPagamento");
+
+    const carnePagina =
+        document.getElementById("paginaCarneDigital");
+
+
+    if (login) {
+        login.style.display = "none";
+    }
+
+    if (admin) {
+        admin.style.display = "none";
+    }
+
+    if (gerador) {
+        gerador.style.display = "none";
+    }
+
+    if (pagamento) {
+        pagamento.style.display = "none";
+    }
+
+    if (carnePagina) {
+        carnePagina.style.display = "block";
+    }
+
+
+    await carregarCarneDigital(codigo);
+
+}
+
+
+/* =========================================================
+   CARREGAR CARNÊ
+========================================================= */
+
+async function carregarCarneDigital(codigo) {
+
+    const carregando =
+        document.getElementById(
+            "carneDigitalCarregando"
+        );
+
+    const erro =
+        document.getElementById(
+            "carneDigitalErro"
+        );
+
+    const conteudo =
+        document.getElementById(
+            "carneDigitalConteudo"
+        );
+
+
+    carregando.style.display =
+        "block";
+
+    erro.style.display =
+        "none";
+
+    conteudo.style.display =
+        "none";
+
+
+    try {
+
+        const resposta =
+            await fetch(
+                `/api/cobranca?carne=${encodeURIComponent(codigo)}`
+            );
+
+
+        const resultado =
+            await resposta.json();
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                resultado?.erro ||
+                resultado?.error ||
+                "Não foi possível carregar o carnê."
+            );
+
+        }
+
+
+        console.log(
+            "Carnê recebido:",
+            resultado
+        );
+
+
+        /* =================================================
+           CLIENTE
+        ================================================= */
+
+        const cliente =
+            resultado.cliente ||
+            resultado.clienteData ||
+            {};
+
+
+        document.getElementById(
+            "carneClienteNome"
+        ).textContent =
+            cliente.nome ||
+            resultado.nome ||
+            "Cliente";
+
+
+        document.getElementById(
+            "carneClienteDocumento"
+        ).textContent =
+            cliente.cpf_cnpj
+                ? "CPF/CNPJ: " +
+                  cliente.cpf_cnpj
+                : "";
+
+
+        document.getElementById(
+            "carneClienteTelefone"
+        ).textContent =
+            cliente.telefone
+                ? "Telefone: " +
+                  cliente.telefone
+                : "";
+
+
+        /* =================================================
+           PARCELAS
+        ================================================= */
+
+        const parcelas =
+            resultado.parcelas ||
+            resultado.data?.parcelas ||
+            [];
+
+
+        const lista =
+            document.getElementById(
+                "carneListaParcelas"
+            );
+
+
+        lista.innerHTML = "";
+
+
+        let totalAberto = 0;
+        let atrasadas = 0;
+        let abertas = 0;
+
+
+        if (
+            !parcelas ||
+            parcelas.length === 0
+        ) {
+
+            lista.innerHTML = `
+                <div class="carne-vazia">
+                    Nenhuma parcela encontrada.
+                </div>
+            `;
+
+        } else {
+
+            parcelas.forEach(
+                parcela => {
+
+                    const valor =
+                        Number(
+                            parcela.valor ||
+                            parcela.valor_original ||
+                            0
+                        );
+
+
+                    const valorPago =
+                        Number(
+                            parcela.valor_pago ||
+                            0
+                        );
+
+
+                    const saldo =
+                        Math.max(
+                            valor -
+                            valorPago,
+                            0
+                        );
+
+
+                    const status =
+                        String(
+                            parcela.status ||
+                            ""
+                        )
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(
+                            /[\u0300-\u036f]/g,
+                            ""
+                        );
+
+
+                    const paga =
+                        status.includes("pago") ||
+                        status.includes("quitado") ||
+                        saldo <= 0;
+
+
+                    let atrasada =
+                        false;
+
+
+                    if (
+                        parcela.vencimento &&
+                        !paga
+                    ) {
+
+                        const hoje =
+                            new Date();
+
+                        const vencimento =
+                            new Date(
+                                parcela.vencimento +
+                                "T23:59:59"
+                            );
+
+
+                        atrasada =
+                            vencimento <
+                            hoje;
+
+                    }
+
+
+                    if (!paga) {
+
+                        abertas++;
+
+                        totalAberto +=
+                            saldo;
+
+                    }
+
+
+                    if (atrasada) {
+                        atrasadas++;
+                    }
+
+
+                    let statusTexto =
+                        "EM ABERTO";
+
+                    let statusClasse =
+                        "carne-status-aberta";
+
+
+                    if (paga) {
+
+                        statusTexto =
+                            "PAGA";
+
+                        statusClasse =
+                            "carne-status-paga";
+
+                    } else if (atrasada) {
+
+                        statusTexto =
+                            "ATRASADA";
+
+                        statusClasse =
+                            "carne-status-atrasada";
+
+                    }
+
+
+                    const numero =
+                        parcela.numero ||
+                        "";
+
+
+                    const vencimento =
+                        parcela.vencimento
+                            ? formatarData(
+                                parcela.vencimento
+                            )
+                            : "-";
+
+
+                    const div =
+                        document.createElement(
+                            "div"
+                        );
+
+
+                    div.className =
+                        "carne-parcela";
+
+
+                    div.innerHTML = `
+
+                        <div class="carne-parcela-info">
+
+                            <div class="carne-parcela-numero">
+
+                                Parcela ${numero}
+
+                            </div>
+
+                            <div class="carne-parcela-data">
+
+                                Vencimento:
+                                ${vencimento}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="carne-parcela-valor">
+
+                            <strong>
+
+                                ${formatarMoeda(
+                                    saldo
+                                )}
+
+                            </strong>
+
+
+                            <span
+                                class="carne-status ${statusClasse}"
+                            >
+
+                                ${statusTexto}
+
+                            </span>
+
+                        </div>
+
+
+                        ${
+                            !paga
+                            ?
+                            `
+                            <button
+                                class="carne-btn-pagar"
+                                onclick="abrirPagamentoParcela('${escaparHTML(String(parcela.id || ""))}')"
+                            >
+                                PAGAR
+                            </button>
+                            `
+                            :
+                            ""
+                        }
+
+                    `;
+
+
+                    lista.appendChild(
+                        div
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =================================================
+           RESUMO
+        ================================================= */
+
+        document.getElementById(
+            "carneTotalAberto"
+        ).textContent =
+            formatarMoeda(
+                totalAberto
+            );
+
+
+        document.getElementById(
+            "carneQuantidadeParcelas"
+        ).textContent =
+            abertas;
+
+
+        document.getElementById(
+            "carneQuantidadeAtrasadas"
+        ).textContent =
+            atrasadas;
+
+
+        carregando.style.display =
+            "none";
+
+        conteudo.style.display =
+            "block";
+
+
+    } catch (e) {
+
+        console.error(
+            "Erro ao carregar carnê:",
+            e
+        );
+
+
+        carregando.style.display =
+            "none";
+
+
+        erro.textContent =
+            e.message ||
+            "Não foi possível carregar o carnê.";
+
+
+        erro.style.display =
+            "block";
+
+    }
+
+}
+
+
+/* =========================================================
+   PAGAMENTO DA PARCELA
+========================================================= */
+
+async function abrirPagamentoParcela(
+    parcelaId
+) {
+
+    try {
+
+        /*
+         * Buscamos a parcela no Supabase
+         * para encontrar a venda e gerar
+         * a cobrança individual.
+         */
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from("parcelas")
+                .select("*")
+                .eq("id", parcelaId)
+                .single();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        if (!data) {
+
+            throw new Error(
+                "Parcela não encontrada."
+            );
+
+        }
+
+
+        /*
+         * Para manter a segurança e o
+         * fluxo atual, o pagamento individual
+         * será conectado na próxima etapa.
+         */
+
+        alert(
+            "Parcela selecionada. Vamos conectar o pagamento PIX nesta próxima etapa."
+        );
+
+
+    } catch (e) {
+
+        console.error(e);
+
+        alert(
+            e.message ||
+            "Não foi possível abrir a parcela."
+        );
+
+    }
+
+}
+
+/* =========================================================
    INICIALIZAÇÃO
 ========================================================= */
 
@@ -5527,19 +6510,63 @@ function iniciarFiltrosAdmin() {
    INICIALIZAÇÃO
 ========================================================= */
 
+/* =========================================================
+   INICIALIZAÇÃO DO SISTEMA
+========================================================= */
+
 (async function iniciarSistema() {
 
-    const params =
+    const parametros =
         new URLSearchParams(
             window.location.search
         );
 
 
     const token =
-        params.get("token");
+        parametros.get("token");
+
 
     const carne =
-        params.get("carne");
+        parametros.get("carne");
+
+
+    /* =====================================================
+       PAGAMENTO INDIVIDUAL
+    ===================================================== */
+
+    if (token) {
+
+        abrirPaginaPagamento(
+            token
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       CARNÊ DIGITAL
+    ===================================================== */
+
+    if (carne) {
+
+        await abrirPaginaCarne(
+            carne
+        );
+
+        return;
+
+    }
+
+
+    /* =====================================================
+       PAINEL ADMINISTRATIVO
+    ===================================================== */
+
+    await abrirPaginaAdmin();
+
+})();
 
 
     /* =====================================================
