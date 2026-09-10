@@ -1051,6 +1051,32 @@ h1{
 
 }
 
+.carne-topo-acoes {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 20px auto;
+    padding: 0 16px;
+    box-sizing: border-box;
+}
+
+.btn-voltar-admin {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 18px;
+    background: #222;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-voltar-admin:hover {
+    background: #333;
+    transform: translateY(-1px);
+}
+
 
 @media(max-width:500px) {
 
@@ -1722,6 +1748,15 @@ h1{
 ========================================================= -->
 
 <div id="paginaCarneDigital" style="display:none;">
+    <div class="carne-topo-acoes">
+    <button
+        type="button"
+        class="btn-voltar-admin"
+        onclick="window.location.href='/'"
+    >
+        ← VOLTAR À ÁREA ADMINISTRATIVA
+    </button>
+</div>
 
     <div class="carne-digital-container">
 
@@ -5207,27 +5242,17 @@ function renderClientesAdmin(lista) {
 
                 <td>
 
-                    ${
-                        codigo
-                        ?
-                        `
-                        <button
-                            class="admin-btn admin-btn-primary"
-                            onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
-                        >
-                            GERAR CARNÊ COMPLETO
-                        </button>
-                        `
-                        :
-                        `
-                        <button
-                            class="admin-btn admin-btn-primary"
-                            data-cliente-id="${escaparAtributoAdmin(cliente.id)}"
-                            onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
-                        >
-                            GERAR CARNÊ COMPLETO
-                        </button>
-                        `
+                    ${cliente.codigoCarne
+                        ? `
+                            <button class="btn-primary" onclick="window.location.href='/?carne=${cliente.codigoCarne}'">
+                                VER CARNÊ
+                            </button>
+                          `
+                        : `
+                            <button class="btn-primary" onclick="gerarCarneCliente('${cliente.id}')">
+                                GERAR CARNÊ COMPLETO
+                            </button>
+                          `
                     }
 
                 </td>
