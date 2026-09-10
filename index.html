@@ -5245,12 +5245,12 @@ function renderClientesAdmin(lista) {
                     ${cliente.codigoCarne
                         ? `
                             <button class="btn-primary" onclick="window.location.href='/?carne=${cliente.codigoCarne}'">
-                                VER CARNÊ
+                                GERAR CARNÊ COMPLETO
                             </button>
                           `
                         : `
                             <button class="btn-primary" onclick="gerarCarneCliente('${cliente.id}')">
-                                GERAR CARNÊ COMPLETO
+                                VER CARNÊ
                             </button>
                           `
                     }
@@ -5351,7 +5351,7 @@ function renderClientesAdmin(lista) {
                         class="admin-btn admin-btn-primary cliente-card-action"
                         onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
                     >
-                        GERAR CARNÊ COMPLETO
+                        VER CARNÊ
                     </button>
                     `
                     :
