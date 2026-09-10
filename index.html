@@ -1602,6 +1602,109 @@ h1{
 
 </div>
 
+<div
+    id="modalEscolherPix"
+    class="modal-pix-overlay"
+    style="display:none;"
+>
+
+    <div class="modal-pix">
+
+        <div class="modal-pix-header">
+
+            <div>
+                <h2>Gerar Carnê Completo</h2>
+
+                <p id="modalPixCliente">
+                    Cliente
+                </p>
+            </div>
+
+            <button
+                type="button"
+                class="modal-pix-fechar"
+                onclick="fecharModalPix()"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="modal-pix-conteudo">
+
+            <label for="selectChavePix">
+                Escolha a chave PIX
+            </label>
+
+            <select
+                id="selectChavePix"
+                class="modal-pix-select"
+            >
+
+                <option value="">
+                    Selecione uma chave PIX...
+                </option>
+
+            </select>
+
+
+            <div
+                id="detalhesChavePix"
+                class="detalhes-chave-pix"
+                style="display:none;"
+            >
+
+                <div>
+                    <span>Banco</span>
+                    <strong id="pixBancoSelecionado">
+                        -
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Tipo</span>
+                    <strong id="pixTipoSelecionado">
+                        -
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Chave</span>
+                    <strong id="pixChaveSelecionada">
+                        -
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="modal-pix-acoes">
+
+            <button
+                type="button"
+                class="admin-btn admin-btn-secondary"
+                onclick="fecharModalPix()"
+            >
+                CANCELAR
+            </button>
+
+            <button
+                type="button"
+                class="admin-btn admin-btn-primary"
+                id="btnConfirmarGeracaoCarne"
+                onclick="confirmarGeracaoCarne()"
+            >
+                GERAR CARNÊ
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
 
 <script>
 
@@ -5689,108 +5792,6 @@ function iniciarFiltrosAdmin() {
      MODAL — ESCOLHER CHAVE PIX
 ========================================================= -->
 
-<div
-    id="modalEscolherPix"
-    class="modal-pix-overlay"
-    style="display:none;"
->
 
-    <div class="modal-pix">
-
-        <div class="modal-pix-header">
-
-            <div>
-                <h2>Gerar Carnê Completo</h2>
-
-                <p id="modalPixCliente">
-                    Cliente
-                </p>
-            </div>
-
-            <button
-                type="button"
-                class="modal-pix-fechar"
-                onclick="fecharModalPix()"
-            >
-                ×
-            </button>
-
-        </div>
-
-
-        <div class="modal-pix-conteudo">
-
-            <label for="selectChavePix">
-                Escolha a chave PIX
-            </label>
-
-            <select
-                id="selectChavePix"
-                class="modal-pix-select"
-            >
-
-                <option value="">
-                    Selecione uma chave PIX...
-                </option>
-
-            </select>
-
-
-            <div
-                id="detalhesChavePix"
-                class="detalhes-chave-pix"
-                style="display:none;"
-            >
-
-                <div>
-                    <span>Banco</span>
-                    <strong id="pixBancoSelecionado">
-                        -
-                    </strong>
-                </div>
-
-                <div>
-                    <span>Tipo</span>
-                    <strong id="pixTipoSelecionado">
-                        -
-                    </strong>
-                </div>
-
-                <div>
-                    <span>Chave</span>
-                    <strong id="pixChaveSelecionada">
-                        -
-                    </strong>
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <div class="modal-pix-acoes">
-
-            <button
-                type="button"
-                class="admin-btn admin-btn-secondary"
-                onclick="fecharModalPix()"
-            >
-                CANCELAR
-            </button>
-
-            <button
-                type="button"
-                class="admin-btn admin-btn-primary"
-                id="btnConfirmarGeracaoCarne"
-                onclick="confirmarGeracaoCarne()"
-            >
-                GERAR CARNÊ
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
 </body>
 </html>
