@@ -1749,14 +1749,14 @@ h1{
 
 <div id="paginaCarneDigital" style="display:none;">
     <div class="carne-topo-acoes">
-    <button
-        type="button"
-        class="btn-voltar-admin"
-        onclick="window.location.href='/'"
-    >
-        ← VOLTAR À ÁREA ADMINISTRATIVA
-    </button>
-</div>
+        <button
+            type="button"
+            class="btn-voltar-admin"
+            onclick="abrirPaginaAdmin()"
+        >
+            ← VOLTAR À ÁREA ADMINISTRATIVA
+        </button>
+    </div>
 
     <div class="carne-digital-container">
 
@@ -3646,28 +3646,51 @@ async function gerarCarne(){
 
 async function abrirPaginaPagamento(token){
 
-    document.getElementById(
-        "paginaGerador"
-    ).style.display = "none";
+    const login =
+        document.getElementById("paginaLogin");
 
-    document.getElementById(
-        "paginaPagamento"
-    ).style.display = "block";
+    const admin =
+        document.getElementById("paginaAdmin");
+
+    const gerador =
+        document.getElementById("paginaGerador");
+
+    const pagamento =
+        document.getElementById("paginaPagamento");
+
+    const carneDigital =
+        document.getElementById("paginaCarneDigital");
+
+
+    if (login) {
+        login.style.display = "none";
+    }
+
+    if (admin) {
+        admin.style.display = "none";
+    }
+
+    if (gerador) {
+        gerador.style.display = "none";
+    }
+
+    if (pagamento) {
+        pagamento.style.display = "block";
+    }
+
+    if (carneDigital) {
+        carneDigital.style.display = "none";
+    }
 
 
     const status =
-        document.getElementById(
-            "statusPagamento"
-        );
+        document.getElementById("statusPagamento");
 
     const conteudo =
-        document.getElementById(
-            "conteudoPagamento"
-        );
+        document.getElementById("conteudoPagamento");
 
 
-    status.innerText =
-        "Validando cobrança...";
+    status.innerText = "Validando cobrança...";
 
 
     try{
@@ -4813,24 +4836,19 @@ async function carregarClientesAdmin() {
 async function abrirPaginaAdmin() {
 
     const login =
-        document.getElementById(
-            "paginaLogin"
-        );
+        document.getElementById("paginaLogin");
 
     const admin =
-        document.getElementById(
-            "paginaAdmin"
-        );
+        document.getElementById("paginaAdmin");
 
     const gerador =
-        document.getElementById(
-            "paginaGerador"
-        );
+        document.getElementById("paginaGerador");
 
     const pagamento =
-        document.getElementById(
-            "paginaPagamento"
-        );
+        document.getElementById("paginaPagamento");
+
+    const carneDigital =
+        document.getElementById("paginaCarneDigital");
 
 
     /* =====================================================
@@ -4841,8 +4859,7 @@ async function abrirPaginaAdmin() {
         data: {
             session
         }
-    } =
-        await supabaseClient.auth.getSession();
+    } = await supabaseClient.auth.getSession();
 
 
     /* =====================================================
@@ -4865,6 +4882,10 @@ async function abrirPaginaAdmin() {
 
         if (pagamento) {
             pagamento.style.display = "none";
+        }
+
+        if (carneDigital) {
+            carneDigital.style.display = "none";
         }
 
         return;
@@ -4891,29 +4912,19 @@ async function abrirPaginaAdmin() {
         pagamento.style.display = "none";
     }
 
+    if (carneDigital) {
+        carneDigital.style.display = "none";
+    }
+
 
     /* =====================================================
        CARREGAR CLIENTES
     ===================================================== */
 
-    if (
-        typeof carregarClientesAdmin ===
-        "function"
-    ) {
-
+    if (typeof carregarClientesAdmin === "function") {
         carregarClientesAdmin();
-
-    } else {
-
-        if (
-            typeof renderClientesAdmin ===
-            "function"
-        ) {
-
-            renderClientesAdmin([]);
-
-        }
-
+    } else if (typeof renderClientesAdmin === "function") {
+        renderClientesAdmin([]);
     }
 
 }
@@ -4936,38 +4947,29 @@ async function abrirGerador() {
         data: {
             session
         }
-    } =
-        await supabaseClient.auth.getSession();
+    } = await supabaseClient.auth.getSession();
 
 
     if (!session) {
-
         await abrirPaginaAdmin();
-
         return;
-
     }
 
 
     const login =
-        document.getElementById(
-            "paginaLogin"
-        );
+        document.getElementById("paginaLogin");
 
     const admin =
-        document.getElementById(
-            "paginaAdmin"
-        );
+        document.getElementById("paginaAdmin");
 
     const gerador =
-        document.getElementById(
-            "paginaGerador"
-        );
+        document.getElementById("paginaGerador");
 
     const pagamento =
-        document.getElementById(
-            "paginaPagamento"
-        );
+        document.getElementById("paginaPagamento");
+
+    const carneDigital =
+        document.getElementById("paginaCarneDigital");
 
 
     if (login) {
@@ -4986,11 +4988,12 @@ async function abrirGerador() {
         pagamento.style.display = "none";
     }
 
+    if (carneDigital) {
+        carneDigital.style.display = "none";
+    }
 
-    window.scrollTo(
-        0,
-        0
-    );
+
+    window.scrollTo(0, 0);
 
 }
 
@@ -5826,11 +5829,12 @@ async function confirmarGeracaoCarne() {
         ================================================= */
 
         const url =
-            `${window.location.origin}/?carne=${encodeURIComponent(codigo)}`;
+            window.location.pathname +
+            "?carne=" +
+            encodeURIComponent(codigo);
 
 
-        window.location.href =
-            url;
+        window.location.href = url;
 
 
     } catch (erro) {
@@ -5900,7 +5904,9 @@ function abrirCarneAdmin(codigo) {
     }
 
     window.location.href =
-        `${window.location.pathname}?carne=${encodeURIComponent(codigo)}`;
+        window.location.pathname +
+        "?carne=" +
+        encodeURIComponent(codigo);
 
 }
 
@@ -6611,7 +6617,10 @@ function verCarne(codigoCarne) {
         return;
     }
 
-    window.location.href = `/?carne=${encodeURIComponent(codigoCarne)}`;
+    window.location.href =
+        window.location.pathname +
+        "?carne=" +
+        encodeURIComponent(codigoCarne);
 }
 
 </script>
