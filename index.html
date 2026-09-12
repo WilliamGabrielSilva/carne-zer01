@@ -4485,6 +4485,66 @@ let clientesAdmin = [];
 let chavesPixAdmin = [];
 
 /* =========================================================
+   ZER01 — BUSCAR CARNÊS PELA API (evita depender de RLS
+   na leitura direta da tabela "carnes" pelo front-end)
+========================================================= */
+
+async function buscarCarnesAdmin() {
+
+    try {
+
+        const resposta =
+            await fetch(
+                "/api/cobranca",
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        acao: "listarCarnes"
+                    })
+
+                }
+            );
+
+        const resultado =
+            await resposta.json();
+
+        if (!resposta.ok) {
+
+            return {
+                data: [],
+                error:
+                    resultado?.erro ||
+                    resultado?.error ||
+                    "Não foi possível carregar os carnês."
+            };
+
+        }
+
+        return {
+            data: resultado?.carnes || [],
+            error: null
+        };
+
+    } catch (erro) {
+
+        return {
+            data: [],
+            error: erro
+        };
+
+    }
+
+}
+
+
+/* =========================================================
    ZER01 — CARREGAR CLIENTES DO SUPABASE
 ========================================================= */
 
@@ -4515,11 +4575,15 @@ async function carregarClientesAdmin() {
                 .from("parcelas")
                 .select("*"),
 
-            supabaseClient
-                .from("carnes")
-                .select(
-                    "id, cliente_id, codigo_acesso, ativo, pix"
-                ),
+            /*
+                A tabela "carnes" é lida pela API (que usa a
+                chave de serviço) em vez de direto pelo
+                Supabase com a chave pública, porque o RLS
+                pode bloquear essa leitura para o front-end
+                e fazer o botão "GERAR CARNÊ COMPLETO" nunca
+                virar "VER CARNÊ".
+            */
+            buscarCarnesAdmin(),
 
             supabaseClient
                 .from("chaves_pix")
@@ -4549,7 +4613,10 @@ async function carregarClientesAdmin() {
         }
 
         if (carnesResponse.error) {
-            throw carnesResponse.error;
+            console.error(
+                "Erro ao carregar carnês:",
+                carnesResponse.error
+            );
         }
 
         if (chavesPixResponse.error) {
