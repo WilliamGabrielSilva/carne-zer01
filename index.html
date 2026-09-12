@@ -3432,13 +3432,9 @@ async function gerarCarne(){
     }
 
 
-    let sucesso = false;
-
     try{
 
         btn.disabled = true;
-
-        btn.textContent = "GERANDO...";
 
         carregando.style.display = "block";
 
@@ -3680,7 +3676,6 @@ async function gerarCarne(){
             nomeArquivo
         );
 
-        sucesso = true;
 
     }catch(erro){
 
@@ -3696,85 +3691,11 @@ async function gerarCarne(){
 
     }finally{
 
-        carregando.style.display = "none";
-
-        if(sucesso){
-
-            /*
-                Mantém o botão desativado e com o texto
-                trocado para indicar que o carnê já foi
-                gerado, evitando gerar duplicado sem querer.
-                Ele volta ao normal assim que algum campo
-                do formulário for alterado (ver listeners
-                em resetarBotaoGerarCarne).
-            */
-
-            btn.disabled = true;
-
-            btn.textContent = "✓ CARNÊ GERADO";
-
-        } else {
-
-            btn.disabled = false;
-
-            btn.textContent = "GERAR CARNÊ EM PDF";
-        }
-    }
-}
-
-
-/*
-    Assim que o usuário mexer em qualquer campo do
-    formulário (indicando que quer gerar um novo carnê,
-    ou corrigir algo), o botão volta ao estado normal.
-*/
-
-function resetarBotaoGerarCarne(){
-
-    const btn =
-        document.getElementById("btnGerar");
-
-    if(!btn) return;
-
-    if(
-        btn.disabled &&
-        btn.textContent.indexOf("GERADO") !== -1
-    ){
-
         btn.disabled = false;
 
-        btn.textContent = "GERAR CARNÊ EM PDF";
+        carregando.style.display = "none";
     }
 }
-
-[
-    "cliente",
-    "cpf",
-    "telefone",
-    "endereco",
-    "valor",
-    "parcelas",
-    "primeiroVencimento",
-    "pix",
-    "multa",
-    "juros"
-].forEach(function(id){
-
-    const campo =
-        document.getElementById(id);
-
-    if(!campo) return;
-
-    campo.addEventListener(
-        "input",
-        resetarBotaoGerarCarne
-    );
-
-    campo.addEventListener(
-        "change",
-        resetarBotaoGerarCarne
-    );
-});
 
 
 /* =========================================================
@@ -4485,66 +4406,6 @@ let clientesAdmin = [];
 let chavesPixAdmin = [];
 
 /* =========================================================
-   ZER01 — BUSCAR CARNÊS PELA API (evita depender de RLS
-   na leitura direta da tabela "carnes" pelo front-end)
-========================================================= */
-
-async function buscarCarnesAdmin() {
-
-    try {
-
-        const resposta =
-            await fetch(
-                "/api/cobranca",
-                {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-                        acao: "listarCarnes"
-                    })
-
-                }
-            );
-
-        const resultado =
-            await resposta.json();
-
-        if (!resposta.ok) {
-
-            return {
-                data: [],
-                error:
-                    resultado?.erro ||
-                    resultado?.error ||
-                    "Não foi possível carregar os carnês."
-            };
-
-        }
-
-        return {
-            data: resultado?.carnes || [],
-            error: null
-        };
-
-    } catch (erro) {
-
-        return {
-            data: [],
-            error: erro
-        };
-
-    }
-
-}
-
-
-/* =========================================================
    ZER01 — CARREGAR CLIENTES DO SUPABASE
 ========================================================= */
 
@@ -4575,15 +4436,11 @@ async function carregarClientesAdmin() {
                 .from("parcelas")
                 .select("*"),
 
-            /*
-                A tabela "carnes" é lida pela API (que usa a
-                chave de serviço) em vez de direto pelo
-                Supabase com a chave pública, porque o RLS
-                pode bloquear essa leitura para o front-end
-                e fazer o botão "GERAR CARNÊ COMPLETO" nunca
-                virar "VER CARNÊ".
-            */
-            buscarCarnesAdmin(),
+            supabaseClient
+                .from("carnes")
+                .select(
+                    "id, cliente_id, codigo_acesso, ativo, pix"
+                ),
 
             supabaseClient
                 .from("chaves_pix")
@@ -4613,10 +4470,7 @@ async function carregarClientesAdmin() {
         }
 
         if (carnesResponse.error) {
-            console.error(
-                "Erro ao carregar carnês:",
-                carnesResponse.error
-            );
+            throw carnesResponse.error;
         }
 
         if (chavesPixResponse.error) {
@@ -5972,30 +5826,6 @@ async function confirmarGeracaoCarne() {
 
 
         /* =================================================
-           ATUALIZAR CLIENTE NA LISTA (para o botão trocar
-           de "GERAR CARNÊ COMPLETO" para "VER CARNÊ" e não
-           deixar gerar um carnê novo por engano)
-        ================================================= */
-
-        cliente.codigoCarne = codigo;
-
-        const indiceCliente =
-            clientesAdmin.findIndex(
-                c => c.id === cliente.id
-            );
-
-        if (indiceCliente !== -1) {
-            clientesAdmin[indiceCliente].codigoCarne = codigo;
-        }
-
-        if (typeof filtrarClientesAdmin === "function") {
-            filtrarClientesAdmin();
-        } else {
-            renderClientesAdmin(clientesAdmin);
-        }
-
-
-        /* =================================================
            FECHAR MODAL
         ================================================= */
 
@@ -6676,57 +6506,85 @@ async function abrirPagamentoParcela(
     parcelaId
 ) {
 
+    if (!parcelaId) {
+        alert("Parcela não identificada.");
+        return;
+    }
+
     try {
 
-        /*
-         * Buscamos a parcela no Supabase
-         * para encontrar a venda e gerar
-         * a cobrança individual.
-         */
+        /* O token é criado no backend.
+           O CARNE_SECRET nunca fica no navegador. */
+        const resposta =
+            await fetch("/api/cobranca", {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("parcelas")
-                .select("*")
-                .eq("id", parcelaId)
-                .single();
+                method: "POST",
 
+                headers: {
+                    "Content-Type": "application/json"
+                },
 
-        if (error) {
-            throw error;
+                body: JSON.stringify({
+                    acao: "criarTokenParcela",
+                    parcelaId: String(parcelaId)
+                })
+
+            });
+
+        let resultado = null;
+
+        try {
+            resultado = await resposta.json();
+        } catch (e) {
+            resultado = null;
         }
 
-
-        if (!data) {
-
+        if (!resposta.ok) {
             throw new Error(
-                "Parcela não encontrada."
+                resultado && resultado.erro
+                    ? resultado.erro
+                    : "Não foi possível gerar a cobrança PIX."
             );
-
         }
 
+        if (
+            !resultado ||
+            !resultado.sucesso ||
+            !resultado.token
+        ) {
+            throw new Error(
+                "A cobrança PIX não foi gerada corretamente."
+            );
+        }
 
-        /*
-         * Para manter a segurança e o
-         * fluxo atual, o pagamento individual
-         * será conectado na próxima etapa.
-         */
+        /* Mantém o fluxo da página de pagamento existente: ?token=... */
+        const novaUrl =
+            window.location.pathname +
+            "?token=" +
+            encodeURIComponent(resultado.token);
 
-        alert(
-            "Parcela selecionada. Vamos conectar o pagamento PIX nesta próxima etapa."
+        window.history.pushState(
+            { token: resultado.token },
+            "",
+            novaUrl
         );
 
+        await abrirPaginaPagamento(
+            resultado.token
+        );
+
+        window.scrollTo(0, 0);
 
     } catch (e) {
 
-        console.error(e);
+        console.error(
+            "Erro ao abrir pagamento:",
+            e
+        );
 
         alert(
             e.message ||
-            "Não foi possível abrir a parcela."
+            "Não foi possível abrir o pagamento PIX."
         );
 
     }
