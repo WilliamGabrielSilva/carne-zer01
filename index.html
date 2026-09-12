@@ -2242,11 +2242,11 @@ const supabaseClient = window.supabase.createClient(
 
 async function fazerLoginAdmin() {
 
-    const email =
-        document.getElementById("loginEmail")?.value.trim();
+    const emailInput =
+        document.getElementById("loginEmail");
 
-    const senha =
-        document.getElementById("loginSenha")?.value;
+    const senhaInput =
+        document.getElementById("loginSenha");
 
     const botao =
         document.getElementById("botaoLogin");
@@ -2258,6 +2258,19 @@ async function fazerLoginAdmin() {
         document.getElementById("loginCarregando");
 
 
+    const email =
+        emailInput?.value.trim() || "";
+
+    const senha =
+        senhaInput?.value || "";
+
+
+    /*
+    =========================================================
+    LIMPAR ERRO
+    =========================================================
+    */
+
     if (erro) {
 
         erro.style.display = "none";
@@ -2266,6 +2279,12 @@ async function fazerLoginAdmin() {
     }
 
 
+    /*
+    =========================================================
+    VALIDAR CAMPOS
+    =========================================================
+    */
+
     if (!email || !senha) {
 
         mostrarErroLogin(
@@ -2273,22 +2292,38 @@ async function fazerLoginAdmin() {
         );
 
         return;
-
     }
 
 
+    /*
+    =========================================================
+    BLOQUEAR BOTÃO
+    =========================================================
+    */
+
     if (botao) {
+
         botao.disabled = true;
+        botao.textContent = "ENTRANDO...";
+
     }
 
     if (carregando) {
+
         carregando.style.display = "block";
+
     }
 
 
     try {
 
-        const { data, error } =
+        /*
+        =====================================================
+        LOGIN SUPABASE
+        =====================================================
+        */
+
+        const resultado =
             await supabaseClient.auth.signInWithPassword({
 
                 email: email,
@@ -2298,12 +2333,21 @@ async function fazerLoginAdmin() {
             });
 
 
+        const data =
+            resultado.data;
+
+        const error =
+            resultado.error;
+
+
         if (error) {
+
             throw error;
+
         }
 
 
-        if (!data.session) {
+        if (!data || !data.session) {
 
             throw new Error(
                 "Não foi possível criar a sessão."
@@ -2312,7 +2356,26 @@ async function fazerLoginAdmin() {
         }
 
 
+        /*
+        =====================================================
+        LOGIN REALIZADO
+        =====================================================
+        */
+
+        console.log(
+            "Login realizado com sucesso."
+        );
+
+
+        /*
+        =====================================================
+        ABRIR PAINEL
+        =====================================================
+        */
+
         await abrirPaginaAdmin();
+
+        iniciarFiltrosAdmin();
 
 
     } catch (error) {
@@ -2323,39 +2386,34 @@ async function fazerLoginAdmin() {
         );
 
 
-        let mensagem =
-            "E-mail ou senha incorretos.";
-
-
-        if (
-            error?.message
-                ?.toLowerCase()
-                ?.includes("email not confirmed")
-        ) {
-
-            mensagem =
-                "O e-mail do administrador ainda não foi confirmado.";
-
-        }
-
-
         mostrarErroLogin(
-            mensagem
+            error?.message ||
+            "E-mail ou senha incorretos."
         );
 
 
     } finally {
 
+        /*
+        =====================================================
+        LIBERAR BOTÃO
+        =====================================================
+        */
+
         if (botao) {
+
             botao.disabled = false;
+            botao.textContent = "ENTRAR NO PAINEL";
+
         }
 
         if (carregando) {
+
             carregando.style.display = "none";
+
         }
 
     }
-
 }
 
 
