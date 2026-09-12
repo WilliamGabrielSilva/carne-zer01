@@ -3914,7 +3914,20 @@ async function abrirPaginaPagamento(token){
 
 
         let diasAtraso = 0;
-
+        console.log(
+            "DATA ATUAL:",
+            agora
+        );
+        
+        console.log(
+            "VENCIMENTO:",
+            vencimento
+        );
+        
+        console.log(
+            "DIAS DE ATRASO:",
+            diasAtraso
+        );
 
         if(
             agora > vencimento
@@ -3942,7 +3955,10 @@ async function abrirPaginaPagamento(token){
 
         const valorOriginal =
             Number(dados.valor || 0);
-
+        console.log(
+            "DIAS DE ATRASO CALCULADOS:",
+            diasAtraso
+        );
 
         let valorMulta = 0;
         let valorJuros = 0;
