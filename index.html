@@ -3432,9 +3432,13 @@ async function gerarCarne(){
     }
 
 
+    let sucesso = false;
+
     try{
 
         btn.disabled = true;
+
+        btn.textContent = "GERANDO...";
 
         carregando.style.display = "block";
 
@@ -3676,6 +3680,7 @@ async function gerarCarne(){
             nomeArquivo
         );
 
+        sucesso = true;
 
     }catch(erro){
 
@@ -3691,11 +3696,85 @@ async function gerarCarne(){
 
     }finally{
 
-        btn.disabled = false;
-
         carregando.style.display = "none";
+
+        if(sucesso){
+
+            /*
+                Mantém o botão desativado e com o texto
+                trocado para indicar que o carnê já foi
+                gerado, evitando gerar duplicado sem querer.
+                Ele volta ao normal assim que algum campo
+                do formulário for alterado (ver listeners
+                em resetarBotaoGerarCarne).
+            */
+
+            btn.disabled = true;
+
+            btn.textContent = "✓ CARNÊ GERADO";
+
+        } else {
+
+            btn.disabled = false;
+
+            btn.textContent = "GERAR CARNÊ EM PDF";
+        }
     }
 }
+
+
+/*
+    Assim que o usuário mexer em qualquer campo do
+    formulário (indicando que quer gerar um novo carnê,
+    ou corrigir algo), o botão volta ao estado normal.
+*/
+
+function resetarBotaoGerarCarne(){
+
+    const btn =
+        document.getElementById("btnGerar");
+
+    if(!btn) return;
+
+    if(
+        btn.disabled &&
+        btn.textContent.indexOf("GERADO") !== -1
+    ){
+
+        btn.disabled = false;
+
+        btn.textContent = "GERAR CARNÊ EM PDF";
+    }
+}
+
+[
+    "cliente",
+    "cpf",
+    "telefone",
+    "endereco",
+    "valor",
+    "parcelas",
+    "primeiroVencimento",
+    "pix",
+    "multa",
+    "juros"
+].forEach(function(id){
+
+    const campo =
+        document.getElementById(id);
+
+    if(!campo) return;
+
+    campo.addEventListener(
+        "input",
+        resetarBotaoGerarCarne
+    );
+
+    campo.addEventListener(
+        "change",
+        resetarBotaoGerarCarne
+    );
+});
 
 
 /* =========================================================
