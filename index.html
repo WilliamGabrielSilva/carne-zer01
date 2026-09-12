@@ -4754,70 +4754,238 @@ async function carregarClientesAdmin() {
            MOSTRAR NO PAINEL
         ===================================================== */
 
-        renderClientesAdmin(
-            clientesAdmin
-        );
+function renderClientesAdmin(lista) {
 
+    const desktop =
+        document.getElementById("adminListaDesktop");
 
-        console.log(
-            "Clientes carregados:",
-            clientesAdmin
-        );
+    const mobile =
+        document.getElementById("adminListaMobile");
 
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao carregar clientes:",
-            erro
-        );
-
-
-        clientesAdmin = [];
-
-
-        const desktop =
-            document.getElementById(
-                "adminListaDesktop"
-            );
-
-        const mobile =
-            document.getElementById(
-                "adminListaMobile"
-            );
-
-
-        const mensagem = `
-            <div class="admin-empty">
-                <strong>
-                    Erro ao carregar os clientes
-                </strong>
-
-                <span>
-                    Verifique a conexão com o Supabase.
-                </span>
-            </div>
-        `;
-
-
-        if (desktop) {
-            desktop.innerHTML =
-                mensagem;
-        }
-
-        if (mobile) {
-            mobile.innerHTML =
-                mensagem;
-        }
-
-
-        console.error(
-            "Detalhes do erro:",
-            erro?.message || erro
-        );
-
+    if (!desktop || !mobile) {
+        return;
     }
 
+    let tabela = "";
+
+    /*
+    =========================================================
+    DESKTOP
+    =========================================================
+    */
+
+    tabela += `
+        <table class="admin-table">
+
+            <thead>
+                <tr>
+                    <th>CLIENTE</th>
+                    <th>STATUS</th>
+                    <th>TOTAL A RECEBER</th>
+                    <th>PARCELAS</th>
+                    <th>AÇÃO</th>
+                </tr>
+            </thead>
+
+            <tbody>
+    `;
+
+    lista.forEach(cliente => {
+
+        const status =
+            normalizarStatusAdmin(cliente.status);
+
+        const codigo =
+            cliente.codigoCarne || "";
+
+        tabela += `
+            <tr>
+
+                <td>
+                    <strong>
+                        ${escaparHTMLAdmin(
+                            cliente.nome || "Cliente"
+                        )}
+                    </strong>
+
+                    <br>
+
+                    <small>
+                        ${escaparHTMLAdmin(
+                            cliente.cpf_cnpj || ""
+                        )}
+                    </small>
+                </td>
+
+                <td>
+                    <span class="admin-status ${classeStatusAdmin(status)}">
+                        ${textoStatusAdmin(status)}
+                    </span>
+                </td>
+
+                <td>
+                    <strong>
+                        ${formatarMoedaAdmin(
+                            cliente.totalAberto
+                        )}
+                    </strong>
+                </td>
+
+                <td>
+                    ${cliente.parcelasAbertas || 0}
+                </td>
+
+                <td>
+
+                    ${
+                        codigo
+                        ?
+
+                        `
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-primary"
+                            onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
+                        >
+                            VER CARNÊ
+                        </button>
+                        `
+
+                        :
+
+                        `
+                        <button
+                            type="button"
+                            class="admin-btn admin-btn-primary"
+                            onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
+                        >
+                            GERAR CARNÊ COMPLETO
+                        </button>
+                        `
+                    }
+
+                </td>
+
+            </tr>
+        `;
+    });
+
+    tabela += `
+            </tbody>
+        </table>
+    `;
+
+    desktop.innerHTML = tabela;
+
+
+    /*
+    =========================================================
+    MOBILE
+    =========================================================
+    */
+
+    let cards = "";
+
+    lista.forEach(cliente => {
+
+        const status =
+            normalizarStatusAdmin(cliente.status);
+
+        const codigo =
+            cliente.codigoCarne || "";
+
+        cards += `
+            <div class="cliente-card">
+
+                <div class="cliente-card-header">
+
+                    <div>
+
+                        <div class="cliente-card-name">
+                            ${escaparHTMLAdmin(
+                                cliente.nome || "Cliente"
+                            )}
+                        </div>
+
+                        <div class="cliente-card-document">
+                            ${escaparHTMLAdmin(
+                                cliente.cpf_cnpj || ""
+                            )}
+                        </div>
+
+                    </div>
+
+                    <span class="admin-status ${classeStatusAdmin(status)}">
+                        ${textoStatusAdmin(status)}
+                    </span>
+
+                </div>
+
+
+                <div class="cliente-card-info">
+
+                    <div>
+
+                        <small>
+                            TOTAL A RECEBER
+                        </small>
+
+                        <strong>
+                            ${formatarMoedaAdmin(
+                                cliente.totalAberto
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <small>
+                            PARCELAS
+                        </small>
+
+                        <strong>
+                            ${cliente.parcelasAbertas || 0}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                ${
+                    codigo
+                    ?
+
+                    `
+                    <button
+                        type="button"
+                        class="admin-btn admin-btn-primary cliente-card-action"
+                        onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
+                    >
+                        VER CARNÊ
+                    </button>
+                    `
+
+                    :
+
+                    `
+                    <button
+                        type="button"
+                        class="admin-btn admin-btn-primary cliente-card-action"
+                        onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
+                    >
+                        GERAR CARNÊ COMPLETO
+                    </button>
+                    `
+                }
+
+            </div>
+        `;
+    });
+
+    mobile.innerHTML = cards;
 }
 
 
@@ -5828,44 +5996,22 @@ async function confirmarGeracaoCarne() {
            ABRIR CARNÊ
         ================================================= */
 
-        const novaUrl =
+        const url =
             window.location.pathname +
             "?carne=" +
             encodeURIComponent(codigo);
         
         window.history.pushState(
-            { carne: codigo },
+            {
+                carne: codigo
+            },
             "",
-            novaUrl
+            url
         );
         
         await abrirPaginaCarne(codigo);
         
         window.scrollTo(0, 0);
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao criar carnê:",
-            erro
-        );
-
-
-        alert(
-            erro?.message ||
-            "Erro ao criar carnê."
-        );
-
-
-        botao.disabled =
-            false;
-
-        botao.textContent =
-            "GERAR CARNÊ";
-
-    }
-
-}
 
 
 
@@ -5901,27 +6047,43 @@ function escaparAtributoAdmin(valor) {
 /* =========================================================
    ABRIR CARNÊ
 ========================================================= */
-
 async function abrirCarneAdmin(codigo) {
 
     if (!codigo) {
-        alert("Este cliente ainda não possui um carnê.");
+
+        alert(
+            "Este cliente ainda não possui um carnê."
+        );
+
         return;
     }
 
-    // Atualiza o endereço sem recarregar a página
+    /*
+    =========================================================
+    NÃO RECARREGAR A PÁGINA
+    =========================================================
+    */
+
     const novaUrl =
         window.location.pathname +
         "?carne=" +
         encodeURIComponent(codigo);
 
     window.history.pushState(
-        { carne: codigo },
+        {
+            carne: codigo
+        },
         "",
         novaUrl
     );
 
-    // Abre o carnê diretamente
+
+    /*
+    =========================================================
+    ABRIR CARNÊ DIGITAL
+    =========================================================
+    */
+
     await abrirPaginaCarne(codigo);
 
     window.scrollTo(0, 0);
@@ -6631,7 +6793,11 @@ async function abrirPagamentoParcela(
 async function verCarne(codigoCarne) {
 
     if (!codigoCarne) {
-        alert("Este cliente ainda não possui um carnê.");
+
+        alert(
+            "Este cliente ainda não possui um carnê."
+        );
+
         return;
     }
 
@@ -6641,7 +6807,9 @@ async function verCarne(codigoCarne) {
         encodeURIComponent(codigoCarne);
 
     window.history.pushState(
-        { carne: codigoCarne },
+        {
+            carne: codigoCarne
+        },
         "",
         novaUrl
     );
@@ -6650,22 +6818,6 @@ async function verCarne(codigoCarne) {
 
     window.scrollTo(0, 0);
 }
-
-async function voltarParaAdmin() {
-
-    // Remove ?carne=XXXX do endereço
-    window.history.pushState(
-        {},
-        "",
-        window.location.pathname
-    );
-
-    // Volta para o painel
-    await abrirPaginaAdmin();
-
-    window.scrollTo(0, 0);
-}
-
 </script>
 <!-- =========================================================
      MODAL — ESCOLHER CHAVE PIX
