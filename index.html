@@ -4809,241 +4809,23 @@ async function carregarClientesAdmin() {
 
 
         /* =====================================================
-           MOSTRAR NO PAINEL
+           ATUALIZAR PAINEL
         ===================================================== */
 
-function renderClientesAdmin(lista) {
+        renderClientesAdmin(clientesAdmin);
 
-    const desktop =
-        document.getElementById("adminListaDesktop");
+    } catch (error) {
 
-    const mobile =
-        document.getElementById("adminListaMobile");
+        console.error("Erro ao carregar clientes do Supabase:", error);
 
-    if (!desktop || !mobile) {
-        return;
+        clientesAdmin = [];
+        chavesPixAdmin = [];
+
+        if (typeof renderClientesAdmin === "function") {
+            renderClientesAdmin([]);
+        }
+
     }
-
-    let tabela = "";
-
-    /*
-    =========================================================
-    DESKTOP
-    =========================================================
-    */
-
-    tabela += `
-        <table class="admin-table">
-
-            <thead>
-                <tr>
-                    <th>CLIENTE</th>
-                    <th>STATUS</th>
-                    <th>TOTAL A RECEBER</th>
-                    <th>PARCELAS</th>
-                    <th>AÇÃO</th>
-                </tr>
-            </thead>
-
-            <tbody>
-    `;
-
-    lista.forEach(cliente => {
-
-        const status =
-            normalizarStatusAdmin(cliente.status);
-
-        const codigo =
-            cliente.codigoCarne || "";
-
-        tabela += `
-            <tr>
-
-                <td>
-                    <strong>
-                        ${escaparHTMLAdmin(
-                            cliente.nome || "Cliente"
-                        )}
-                    </strong>
-
-                    <br>
-
-                    <small>
-                        ${escaparHTMLAdmin(
-                            cliente.cpf_cnpj || ""
-                        )}
-                    </small>
-                </td>
-
-                <td>
-                    <span class="admin-status ${classeStatusAdmin(status)}">
-                        ${textoStatusAdmin(status)}
-                    </span>
-                </td>
-
-                <td>
-                    <strong>
-                        ${formatarMoedaAdmin(
-                            cliente.totalAberto
-                        )}
-                    </strong>
-                </td>
-
-                <td>
-                    ${cliente.parcelasAbertas || 0}
-                </td>
-
-                <td>
-
-                    ${
-                        codigo
-                        ?
-
-                        `
-                        <button
-                            type="button"
-                            class="admin-btn admin-btn-primary"
-                            onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
-                        >
-                            VER CARNÊ
-                        </button>
-                        `
-
-                        :
-
-                        `
-                        <button
-                            type="button"
-                            class="admin-btn admin-btn-primary"
-                            onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
-                        >
-                            GERAR CARNÊ COMPLETO
-                        </button>
-                        `
-                    }
-
-                </td>
-
-            </tr>
-        `;
-    });
-
-    tabela += `
-            </tbody>
-        </table>
-    `;
-
-    desktop.innerHTML = tabela;
-
-
-    /*
-    =========================================================
-    MOBILE
-    =========================================================
-    */
-
-    let cards = "";
-
-    lista.forEach(cliente => {
-
-        const status =
-            normalizarStatusAdmin(cliente.status);
-
-        const codigo =
-            cliente.codigoCarne || "";
-
-        cards += `
-            <div class="cliente-card">
-
-                <div class="cliente-card-header">
-
-                    <div>
-
-                        <div class="cliente-card-name">
-                            ${escaparHTMLAdmin(
-                                cliente.nome || "Cliente"
-                            )}
-                        </div>
-
-                        <div class="cliente-card-document">
-                            ${escaparHTMLAdmin(
-                                cliente.cpf_cnpj || ""
-                            )}
-                        </div>
-
-                    </div>
-
-                    <span class="admin-status ${classeStatusAdmin(status)}">
-                        ${textoStatusAdmin(status)}
-                    </span>
-
-                </div>
-
-
-                <div class="cliente-card-info">
-
-                    <div>
-
-                        <small>
-                            TOTAL A RECEBER
-                        </small>
-
-                        <strong>
-                            ${formatarMoedaAdmin(
-                                cliente.totalAberto
-                            )}
-                        </strong>
-
-                    </div>
-
-
-                    <div>
-
-                        <small>
-                            PARCELAS
-                        </small>
-
-                        <strong>
-                            ${cliente.parcelasAbertas || 0}
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                ${
-                    codigo
-                    ?
-
-                    `
-                    <button
-                        type="button"
-                        class="admin-btn admin-btn-primary cliente-card-action"
-                        onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
-                    >
-                        VER CARNÊ
-                    </button>
-                    `
-
-                    :
-
-                    `
-                    <button
-                        type="button"
-                        class="admin-btn admin-btn-primary cliente-card-action"
-                        onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
-                    >
-                        GERAR CARNÊ COMPLETO
-                    </button>
-                    `
-                }
-
-            </div>
-        `;
-    });
-
-    mobile.innerHTML = cards;
 }
 
 
@@ -6071,6 +5853,30 @@ async function confirmarGeracaoCarne() {
         
         window.scrollTo(0, 0);
 
+
+
+        
+    } catch (erro) {
+
+        console.error("Erro ao criar o carnê:", erro);
+
+        alert(
+            erro?.message ||
+            "Não foi possível criar o carnê."
+        );
+
+    } finally {
+
+        const botaoAtual =
+            document.getElementById("btnConfirmarGeracaoCarne");
+
+        if (botaoAtual) {
+            botaoAtual.disabled = false;
+            botaoAtual.textContent = "GERAR CARNÊ";
+        }
+
+    }
+}
 
 
 /* =========================================================
