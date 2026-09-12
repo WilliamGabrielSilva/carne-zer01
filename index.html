@@ -5958,83 +5958,75 @@ async function abrirCarneAdmin(codigo) {
    FILTROS
 ========================================================= */
 
+function normalizarBuscaAdmin(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
+}
+
+function somenteNumerosAdmin(valor) {
+    return String(valor ?? "").replace(/\D/g, "");
+}
+
 function filtrarClientesAdmin() {
 
-    const busca =
-        document.getElementById("buscaClienteAdmin")
-            ?.value
-            ?.toLowerCase()
-            .trim() || "";
+    const campoBusca = document.getElementById("buscaClienteAdmin");
+    const busca = normalizarBuscaAdmin(campoBusca?.value || "");
+    const buscaNumerica = somenteNumerosAdmin(campoBusca?.value || "");
 
     const filtroStatus =
-        document.getElementById("filtroStatusAdmin")
-            ?.value || "todos";
+        document.getElementById("filtroStatusAdmin")?.value || "todos";
 
     const filtroMes =
-        document.getElementById("filtroMesAdmin")
-            ?.value || "todos";
-
+        document.getElementById("filtroMesAdmin")?.value || "todos";
 
     const filtrados = clientesAdmin.filter(cliente => {
 
-        /* BUSCA */
+        /* BUSCA POR NOME, CPF/CNPJ OU TELEFONE */
+        if (busca) {
+            const nome = normalizarBuscaAdmin(cliente.nome);
+            const documento = normalizarBuscaAdmin(cliente.cpf_cnpj);
+            const telefone = normalizarBuscaAdmin(cliente.telefone);
 
-        const textoBusca = [
+            const textoBusca = `${nome} ${documento} ${telefone}`;
 
-            cliente.nome,
-            cliente.cpf_cnpj,
-            cliente.telefone
+            const documentoNumerico = somenteNumerosAdmin(cliente.cpf_cnpj);
+            const telefoneNumerico = somenteNumerosAdmin(cliente.telefone);
 
-        ]
-            .filter(Boolean)
-            .join(" ")
-            .toLowerCase();
+            const encontrouTexto = textoBusca.includes(busca);
+            const encontrouNumero =
+                buscaNumerica.length > 0 &&
+                (documentoNumerico.includes(buscaNumerica) ||
+                 telefoneNumerico.includes(buscaNumerica));
 
-
-        if (
-            busca &&
-            !textoBusca.includes(busca)
-        ) {
-            return false;
+            if (!encontrouTexto && !encontrouNumero) {
+                return false;
+            }
         }
-
 
         /* STATUS */
+        const status = normalizarStatusAdmin(cliente.status);
 
-        const status =
-            normalizarStatusAdmin(cliente.status);
-
-        if (
-            filtroStatus !== "todos" &&
-            status !== filtroStatus
-        ) {
+        if (filtroStatus !== "todos" && status !== filtroStatus) {
             return false;
         }
 
-
         /* MÊS */
-
         if (filtroMes !== "todos") {
+            const meses = cliente.mesesVencimento || [];
 
-            const meses =
-                cliente.mesesVencimento || [];
-        
             if (!meses.includes(filtroMes)) {
                 return false;
             }
-        
         }
 
-
         return true;
-
     });
 
-
     renderClientesAdmin(filtrados);
-
 }
-
 
 /* =========================================================
    EVENTOS DOS FILTROS
@@ -6042,37 +6034,25 @@ function filtrarClientesAdmin() {
 
 function iniciarFiltrosAdmin() {
 
-    const busca =
-        document.getElementById("buscaClienteAdmin");
+    const busca = document.getElementById("buscaClienteAdmin");
+    const status = document.getElementById("filtroStatusAdmin");
+    const mes = document.getElementById("filtroMesAdmin");
 
-    const status =
-        document.getElementById("filtroStatusAdmin");
-
-    const mes =
-        document.getElementById("filtroMesAdmin");
-
-
-    if (busca) {
-        busca.addEventListener(
-            "input",
-            filtrarClientesAdmin
-        );
+    if (busca && busca.dataset.filtroInicializado !== "true") {
+        busca.addEventListener("input", filtrarClientesAdmin);
+        busca.addEventListener("keyup", filtrarClientesAdmin);
+        busca.dataset.filtroInicializado = "true";
     }
 
-    if (status) {
-        status.addEventListener(
-            "change",
-            filtrarClientesAdmin
-        );
+    if (status && status.dataset.filtroInicializado !== "true") {
+        status.addEventListener("change", filtrarClientesAdmin);
+        status.dataset.filtroInicializado = "true";
     }
 
-    if (mes) {
-        mes.addEventListener(
-            "change",
-            filtrarClientesAdmin
-        );
+    if (mes && mes.dataset.filtroInicializado !== "true") {
+        mes.addEventListener("change", filtrarClientesAdmin);
+        mes.dataset.filtroInicializado = "true";
     }
-
 }
 
 /* =========================================================
