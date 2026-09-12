@@ -4223,85 +4223,92 @@ async function abrirPaginaPagamento(token){
    PIX BR CODE
 ========================================================= */
 
-function gerarPix(chave, valor){
+function gerarPix(chave, valor) {
 
-    const valorFormatado =
-        Number(valor)
-            .toFixed(2);
+    function campo(id, valor) {
 
-
-    function campo(id, valor){
-
-        const tamanho =
-            String(valor).length
-                .toString()
-                .padStart(2,"0");
+        valor = String(valor);
 
         return (
             id +
-            tamanho +
+            valor.length.toString().padStart(2, "0") +
             valor
         );
     }
 
 
-    function crc16(payload){
+    function crc16(payload) {
 
         let crc = 0xFFFF;
 
+        for (let i = 0; i < payload.length; i++) {
 
-        for(
-            let i = 0;
-            i < payload.length;
-            i++
-        ){
+            crc ^= payload.charCodeAt(i) << 8;
 
-            crc ^= payload.charCodeAt(i);
+            for (let j = 0; j < 8; j++) {
 
-
-            for(
-                let j = 0;
-                j < 8;
-                j++
-            ){
-
-                if(
-                    crc & 0x0001
-                ){
+                if (crc & 0x8000) {
 
                     crc =
-                        (
-                            crc >>> 1
-                        ) ^
-                        0xA001;
+                        ((crc << 1) ^ 0x1021) &
+                        0xFFFF;
 
-                }else{
+                } else {
 
                     crc =
-                        crc >>> 1;
+                        (crc << 1) &
+                        0xFFFF;
                 }
             }
         }
 
+        return crc
+            .toString(16)
+            .toUpperCase()
+            .padStart(4, "0");
+    }
 
-        const hex =
-            crc
-                .toString(16)
-                .toUpperCase()
-                .padStart(4,"0");
+
+    /* =========================================
+       CHAVE PIX
+    ========================================= */
+
+    chave = String(chave || "").trim();
 
 
-        /*
-            O algoritmo acima trabalha em
-            representação little-endian.
-        */
-
-        return (
-            hex.slice(2) +
-            hex.slice(0,2)
+    if (!chave) {
+        throw new Error(
+            "Chave PIX não cadastrada."
         );
     }
 
+
+    /* =========================================
+       VALOR
+    ========================================= */
+
+    const valorNumerico =
+        Number(valor);
+
+
+    if (
+        !Number.isFinite(valorNumerico) ||
+        valorNumerico <= 0
+    ) {
+
+        throw new Error(
+            "Valor do PIX inválido."
+        );
+    }
+
+
+    const valorFormatado =
+        valorNumerico.toFixed(2);
+
+
+    /* =========================================
+       MERCHANT ACCOUNT INFORMATION
+    ========================================= */
 
     const merchantAccountInformation =
         campo(
@@ -4314,8 +4321,14 @@ function gerarPix(chave, valor){
         );
 
 
+    /* =========================================
+       PAYLOAD PIX
+    ========================================= */
+
     let payload = "";
 
+
+    /* Payload Format Indicator */
 
     payload += campo(
         "00",
@@ -4323,11 +4336,15 @@ function gerarPix(chave, valor){
     );
 
 
+    /* Merchant Account Information */
+
     payload += campo(
         "26",
         merchantAccountInformation
     );
 
+
+    /* Merchant Category Code */
 
     payload += campo(
         "52",
@@ -4335,11 +4352,15 @@ function gerarPix(chave, valor){
     );
 
 
+    /* Transaction Currency */
+
     payload += campo(
         "53",
         "986"
     );
 
+
+    /* Transaction Amount */
 
     payload += campo(
         "54",
@@ -4347,11 +4368,15 @@ function gerarPix(chave, valor){
     );
 
 
+    /* Country Code */
+
     payload += campo(
         "58",
         "BR"
     );
 
+
+    /* Merchant Name */
 
     payload += campo(
         "59",
@@ -4359,16 +4384,17 @@ function gerarPix(chave, valor){
     );
 
 
+    /* Merchant City */
+
     payload += campo(
         "60",
         "LONDRINA"
     );
 
 
-    /*
-        Campo adicional obrigatório
-        com TXID genérico.
-    */
+    /* =========================================
+       ADDITIONAL DATA FIELD
+    ========================================= */
 
     const campo62 =
         campo(
@@ -4383,13 +4409,18 @@ function gerarPix(chave, valor){
     );
 
 
+    /* =========================================
+       CRC
+    ========================================= */
+
     payload += "6304";
 
 
-    return (
-        payload +
-        crc16(payload + "")
-    );
+    const crc =
+        crc16(payload);
+
+
+    return payload + crc;
 }
 
 
