@@ -3913,32 +3913,39 @@ async function abrirPaginaPagamento(token){
             new Date();
 
 
+/* =================================================
+   CÁLCULO DOS DIAS DE ATRASO
+   Conta dias de calendário, e não 24h completas.
+================================================= */
+
         let diasAtraso = 0;
-        console.log(
-            "DATA ATUAL:",
-            agora
-        );
         
-        console.log(
-            "VENCIMENTO:",
-            vencimento
-        );
         
-        console.log(
-            "DIAS DE ATRASO:",
-            diasAtraso
-        );
-
-        if(
-            agora > vencimento
-        ){
-
+        const inicioHoje =
+            new Date(
+                agora.getFullYear(),
+                agora.getMonth(),
+                agora.getDate()
+            );
+        
+        
+        const inicioVencimento =
+            new Date(
+                vencimento.getFullYear(),
+                vencimento.getMonth(),
+                vencimento.getDate()
+            );
+        
+        
+        if (inicioHoje > inicioVencimento) {
+        
+            const diferenca =
+                inicioHoje.getTime() -
+                inicioVencimento.getTime();
+        
             diasAtraso =
                 Math.floor(
-                    (
-                        agora.getTime() -
-                        vencimento.getTime()
-                    ) /
+                    diferenca /
                     (
                         1000 *
                         60 *
@@ -3946,11 +3953,19 @@ async function abrirPaginaPagamento(token){
                         24
                     )
                 );
-
-            if(diasAtraso < 0){
-                diasAtraso = 0;
-            }
+        
         }
+        
+        
+        if (diasAtraso < 0) {
+            diasAtraso = 0;
+        }
+        
+        
+        console.log(
+            "DIAS DE ATRASO CALCULADOS:",
+            diasAtraso
+        );
 
 
         const valorOriginal =
