@@ -802,6 +802,40 @@ async function criarOuBuscarCarne(
 
 
 /* =========================================================
+   LISTAR CARNÊS ATIVOS (usado pelo painel admin)
+
+   O painel admin lê a tabela "clientes" direto pelo
+   Supabase com a chave pública (sujeita a RLS). Se a
+   tabela "carnes" não tiver uma política de leitura para
+   essa chave, o front-end nunca enxerga os carnês já
+   criados e o botão continua oferecendo "gerar" de novo.
+   Por isso listamos os carnês aqui, usando a chave de
+   serviço (que ignora RLS).
+========================================================= */
+
+async function listarCarnesAtivos(){
+
+    const dados =
+        await supabaseRequest(
+            "carnes",
+            {
+
+                query:
+                    "ativo=eq.true" +
+                    "&select=id,cliente_id,codigo_acesso,ativo"
+
+            }
+        );
+
+
+    return Array.isArray(dados)
+        ? dados
+        : [];
+
+}
+
+
+/* =========================================================
    HANDLER PRINCIPAL
 ========================================================= */
 
@@ -858,6 +892,46 @@ module.exports = async (
 
                     erro:
                         "Dados não enviados."
+
+                });
+
+            }
+
+
+            /* =============================================
+               LISTAR CARNÊS (painel admin)
+            ============================================= */
+
+            if(
+                dados.acao ===
+                "listarCarnes"
+            ){
+
+                if(
+                    !supabaseConfigurado()
+                ){
+
+                    return res.status(500).json({
+
+                        erro:
+                            "Supabase não configurado no Vercel."
+
+                    });
+
+                }
+
+
+                const carnes =
+                    await listarCarnesAtivos();
+
+
+                return res.status(200).json({
+
+                    sucesso:
+                        true,
+
+                    carnes:
+                        carnes
 
                 });
 
