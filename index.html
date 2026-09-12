@@ -3882,6 +3882,25 @@ async function abrirPaginaPagamento(token){
         const dados =
             resultado.dados;
 
+        console.log(
+            "DADOS DA COBRANÇA:",
+            dados
+        );
+        
+        console.log(
+            "MULTA:",
+            dados.multa
+        );
+        
+        console.log(
+            "JUROS:",
+            dados.juros
+        );
+        
+        console.log(
+            "VENCIMENTO:",
+            dados.vencimento
+        );
 
         const vencimento =
             new Date(
