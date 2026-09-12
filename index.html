@@ -5278,43 +5278,65 @@ function textoStatusAdmin(status) {
 
 function renderClientesAdmin(lista) {
 
-    const desktop = document.getElementById("adminListaDesktop");
-    const mobile = document.getElementById("adminListaMobile");
+    const desktop =
+        document.getElementById("adminListaDesktop");
 
-    const totalClientes = document.getElementById("adminTotalClientes");
-    const totalAberto = document.getElementById("adminTotalAberto");
-    const totalAtrasado = document.getElementById("adminTotalAtrasado");
+    const mobile =
+        document.getElementById("adminListaMobile");
+
+    const totalClientes =
+        document.getElementById("adminTotalClientes");
+
+    const totalAberto =
+        document.getElementById("adminTotalAberto");
+
+    const totalAtrasado =
+        document.getElementById("adminTotalAtrasado");
+
 
     if (!desktop || !mobile) return;
 
 
-    /* RESUMO */
+    /* =====================================================
+       RESUMO
+    ===================================================== */
 
     let valorAberto = 0;
     let valorAtrasado = 0;
 
+
     lista.forEach(cliente => {
 
-        valorAberto += Number(cliente.totalAberto || 0);
-        valorAtrasado += Number(cliente.totalAtrasado || 0);
+        valorAberto +=
+            Number(cliente.totalAberto || 0);
+
+        valorAtrasado +=
+            Number(cliente.totalAtrasado || 0);
 
     });
 
 
     if (totalClientes) {
-        totalClientes.textContent = lista.length;
+        totalClientes.textContent =
+            lista.length;
     }
+
 
     if (totalAberto) {
-        totalAberto.textContent = formatarMoedaAdmin(valorAberto);
+        totalAberto.textContent =
+            formatarMoedaAdmin(valorAberto);
     }
+
 
     if (totalAtrasado) {
-        totalAtrasado.textContent = formatarMoedaAdmin(valorAtrasado);
+        totalAtrasado.textContent =
+            formatarMoedaAdmin(valorAtrasado);
     }
 
 
-    /* NENHUM RESULTADO */
+    /* =====================================================
+       NENHUM RESULTADO
+    ===================================================== */
 
     if (!lista.length) {
 
@@ -5380,9 +5402,15 @@ function renderClientesAdmin(lista) {
 
     lista.forEach(cliente => {
 
-        const status = normalizarStatusAdmin(cliente.status);
+        const status =
+            normalizarStatusAdmin(
+                cliente.status
+            );
 
-        const codigo = cliente.codigoCarne || "";
+
+        const codigo =
+            cliente.codigoCarne || "";
+
 
         tabela += `
 
@@ -5391,11 +5419,15 @@ function renderClientesAdmin(lista) {
                 <td>
 
                     <div class="admin-client-name">
-                        ${escaparHTMLAdmin(cliente.nome || "Cliente")}
+                        ${escaparHTMLAdmin(
+                            cliente.nome || "Cliente"
+                        )}
                     </div>
 
                     <div class="admin-client-document">
-                        ${escaparHTMLAdmin(cliente.cpf_cnpj || "")}
+                        ${escaparHTMLAdmin(
+                            cliente.cpf_cnpj || ""
+                        )}
                     </div>
 
                 </td>
@@ -5404,7 +5436,9 @@ function renderClientesAdmin(lista) {
                 <td>
 
                     <span class="admin-money">
-                        ${formatarMoedaAdmin(cliente.totalAberto)}
+                        ${formatarMoedaAdmin(
+                            cliente.totalAberto
+                        )}
                     </span>
 
                 </td>
@@ -5413,7 +5447,8 @@ function renderClientesAdmin(lista) {
                 <td>
 
                     <span class="admin-installments">
-                        ${cliente.parcelasAbertas || 0} em aberto
+                        ${cliente.parcelasAbertas || 0}
+                        em aberto
                     </span>
 
                 </td>
@@ -5430,27 +5465,45 @@ function renderClientesAdmin(lista) {
 
                 <td>
 
-                    ${codigo
-                        ? `
+                    ${
+                        codigo
+                        ?
+                        `
+                        <div style="
+                            display:flex;
+                            gap:8px;
+                            flex-wrap:wrap;
+                        ">
+
                             <button
                                 class="admin-btn admin-btn-primary"
                                 onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
                             >
                                 VER CARNÊ
                             </button>
-                          `
-                        : `
+
+
                             <button
-                                class="admin-btn admin-btn-primary"
-                                onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
+                                class="admin-btn"
+                                onclick="copiarLinkCarne('${escaparAtributoAdmin(codigo)}')"
                             >
-                                GERAR CARNÊ COMPLETO
+                                COPIAR LINK
                             </button>
-                          `
+
+                        </div>
+                        `
+                        :
+                        `
+                        <button
+                            class="admin-btn admin-btn-primary"
+                            onclick="gerarCarneCliente('${escaparAtributoAdmin(cliente.id)}')"
+                        >
+                            GERAR CARNÊ COMPLETO
+                        </button>
+                        `
                     }
 
                 </td>
-
 
             </tr>
 
@@ -5465,7 +5518,9 @@ function renderClientesAdmin(lista) {
         </table>
     `;
 
-    desktop.innerHTML = tabela;
+
+    desktop.innerHTML =
+        tabela;
 
 
     /* =====================================================
@@ -5477,9 +5532,14 @@ function renderClientesAdmin(lista) {
 
     lista.forEach(cliente => {
 
-        const status = normalizarStatusAdmin(cliente.status);
+        const status =
+            normalizarStatusAdmin(
+                cliente.status
+            );
 
-        const codigo = cliente.codigoCarne || "";
+
+        const codigo =
+            cliente.codigoCarne || "";
 
 
         cards += `
@@ -5491,11 +5551,15 @@ function renderClientesAdmin(lista) {
                     <div>
 
                         <div class="cliente-card-name">
-                            ${escaparHTMLAdmin(cliente.nome || "Cliente")}
+                            ${escaparHTMLAdmin(
+                                cliente.nome || "Cliente"
+                            )}
                         </div>
 
                         <div class="cliente-card-document">
-                            ${escaparHTMLAdmin(cliente.cpf_cnpj || "")}
+                            ${escaparHTMLAdmin(
+                                cliente.cpf_cnpj || ""
+                            )}
                         </div>
 
                     </div>
@@ -5517,7 +5581,9 @@ function renderClientesAdmin(lista) {
                         </small>
 
                         <strong>
-                            ${formatarMoedaAdmin(cliente.totalAberto)}
+                            ${formatarMoedaAdmin(
+                                cliente.totalAberto
+                            )}
                         </strong>
 
                     </div>
@@ -5542,12 +5608,28 @@ function renderClientesAdmin(lista) {
                     codigo
                     ?
                     `
-                    <button
-                        class="admin-btn admin-btn-primary cliente-card-action"
-                        onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
-                    >
-                        VER CARNÊ
-                    </button>
+                    <div style="
+                        display:flex;
+                        gap:8px;
+                        margin-top:12px;
+                    ">
+
+                        <button
+                            class="admin-btn admin-btn-primary cliente-card-action"
+                            onclick="abrirCarneAdmin('${escaparAtributoAdmin(codigo)}')"
+                        >
+                            VER CARNÊ
+                        </button>
+
+
+                        <button
+                            class="admin-btn cliente-card-action"
+                            onclick="copiarLinkCarne('${escaparAtributoAdmin(codigo)}')"
+                        >
+                            COPIAR LINK
+                        </button>
+
+                    </div>
                     `
                     :
                     `
@@ -5568,10 +5650,10 @@ function renderClientesAdmin(lista) {
     });
 
 
-    mobile.innerHTML = cards;
+    mobile.innerHTML =
+        cards;
 
 }
-
 /* =========================================================
    ZER01 — CRIAR / ABRIR CARNÊ DO CLIENTE
 ========================================================= */
@@ -6901,6 +6983,37 @@ async function verCarne(codigoCarne) {
     await abrirPaginaCarne(codigoCarne);
 
     window.scrollTo(0, 0);
+}
+
+function copiarLinkCarne(codigoCarne) {
+
+    if (!codigoCarne) {
+        alert("Código do carnê não encontrado.");
+        return;
+    }
+
+    const link =
+        window.location.origin +
+        window.location.pathname +
+        "?carne=" +
+        encodeURIComponent(codigoCarne);
+
+    navigator.clipboard.writeText(link)
+        .then(() => {
+
+            alert(
+                "Link do carnê copiado com sucesso!"
+            );
+
+        })
+        .catch(() => {
+
+            prompt(
+                "Copie o link do carnê:",
+                link
+            );
+
+        });
 }
 </script>
 <!-- =========================================================
