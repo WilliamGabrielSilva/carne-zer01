@@ -1752,10 +1752,34 @@ h1{
         <button
             type="button"
             class="btn-voltar-admin"
+            id="btnVoltarAdminCarne"
             onclick="abrirPaginaAdmin()"
         >
             ← VOLTAR À ÁREA ADMINISTRATIVA
         </button>
+
+        <script>
+            (function() {
+            
+                const parametros =
+                    new URLSearchParams(
+                        window.location.search
+                    );
+            
+                const codigoCarne =
+                    parametros.get("carne");
+            
+                const botao =
+                    document.getElementById(
+                        "btnVoltarAdminCarne"
+                    );
+            
+                if (botao && codigoCarne) {
+                    botao.style.display = "none";
+                }
+            
+            })();
+        </script>
     </div>
 
     <div class="carne-digital-container">
