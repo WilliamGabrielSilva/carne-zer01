@@ -6672,61 +6672,100 @@ async function carregarCarneDigital(codigo) {
    PAGAMENTO DA PARCELA
 ========================================================= */
 
-async function abrirPagamentoParcela(
-    parcelaId
-) {
+async function abrirPagamentoParcela(parcelaId) {
+
+    if (!parcelaId) {
+        alert("Parcela não identificada.");
+        return;
+    }
 
     try {
 
-        /*
-         * Buscamos a parcela no Supabase
-         * para encontrar a venda e gerar
-         * a cobrança individual.
-         */
+        const resposta = await fetch("/api/cobranca", {
 
-        const {
-            data,
-            error
-        } =
-            await supabaseClient
-                .from("parcelas")
-                .select("*")
-                .eq("id", parcelaId)
-                .single();
+            method: "POST",
 
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-        if (error) {
-            throw error;
+            body: JSON.stringify({
+                acao: "criarTokenParcela",
+                parcelaId: String(parcelaId)
+            })
+
+        });
+
+        let resultado = null;
+
+        try {
+            resultado = await resposta.json();
+        } catch (erro) {
+            resultado = null;
         }
 
-
-        if (!data) {
+        if (!resposta.ok) {
 
             throw new Error(
-                "Parcela não encontrada."
+                resultado && resultado.erro
+                    ? resultado.erro
+                    : "Não foi possível abrir o pagamento."
             );
 
         }
 
+        if (
+            !resultado ||
+            !resultado.sucesso ||
+            !resultado.token
+        ) {
+
+            throw new Error(
+                "Não foi possível gerar o acesso para pagamento."
+            );
+
+        }
 
         /*
-         * Para manter a segurança e o
-         * fluxo atual, o pagamento individual
-         * será conectado na próxima etapa.
+         * O backend cria o token.
+         * O CARNE_SECRET nunca fica no navegador.
          */
 
-        alert(
-            "Parcela selecionada. Vamos conectar o pagamento PIX nesta próxima etapa."
+        const token =
+            resultado.token;
+
+        /*
+         * Abre a página de pagamento
+         * sem precisar recarregar o carnê.
+         */
+
+        const novaUrl =
+            window.location.pathname +
+            "?token=" +
+            encodeURIComponent(token);
+
+        window.history.pushState(
+            {
+                token: token
+            },
+            "",
+            novaUrl
         );
 
+        await abrirPaginaPagamento(token);
 
-    } catch (e) {
+        window.scrollTo(0, 0);
 
-        console.error(e);
+    } catch (erro) {
+
+        console.error(
+            "Erro ao abrir pagamento da parcela:",
+            erro
+        );
 
         alert(
-            e.message ||
-            "Não foi possível abrir a parcela."
+            erro.message ||
+            "Não foi possível abrir o pagamento."
         );
 
     }
