@@ -5905,6 +5905,30 @@ async function confirmarGeracaoCarne() {
 
 
         /* =================================================
+           ATUALIZAR CLIENTE NA LISTA (para o botão trocar
+           de "GERAR CARNÊ COMPLETO" para "VER CARNÊ" e não
+           deixar gerar um carnê novo por engano)
+        ================================================= */
+
+        cliente.codigoCarne = codigo;
+
+        const indiceCliente =
+            clientesAdmin.findIndex(
+                c => c.id === cliente.id
+            );
+
+        if (indiceCliente !== -1) {
+            clientesAdmin[indiceCliente].codigoCarne = codigo;
+        }
+
+        if (typeof filtrarClientesAdmin === "function") {
+            filtrarClientesAdmin();
+        } else {
+            renderClientesAdmin(clientesAdmin);
+        }
+
+
+        /* =================================================
            FECHAR MODAL
         ================================================= */
 
