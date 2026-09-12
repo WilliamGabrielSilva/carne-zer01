@@ -568,7 +568,6 @@ async function montarCarneDigital(
             vendasComParcelas,
 
         parcelas:
-
             parcelas
 
     };
@@ -765,6 +764,7 @@ async function criarOuBuscarCarne(
 
         };
 
+
     }catch(erro){
 
         /*
@@ -802,15 +802,8 @@ async function criarOuBuscarCarne(
 
 
 /* =========================================================
-   LISTAR CARNÊS ATIVOS (usado pelo painel admin)
-
-   O painel admin lê a tabela "clientes" direto pelo
-   Supabase com a chave pública (sujeita a RLS). Se a
-   tabela "carnes" não tiver uma política de leitura para
-   essa chave, o front-end nunca enxerga os carnês já
-   criados e o botão continua oferecendo "gerar" de novo.
-   Por isso listamos os carnês aqui, usando a chave de
-   serviço (que ignora RLS).
+   LISTAR CARNÊS ATIVOS
+   usado pelo painel admin
 ========================================================= */
 
 async function listarCarnesAtivos(){
@@ -899,7 +892,8 @@ module.exports = async (
 
 
             /* =============================================
-               LISTAR CARNÊS (painel admin)
+               LISTAR CARNÊS
+               painel admin
             ============================================= */
 
             if(
@@ -997,6 +991,282 @@ module.exports = async (
 
                     link:
                         link
+
+                });
+
+            }
+
+
+            /* =============================================
+               GERAR TOKEN PARA UMA PARCELA DO CARNÊ DIGITAL
+
+               O segredo permanece somente no backend.
+            ============================================= */
+
+            if(
+                dados.acao ===
+                "criarTokenParcela"
+            ){
+
+                if(
+                    !supabaseConfigurado()
+                ){
+
+                    return res.status(500).json({
+
+                        erro:
+                            "Supabase não configurado no Vercel."
+
+                    });
+
+                }
+
+
+                const parcelaId =
+                    String(
+                        dados.parcelaId || ""
+                    ).trim();
+
+
+                if(!parcelaId){
+
+                    return res.status(400).json({
+
+                        erro:
+                            "ID da parcela não informado."
+
+                    });
+
+                }
+
+
+                const parcelas =
+                    await supabaseRequest(
+                        "parcelas",
+                        {
+
+                            query:
+                                "id=eq." +
+                                encodeURIComponent(
+                                    parcelaId
+                                ) +
+                                "&select=id,venda_id,numero,valor,vencimento,status,data_pagamento,valor_pago" +
+                                "&limit=1"
+
+                        }
+                    );
+
+
+                if(
+                    !Array.isArray(parcelas) ||
+                    !parcelas.length
+                ){
+
+                    return res.status(404).json({
+
+                        erro:
+                            "Parcela não encontrada."
+
+                    });
+
+                }
+
+
+                const parcela =
+                    parcelas[0];
+
+
+                const vendas =
+                    await supabaseRequest(
+                        "vendas",
+                        {
+
+                            query:
+                                "id=eq." +
+                                encodeURIComponent(
+                                    parcela.venda_id
+                                ) +
+                                "&select=id,cliente_id" +
+                                "&limit=1"
+
+                        }
+                    );
+
+
+                if(
+                    !Array.isArray(vendas) ||
+                    !vendas.length
+                ){
+
+                    return res.status(404).json({
+
+                        erro:
+                            "Venda da parcela não encontrada."
+
+                    });
+
+                }
+
+
+                const venda =
+                    vendas[0];
+
+
+                const carne =
+                    await buscarCarnePorCliente(
+                        venda.cliente_id
+                    );
+
+
+                if(!carne){
+
+                    return res.status(404).json({
+
+                        erro:
+                            "Carnê do cliente não encontrado."
+
+                    });
+
+                }
+
+
+                const cliente =
+                    await buscarCliente(
+                        venda.cliente_id
+                    );
+
+
+                if(!cliente){
+
+                    return res.status(404).json({
+
+                        erro:
+                            "Cliente da parcela não encontrado."
+
+                    });
+
+                }
+
+
+                const valorOriginal =
+                    Number(
+                        parcela.valor || 0
+                    );
+
+
+                const valorPago =
+                    Number(
+                        parcela.valor_pago || 0
+                    );
+
+
+                const valorRestante =
+                    Math.max(
+                        0,
+                        valorOriginal - valorPago
+                    );
+
+
+                if(valorRestante <= 0){
+
+                    return res.status(400).json({
+
+                        erro:
+                            "Esta parcela já está totalmente paga."
+
+                    });
+
+                }
+
+
+                const payload =
+                    {
+
+                        cliente:
+                            cliente.nome || "",
+
+                        cpf:
+                            cliente.cpf_cnpj || "",
+
+                        telefone:
+                            cliente.telefone || "",
+
+                        endereco:
+                            cliente.endereco || "",
+
+                        parcela:
+                            String(
+                                parcela.numero || ""
+                            ),
+
+                        vencimento:
+                            parcela.vencimento || "",
+
+                        valor:
+                            valorRestante,
+
+                        multa:
+                            Number(
+                                carne.multa || 0
+                            ),
+
+                        juros:
+                            Number(
+                                carne.juros || 0
+                            ),
+
+                        pix:
+                            carne.pix || "",
+
+                        parcelaId:
+                            parcela.id,
+
+                        criadoEm:
+                            Date.now()
+
+                    };
+
+
+                if(!payload.pix){
+
+                    return res.status(400).json({
+
+                        erro:
+                            "Chave PIX do carnê não informada."
+
+                    });
+
+                }
+
+
+                const dadosCodificados =
+                    base64urlEncode(
+                        JSON.stringify(
+                            payload
+                        )
+                    );
+
+
+                const assinatura =
+                    criarAssinatura(
+                        dadosCodificados,
+                        CARNE_SECRET
+                    );
+
+
+                const token =
+                    dadosCodificados +
+                    "." +
+                    assinatura;
+
+
+                return res.status(200).json({
+
+                    sucesso:
+                        true,
+
+                    token:
+                        token
 
                 });
 
