@@ -1932,7 +1932,7 @@ h1{
         <button
             type="button"
             class="botao-voltar-painel"
-            onclick="abrirPaginaAdmin()"
+            onclick="voltarParaAdmin()"
         >
             ← VOLTAR AO PAINEL
         </button>
@@ -5828,14 +5828,20 @@ async function confirmarGeracaoCarne() {
            ABRIR CARNÊ
         ================================================= */
 
-        const url =
+        const novaUrl =
             window.location.pathname +
             "?carne=" +
             encodeURIComponent(codigo);
-
-
-        window.location.href = url;
-
+        
+        window.history.pushState(
+            { carne: codigo },
+            "",
+            novaUrl
+        );
+        
+        await abrirPaginaCarne(codigo);
+        
+        window.scrollTo(0, 0);
 
     } catch (erro) {
 
@@ -5896,18 +5902,29 @@ function escaparAtributoAdmin(valor) {
    ABRIR CARNÊ
 ========================================================= */
 
-function abrirCarneAdmin(codigo) {
+async function abrirCarneAdmin(codigo) {
 
     if (!codigo) {
         alert("Este cliente ainda não possui um carnê.");
         return;
     }
 
-    window.location.href =
+    // Atualiza o endereço sem recarregar a página
+    const novaUrl =
         window.location.pathname +
         "?carne=" +
         encodeURIComponent(codigo);
 
+    window.history.pushState(
+        { carne: codigo },
+        "",
+        novaUrl
+    );
+
+    // Abre o carnê diretamente
+    await abrirPaginaCarne(codigo);
+
+    window.scrollTo(0, 0);
 }
 
 
@@ -6611,16 +6628,42 @@ async function abrirPagamentoParcela(
 
 })();
 
-function verCarne(codigoCarne) {
+async function verCarne(codigoCarne) {
+
     if (!codigoCarne) {
         alert("Este cliente ainda não possui um carnê.");
         return;
     }
 
-    window.location.href =
+    const novaUrl =
         window.location.pathname +
         "?carne=" +
         encodeURIComponent(codigoCarne);
+
+    window.history.pushState(
+        { carne: codigoCarne },
+        "",
+        novaUrl
+    );
+
+    await abrirPaginaCarne(codigoCarne);
+
+    window.scrollTo(0, 0);
+}
+
+async function voltarParaAdmin() {
+
+    // Remove ?carne=XXXX do endereço
+    window.history.pushState(
+        {},
+        "",
+        window.location.pathname
+    );
+
+    // Volta para o painel
+    await abrirPaginaAdmin();
+
+    window.scrollTo(0, 0);
 }
 
 </script>
